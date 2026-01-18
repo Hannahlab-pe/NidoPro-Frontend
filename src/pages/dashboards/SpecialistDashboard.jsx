@@ -49,6 +49,10 @@ const SpecialistDashboard = () => {
       <aside className="specialist-sidebar">
         <div className="specialist-sidebar-header">
           <div className="specialist-logo">
+<<<<<<< HEAD
+=======
+            <span className="specialist-logo-icon">🏫</span>
+>>>>>>> 3d4869c38449de1478c0d5fc72bafd4929f19900
             <span className="specialist-logo-text">EDA</span>
           </div>
           <div className="specialist-info">

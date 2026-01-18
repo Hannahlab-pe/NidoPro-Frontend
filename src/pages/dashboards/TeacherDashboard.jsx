@@ -611,8 +611,15 @@ const TeacherDashboard = () => {
                   <div className="mt-2">
                     <p className="text-sm text-gray-500 text-center">
                       Estás a punto de cerrar sesión en{" "}
+<<<<<<< HEAD
                       <span className="font-semibold text-green-600">EDA</span>.
                       ¿Estás seguro de que quieres continuar?
+=======
+                      <span className="font-semibold text-green-600">
+                        EDA
+                      </span>
+                      . ¿Estás seguro de que quieres continuar?
+>>>>>>> 3d4869c38449de1478c0d5fc72bafd4929f19900
                     </p>
                   </div>
 

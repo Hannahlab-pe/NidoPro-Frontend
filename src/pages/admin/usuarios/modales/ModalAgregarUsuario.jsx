@@ -279,7 +279,7 @@ const ModalAgregarUsuario = ({ isOpen, onClose, onSave }) => {
                       className={`w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                         errors.email ? 'border-red-300' : 'border-gray-300'
                       }`}
-                      placeholder="usuario@nidopro.edu"
+                      placeholder="usuario@eda.edu"
                     />
                   </div>
                   {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
