@@ -77,13 +77,13 @@ const ParentLayout = () => {
       category: "gestion",
     },
 
-    // GESTIÓN FINANCIERA
-    {
-      path: "/parent/pensiones",
-      label: "Pensiones",
-      icon: DollarSign,
-      category: "financiero",
-    },
+    // GESTIÓN FINANCIERA - DESHABILITADO
+    // {
+    //   path: "/parent/pensiones",
+    //   label: "Pensiones",
+    //   icon: DollarSign,
+    //   category: "financiero",
+    // },
   ];
 
   const getCategoryLabel = (category) => {
