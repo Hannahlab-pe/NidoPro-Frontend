@@ -629,7 +629,7 @@ const AdminDashboard = () => {
               )}
 
               {/* Stats Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
                 {stats.map((stat, index) => {
                   const IconComponent = stat.icon;
                   return (
@@ -667,88 +667,6 @@ const AdminDashboard = () => {
                     </div>
                   );
                 })}
-              </div>
-
-              {/* Estadísticas Financieras Detalladas */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      Ingresos del Mes
-                    </h3>
-                    <div className="p-2 bg-green-100 rounded-lg">
-                      <TrendingUp className="w-5 h-5 text-green-600" />
-                    </div>
-                  </div>
-                  <div className="text-2xl font-bold text-green-600 mb-2">
-                    {dashboardLoading ? (
-                      <div className="animate-pulse bg-gray-200 h-8 rounded w-24"></div>
-                    ) : (
-                      `S/ ${financialStats.ingresosMes?.toLocaleString() || 0}`
-                    )}
-                  </div>
-                  <p className="text-sm text-gray-600">Movimientos positivos</p>
-                </div>
-
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      Egresos del Mes
-                    </h3>
-                    <div className="p-2 bg-red-100 rounded-lg">
-                      <TrendingUp className="w-5 h-5 text-red-600 transform rotate-180" />
-                    </div>
-                  </div>
-                  <div className="text-2xl font-bold text-red-600 mb-2">
-                    {dashboardLoading ? (
-                      <div className="animate-pulse bg-gray-200 h-8 rounded w-24"></div>
-                    ) : (
-                      `S/ ${financialStats.egresosMes?.toLocaleString() || 0}`
-                    )}
-                  </div>
-                  <p className="text-sm text-gray-600">Movimientos negativos</p>
-                </div>
-
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      Utilidad del Mes
-                    </h3>
-                    <div
-                      className={`p-2 rounded-lg ${
-                        financialStats.utilidadMes >= 0
-                          ? "bg-green-100"
-                          : "bg-red-100"
-                      }`}
-                    >
-                      <DollarSign
-                        className={`w-5 h-5 ${
-                          financialStats.utilidadMes >= 0
-                            ? "text-green-600"
-                            : "text-red-600"
-                        }`}
-                      />
-                    </div>
-                  </div>
-                  <div
-                    className={`text-2xl font-bold mb-2 ${
-                      financialStats.utilidadMes >= 0
-                        ? "text-green-600"
-                        : "text-red-600"
-                    }`}
-                  >
-                    {dashboardLoading ? (
-                      <div className="animate-pulse bg-gray-200 h-8 rounded w-24"></div>
-                    ) : (
-                      `S/ ${financialStats.utilidadMes?.toLocaleString() || 0}`
-                    )}
-                  </div>
-                  <p className="text-sm text-gray-600">
-                    {financialStats.utilidadMes >= 0
-                      ? "Resultado positivo"
-                      : "Resultado negativo"}
-                  </p>
-                </div>
               </div>
 
               {/* Asistente IA Quick Access */}

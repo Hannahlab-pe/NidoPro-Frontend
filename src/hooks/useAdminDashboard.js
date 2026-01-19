@@ -134,14 +134,6 @@ export const useAdminDashboard = () => {
       change: "+1",
       loading: aulasStats.loading
     },
-    {
-      title: "Saldo Actual",
-      value: `S/ ${dashboardData.finanzas.saldoActual.toLocaleString()}`,
-      icon: DollarSign,
-      color: "#EF4444",
-      change: dashboardData.finanzas.loading ? "..." : "+8%",
-      loading: dashboardData.finanzas.loading
-    },
   ], [dashboardData, aulasStats]);
 
   // Memoizar estadísticas financieras
