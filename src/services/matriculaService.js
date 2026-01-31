@@ -75,14 +75,7 @@ api.interceptors.request.use(
     } else {
       console.log('⚠️ No se encontró token en localStorage');
     }
-    console.log('📤 Request config:', {
-      method: config.method?.toUpperCase(),
-      url: config.url,
-      baseURL: config.baseURL,
-      fullURL: `${config.baseURL}${config.url}`,
-      headers: config.headers,
-      data: config.data ? 'Data present' : 'No data'
-    });
+
     return config;
   },
   (error) => {

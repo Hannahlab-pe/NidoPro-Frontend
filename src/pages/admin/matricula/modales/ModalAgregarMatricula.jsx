@@ -19,7 +19,7 @@ import {
 } from '../../../../utils/matriculaValidation';
 import FirebaseStorageService from '../../../../services/firebaseStorageService';
 
-const schema = yup.object({
+  const schema = yup.object({
   // Información de Matrícula
   costoMatricula: yup.number()
     .required('El costo de matrícula es requerido')
@@ -145,8 +145,6 @@ const ModalAgregarMatricula = ({ isOpen, onClose, refetch }) => {
 
   // Debug: Ver qué grados estamos obteniendo
   useEffect(() => {
-    console.log('🎓 Grados obtenidos:', grados);
-    console.log('📊 Estado de grados - Loading:', loadingGrados, 'Error:', errorGrados);
   }, [grados, loadingGrados, errorGrados]);
   
   const [voucherImage, setVoucherImage] = useState(null);
@@ -157,8 +155,10 @@ const ModalAgregarMatricula = ({ isOpen, onClose, refetch }) => {
   const [selectedApoderado, setSelectedApoderado] = useState(null);
   const [selectedAulaId, setSelectedAulaId] = useState('');
   const [gradoCargado, setGradoCargado] = useState(null);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [stepDirection, setStepDirection] = useState('forward');
 
-  const { register, handleSubmit, formState: { errors }, reset, watch, setValue, control } = useForm({
+  const { register, handleSubmit, formState: { errors }, reset, watch, setValue, setError, clearErrors, trigger, control } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
       metodoPago: 'Transferencia bancaria',
@@ -166,7 +166,8 @@ const ModalAgregarMatricula = ({ isOpen, onClose, refetch }) => {
       apoderadoTipoDoc: 'DNI',
       fechaIngreso: new Date().toISOString().split('T')[0],
       contactosEmergencia: [{ nombre: '', apellido: '', telefono: '', email: '', tipoContacto: '', esPrincipal: true, prioridad: 1 }],
-      voucherFile: null
+      voucherFile: null,
+      idAulaEspecifica: ''
     }
   });
 
@@ -176,7 +177,7 @@ const ModalAgregarMatricula = ({ isOpen, onClose, refetch }) => {
   });
 
   const selectedGrado = watch('idGrado');
-  const tipoAsignacionAula = watch('tipoAsignacionAula');
+  const tipoAsignacionAula = 'manual';
 
   // Opciones predefinidas
   const metodosPago = [
@@ -189,24 +190,24 @@ const ModalAgregarMatricula = ({ isOpen, onClose, refetch }) => {
   ];
   const tiposDocumento = ['DNI', 'Carnet de Extranjería', 'Pasaporte'];
 
+  const stepLabels = ['Matrícula', 'Estudiante', 'Apoderado', 'Aula'];
+  const isLastStep = currentStep === stepLabels.length - 1;
+
   // Resetear estado cuando se abre el modal
   useEffect(() => {
     if (isOpen) {
       setGradoCargado(null);
       setSelectedAulaId('');
+      setCurrentStep(0);
     }
   }, [isOpen]);
 
   // Efectos
   useEffect(() => {
     const handleGradoChange = async () => {
-      console.log('🔄 useEffect activado - selectedGrado:', selectedGrado);
-      console.log('🔄 gradoCargado:', gradoCargado);
-      console.log('🔄 loadingAulasPorGrado:', loadingAulasPorGrado);
 
       // Si no hay grado seleccionado o ya se cargó este grado, no hacer nada
       if (!selectedGrado || gradoCargado === selectedGrado) {
-        console.log('ℹ️ Omitiendo carga - grado ya cargado o no seleccionado');
         return;
       }
 
@@ -267,7 +268,74 @@ const ModalAgregarMatricula = ({ isOpen, onClose, refetch }) => {
     setSelectedApoderado(null);
     setShowApoderadoSearch(false);
     setGradoCargado(null); // Resetear el estado del grado cargado
+    setCurrentStep(0);
     onClose();
+  };
+
+  const handleNextStep = async () => {
+    setStepDirection('forward');
+    let fieldsToValidate = [];
+
+    if (currentStep === 0) {
+      fieldsToValidate = ['costoMatricula', 'fechaIngreso', 'idGrado', 'metodoPago', 'voucherFile'];
+    }
+
+    if (currentStep === 1) {
+      fieldsToValidate = [
+        'estudianteNombre',
+        'estudianteApellido',
+        'estudianteTipoDoc',
+        'estudianteDocumento',
+        'contactosEmergencia'
+      ];
+    }
+
+    if (currentStep === 2) {
+      fieldsToValidate = [
+        'apoderadoNombre',
+        'apoderadoApellido',
+        'apoderadoTipoDoc',
+        'apoderadoDocumento',
+        'apoderadoTelefono',
+        'apoderadoCorreo',
+        'apoderadoDireccion'
+      ];
+    }
+
+    if (currentStep === 3) {
+      if (!watch('idAulaEspecifica')) {
+        setError('idAulaEspecifica', {
+          type: 'manual',
+          message: 'Seleccione un aula disponible'
+        });
+        return;
+      }
+      clearErrors('idAulaEspecifica');
+    }
+
+    if (fieldsToValidate.length > 0) {
+      const isValid = await trigger(fieldsToValidate);
+      if (!isValid) return;
+    }
+
+    setCurrentStep((prev) => Math.min(prev + 1, stepLabels.length - 1));
+  };
+
+  const handlePrevStep = () => {
+    setStepDirection('backward');
+    setCurrentStep((prev) => Math.max(prev - 1, 0));
+  };
+
+  const handleFinalSubmit = async () => {
+    if (!watch('idAulaEspecifica')) {
+      setError('idAulaEspecifica', {
+        type: 'manual',
+        message: 'Seleccione un aula disponible'
+      });
+      return;
+    }
+    clearErrors('idAulaEspecifica');
+    handleSubmit(onSubmit)();
   };
 
   const handleSelectApoderado = (apoderado) => {
@@ -499,7 +567,7 @@ const ModalAgregarMatricula = ({ isOpen, onClose, refetch }) => {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-7xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+              <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center space-x-3">
@@ -523,11 +591,45 @@ const ModalAgregarMatricula = ({ isOpen, onClose, refetch }) => {
                   </button>
                 </div>
 
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                  {/* Layout principal: 4 cuadrantes (2x2 grid) */}
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    
-                    {/* CUADRANTE SUPERIOR IZQUIERDO: INFORMACIÓN DE MATRÍCULA */}
+                <form
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                  }}
+                  className="space-y-6"
+                >
+                  {/* Stepper */}
+                  <div className="flex flex-col gap-2">
+                    <div className="flex flex-wrap gap-2">
+                      {stepLabels.map((label, index) => (
+                        <div
+                          key={label}
+                          className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                            index === currentStep
+                              ? 'bg-blue-600 text-white'
+                              : index < currentStep
+                                ? 'bg-blue-100 text-blue-700'
+                                : 'bg-gray-100 text-gray-500'
+                          }`}
+                        >
+                          {index + 1}. {label}
+                        </div>
+                      ))}
+                    </div>
+                    <p className="text-sm text-gray-500">
+                      Paso {currentStep + 1} de {stepLabels.length}
+                    </p>
+                  </div>
+
+                  <Transition
+                    show={currentStep === 0}
+                    as={Fragment}
+                    enter="transition ease-out duration-200"
+                    enterFrom={stepDirection === 'forward' ? 'opacity-0 translate-x-4' : 'opacity-0 -translate-x-4'}
+                    enterTo="opacity-100 translate-y-0"
+                    leave="transition ease-in duration-150"
+                    leaveFrom="opacity-100 translate-y-0"
+                    leaveTo={stepDirection === 'forward' ? 'opacity-0 -translate-x-4' : 'opacity-0 translate-x-4'}
+                  >
                     <div className="bg-gray-50 border border-gray-300 p-6 rounded-lg">
                       <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">
                         <DollarSign className="w-6 h-6 mr-3 text-blue-600" />
@@ -665,8 +767,18 @@ const ModalAgregarMatricula = ({ isOpen, onClose, refetch }) => {
                         </FormField>
                       </div>
                     </div>
+                  </Transition>
 
-                    {/* CUADRANTE SUPERIOR DERECHO: INFORMACIÓN DEL ESTUDIANTE */}
+                  <Transition
+                    show={currentStep === 1}
+                    as={Fragment}
+                    enter="transition ease-out duration-200"
+                    enterFrom={stepDirection === 'forward' ? 'opacity-0 translate-x-4' : 'opacity-0 -translate-x-4'}
+                    enterTo="opacity-100 translate-y-0"
+                    leave="transition ease-in duration-150"
+                    leaveFrom="opacity-100 translate-y-0"
+                    leaveTo={stepDirection === 'forward' ? 'opacity-0 -translate-x-4' : 'opacity-0 translate-x-4'}
+                  >
                     <div className="bg-gray-50 border border-gray-300 p-6 rounded-lg">
                       <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">
                         <User className="w-6 h-6 mr-3 text-green-600" />
@@ -874,8 +986,18 @@ const ModalAgregarMatricula = ({ isOpen, onClose, refetch }) => {
                         </FormField>
                       </div>
                     </div>
+                  </Transition>
 
-                    {/* CUADRANTE INFERIOR IZQUIERDO: INFORMACIÓN DEL APODERADO */}
+                  <Transition
+                    show={currentStep === 2}
+                    as={Fragment}
+                    enter="transition ease-out duration-200"
+                    enterFrom={stepDirection === 'forward' ? 'opacity-0 translate-x-4' : 'opacity-0 -translate-x-4'}
+                    enterTo="opacity-100 translate-y-0"
+                    leave="transition ease-in duration-150"
+                    leaveFrom="opacity-100 translate-y-0"
+                    leaveTo={stepDirection === 'forward' ? 'opacity-0 -translate-x-4' : 'opacity-0 translate-x-4'}
+                  >
                     <div className="bg-gray-50 border border-gray-300 p-6 rounded-lg">
                       <div className="flex items-center justify-between mb-6">
                         <h3 className="text-lg font-semibold text-gray-900 flex items-center">
@@ -1042,14 +1164,14 @@ const ModalAgregarMatricula = ({ isOpen, onClose, refetch }) => {
                           >
                             <input
                               {...register('apoderadoTelefono')}
-                              type="tel"
+                              type="text"
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              placeholder="Ej: +51987654321"
+                              placeholder="Ej: 987654321"
                             />
                           </FormField>
 
                           <FormField
-                            label="Correo Electrónico"
+                            label="Correo"
                             error={errors.apoderadoCorreo?.message}
                             required
                           >
@@ -1057,116 +1179,101 @@ const ModalAgregarMatricula = ({ isOpen, onClose, refetch }) => {
                               {...register('apoderadoCorreo')}
                               type="email"
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              placeholder="Ej: correo@ejemplo.com"
+                              placeholder="Ej: apoderado@correo.com"
                             />
                           </FormField>
                         </div>
 
-                        <FormField
-                          label="Dirección"
-                          error={errors.apoderadoDireccion?.message}
-                          required
-                        >
-                          <textarea
-                            {...register('apoderadoDireccion')}
-                            rows={3}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Ej: Av. Siempre Viva 123, San Isidro, Lima"
-                          />
-                        </FormField>
+                        <div className="grid grid-cols-1 gap-4">
+                          <FormField
+                            label="Dirección"
+                            error={errors.apoderadoDireccion?.message}
+                            required
+                          >
+                            <input
+                              {...register('apoderadoDireccion')}
+                              type="text"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              placeholder="Ej: Jr. Los Olivos 123"
+                            />
+                          </FormField>
+                        </div>
                       </div>
                     </div>
+                  </Transition>
 
-                    {/* CUADRANTE INFERIOR DERECHO: ASIGNACIÓN DE AULA */}
+                  <Transition
+                    show={currentStep === 3}
+                    as={Fragment}
+                    enter="transition ease-out duration-200"
+                    enterFrom={stepDirection === 'forward' ? 'opacity-0 translate-x-4' : 'opacity-0 -translate-x-4'}
+                    enterTo="opacity-100 translate-y-0"
+                    leave="transition ease-in duration-150"
+                    leaveFrom="opacity-100 translate-y-0"
+                    leaveTo={stepDirection === 'forward' ? 'opacity-0 -translate-x-4' : 'opacity-0 translate-x-4'}
+                  >
                     <div className="bg-gray-50 border border-gray-300 p-6 rounded-lg">
                       <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">
                         <School className="w-6 h-6 mr-3 text-blue-600" />
                         Asignación de Aula
                       </h3>
-                      
+
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <FormField
-                          label="Tipo de Asignación"
-                          error={errors.tipoAsignacionAula?.message}
+                          label="Aula Específica"
+                          error={errors.idAulaEspecifica?.message}
                           required
                         >
                           <select
-                            {...register('tipoAsignacionAula')}
+                            value={selectedAulaId}
+                            onChange={(e) => {
+                              const selectedValue = e.target.value;
+                              console.log('🎯 Aula seleccionada - Value:', selectedValue);
+                              console.log('🎯 Aula seleccionada - Text:', e.target.options[e.target.selectedIndex]?.text);
+                              setSelectedAulaId(selectedValue);
+                              setValue('idAulaEspecifica', selectedValue);
+                            }}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            disabled={loadingAulasPorGrado}
                           >
-                            <option value="manual">Asignación Manual</option>
-                            <option value="automatica">Asignación Automática</option>
+                            <option value="">
+                              {loadingAulasPorGrado ? 'Cargando aulas disponibles...' : 'Seleccione un aula disponible'}
+                            </option>
+                            {Array.isArray(aulasDisponiblesPorGrado) && aulasDisponiblesPorGrado.length > 0 ? (
+                              aulasDisponiblesPorGrado.map((aula) => (
+                                <option key={aula.idAula} value={aula.idAula}>
+                                  Sección {aula.seccion} - {aula.cuposDisponibles} cupos disponibles ({aula.estudiantesAsignados}/{aula.cantidadEstudiantes} estudiantes)
+                                </option>
+                              ))
+                            ) : (
+                              !loadingAulasPorGrado && selectedGrado && (
+                                <option value="" disabled>
+                                  No hay aulas disponibles para este grado
+                                </option>
+                              )
+                            )}
                           </select>
                         </FormField>
-
-                        {tipoAsignacionAula === 'manual' && (
-                          <FormField
-                            label="Aula Específica"
-                            error={errors.idAulaEspecifica?.message}
-                            required
-                          >
-                            <select
-                              value={selectedAulaId}
-                              onChange={(e) => {
-                                const selectedValue = e.target.value;
-                                console.log('🎯 Aula seleccionada - Value:', selectedValue);
-                                console.log('🎯 Aula seleccionada - Text:', e.target.options[e.target.selectedIndex]?.text);
-                                setSelectedAulaId(selectedValue);
-                                setValue('idAulaEspecifica', selectedValue);
-                              }}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              disabled={loadingAulasPorGrado}
-                            >
-                              <option value="">
-                                {loadingAulasPorGrado ? 'Cargando aulas disponibles...' : 'Seleccione un aula disponible'}
-                              </option>
-                              {Array.isArray(aulasDisponiblesPorGrado) && aulasDisponiblesPorGrado.length > 0 ? (
-                                aulasDisponiblesPorGrado.map((aula) => (
-                                  <option key={aula.idAula} value={aula.idAula}>
-                                    Sección {aula.seccion} - {aula.cuposDisponibles} cupos disponibles ({aula.estudiantesAsignados}/{aula.cantidadEstudiantes} estudiantes)
-                                  </option>
-                                ))
-                              ) : (
-                                !loadingAulasPorGrado && selectedGrado && (
-                                  <option value="" disabled>
-                                    No hay aulas disponibles para este grado
-                                  </option>
-                                )
-                              )}
-                            </select>
-                          </FormField>
-                        )}
                       </div>
 
-                      {tipoAsignacionAula === 'manual' && (
-                        <div className="mt-4">
-                          <FormField
-                            label="Motivo de Preferencia (Opcional)"
-                            error={errors.motivoPreferencia?.message}
-                          >
-                            <textarea
-                              {...register('motivoPreferencia')}
-                              rows={3}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              placeholder="Ej: Hermano en la misma sección, cercanía al hogar, etc."
-                            />
-                          </FormField>
-                        </div>
-                      )}
-
-                      {tipoAsignacionAula === 'automatica' && (
-                        <div className="mt-4 p-4 bg-blue-100 rounded-lg">
-                          <p className="text-sm text-blue-800">
-                            <School className="w-4 h-4 inline mr-1" />
-                            El sistema asignará automáticamente el aula más adecuada según disponibilidad y criterios del centro educativo.
-                          </p>
-                        </div>
-                      )}
+                      <div className="mt-4">
+                        <FormField
+                          label="Motivo de Preferencia (Opcional)"
+                          error={errors.motivoPreferencia?.message}
+                        >
+                          <textarea
+                            {...register('motivoPreferencia')}
+                            rows={3}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Ej: Hermano en la misma sección, cercanía al hogar, etc."
+                          />
+                        </FormField>
+                      </div>
                     </div>
-                  </div>
+                  </Transition>
 
                   {/* Botones */}
-                  <div className="flex justify-end space-x-3 pt-6 border-t">
+                  <div className="flex items-center justify-between pt-6 border-t">
                     <button
                       type="button"
                       onClick={handleClose}
@@ -1174,28 +1281,50 @@ const ModalAgregarMatricula = ({ isOpen, onClose, refetch }) => {
                     >
                       Cancelar
                     </button>
-                    <button
-                      type="submit"
-                      disabled={creating || uploadingVoucher}
-                      className="px-8 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                    >
-                      {uploadingVoucher ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          Subiendo voucher...
-                        </>
-                      ) : creating ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          Matriculando estudiante...
-                        </>
-                      ) : (
-                        <>
-                          <Save className="w-4 h-4" />
-                          Matricular Estudiante
-                        </>
+                    <div className="flex items-center gap-3">
+                      {currentStep > 0 && (
+                        <button
+                          type="button"
+                          onClick={handlePrevStep}
+                          className="px-6 py-2 text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-lg transition-colors"
+                        >
+                          Atrás
+                        </button>
                       )}
-                    </button>
+                      {!isLastStep ? (
+                        <button
+                          type="button"
+                          onClick={handleNextStep}
+                          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                        >
+                          Siguiente
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={handleFinalSubmit}
+                          disabled={creating || uploadingVoucher}
+                          className="px-8 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        >
+                          {uploadingVoucher ? (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              Subiendo voucher...
+                            </>
+                          ) : creating ? (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              Matriculando estudiante...
+                            </>
+                          ) : (
+                            <>
+                              <Save className="w-4 h-4" />
+                              Matricular Estudiante
+                            </>
+                          )}
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </form>
               </Dialog.Panel>

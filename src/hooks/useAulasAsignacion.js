@@ -14,7 +14,6 @@ export const useAulasAsignacion = (
   const queryClient = useQueryClient();
 
   console.log(
-    "🔍 useAulasAsignacion called with soloSinAsignacion:",
     soloSinAsignacion,
     "enabled:",
     enabled,
@@ -31,10 +30,7 @@ export const useAulasAsignacion = (
   } = useQuery({
     queryKey: ["aulas", soloSinAsignacion ? "sin-asignacion" : "todas"],
     queryFn: () => {
-      console.log(
-        "🔍 Ejecutando queryFn con soloSinAsignacion:",
-        soloSinAsignacion,
-      );
+
       return soloSinAsignacion
         ? aulaService.getAulasSinAsignacion()
         : aulaService.getAllAulas();
@@ -60,7 +56,7 @@ export const useAulasAsignacion = (
 
   // Query para obtener todas las asignaciones de aula
   const {
-    data: asignaciones = [],
+    data: asignacionesResponse = [],
     isLoading: loadingAsignaciones,
     error: errorAsignaciones,
     refetch: refetchAsignaciones,
@@ -227,7 +223,12 @@ export const useAulasAsignacion = (
     // Datos
     aulas,
     aulasDisponiblesPorGrado,
-    asignaciones: asignaciones?.asignacionesAula || [],
+    asignaciones:
+      asignacionesResponse?.data ||
+      asignacionesResponse?.asignacionesAula ||
+      asignacionesResponse?.info?.data ||
+      asignacionesResponse ||
+      [],
     aulasDisponibles: getAulasDisponibles(),
 
     // Estados de carga

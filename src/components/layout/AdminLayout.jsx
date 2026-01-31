@@ -45,6 +45,26 @@ const AdminLayout = () => {
       category: "dashboard",
     },
 
+    // GESTIÓN DE PERSONAS
+    {
+      path: "/admin/estudiantes",
+      label: "Estudiantes",
+      icon: CircleUser,
+      category: "personas",
+    },
+    {
+      path: "/admin/padres",
+      label: "Padres de Familia",
+      icon: UserCheck,
+      category: "personas",
+    },
+    {
+      path: "/admin/trabajadores",
+      label: "Trabajadores",
+      icon: UsersIcon,
+      category: "personas",
+    },
+
     // CONFIGURACIÓN INICIAL (Orden optimizado para setup)
     {
       path: "/admin/pensiones",
@@ -95,32 +115,6 @@ const AdminLayout = () => {
       category: "configuracion",
     },
 
-    // GESTIÓN DE PERSONAS
-    {
-      path: "/admin/estudiantes",
-      label: "Estudiantes",
-      icon: CircleUser,
-      category: "personas",
-    },
-    {
-      path: "/admin/padres",
-      label: "Padres de Familia",
-      icon: UserCheck,
-      category: "personas",
-    },
-    {
-      path: "/admin/trabajadores",
-      label: "Trabajadores",
-      icon: UsersIcon,
-      category: "personas",
-    },
-    {
-      path: "/admin/roles",
-      label: "Roles del Sistema",
-      icon: Shield,
-      category: "personas",
-    },
-
     // ACADÉMICO
     {
       path: "/admin/matricula",
@@ -131,18 +125,6 @@ const AdminLayout = () => {
     {
       path: "/admin/asignacion-aula",
       label: "Asignación de Aulas",
-      icon: BookOpen,
-      category: "academico",
-    },
-    {
-      path: "/admin/asignacion-cursos",
-      label: "Asignación de Cursos",
-      icon: UserCheck,
-      category: "academico",
-    },
-    {
-      path: "/admin/asignacion-docente-curso-aula",
-      label: "Docente-Curso-Aula",
       icon: BookOpen,
       category: "academico",
     },

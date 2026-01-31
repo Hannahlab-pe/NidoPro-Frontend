@@ -11,6 +11,7 @@ export const AULAS_QUERY_KEYS = {
   list: (filters) => [...AULAS_QUERY_KEYS.lists(), { filters }],
   details: () => [...AULAS_QUERY_KEYS.all, 'detail'],
   detail: (id) => [...AULAS_QUERY_KEYS.details(), id],
+  detailView: (id) => [...AULAS_QUERY_KEYS.details(), 'view', id],
   stats: () => [...AULAS_QUERY_KEYS.all, 'stats'],
   byTrabajador: (idTrabajador) => [...AULAS_QUERY_KEYS.all, 'trabajador', idTrabajador],
 };
@@ -95,6 +96,20 @@ export const useAula = (id) => {
     enabled: !!id,
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
+  });
+};
+
+/**
+ * Hook para obtener detalle de aula (tutor + docentes con cursos)
+ */
+export const useAulaDetalle = (id, options = {}) => {
+  return useQuery({
+    queryKey: AULAS_QUERY_KEYS.detailView(id),
+    queryFn: () => aulaService.getAulaDetalle(id),
+    enabled: !!id && (options.enabled ?? true),
+    staleTime: 2 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    ...options,
   });
 };
 

@@ -66,8 +66,6 @@ import AnioEscolar from "../admin/anioescolar/AnioEscolar";
 import Seguros from "../admin/seguros/Seguros";
 import AIChat from "../admin/iachat/AIChat";
 import BimestralDocente from "../admin/bimestralDocente/BimestralDocente";
-import Roles from "../admin/roles/Roles";
-import AsignacionCursos from "../admin/asignacion-cursos/AsignacionCursos";
 
 const AdminDashboard = () => {
   const [activeSection, setActiveSection] = useState("overview");
@@ -142,12 +140,6 @@ const AdminDashboard = () => {
       category: "academico",
     },
     {
-      id: "asignacion-cursos",
-      label: "Asignación de Cursos",
-      icon: UserCheck,
-      category: "academico",
-    },
-    {
       id: "planificaciones",
       label: "Planificaciones",
       icon: FileText,
@@ -207,30 +199,12 @@ const AdminDashboard = () => {
       icon: UsersIcon,
       category: "personas",
     },
-    {
-      id: "roles",
-      label: "Roles del Sistema",
-      icon: Shield,
-      category: "personas",
-    },
 
     // 📚 ACADÉMICO
     {
       id: "matricula",
       label: "Matrícula",
       icon: GraduationCap,
-      category: "academico",
-    },
-    {
-      id: "asignacion-cursos",
-      label: "Asignación de Cursos",
-      icon: UserCheck,
-      category: "academico",
-    },
-    {
-      id: "planificaciones",
-      label: "Planificaciones",
-      icon: FileText,
       category: "academico",
     },
     {
@@ -804,11 +778,9 @@ const AdminDashboard = () => {
           {activeSection === "contratos" && <Contratos />}
           {activeSection === "planilla" && <Planilla />}
           {activeSection === "parents" && <Padres />}
-          {activeSection === "roles" && <Roles />}
           {activeSection === "asignacion-aula" && <AsignacionAula />}
           {activeSection === "aulas" && <Aulas />}
           {activeSection === "cursos" && <Cursos />}
-          {activeSection === "asignacion-cursos" && <AsignacionCursos />}
           {activeSection === "finances" && renderFinanceComponent()}
           {activeSection === "pensiones" && <Pensiones />}
           {activeSection === "reports" && <Reportes />}

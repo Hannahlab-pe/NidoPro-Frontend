@@ -26,6 +26,7 @@ import Trabajadores from "./pages/admin/trabajadores/Trabajadores";
 import Padres from "./pages/admin/padres/Padres";
 import AsignacionAula from "./pages/admin/aulas/AsignacionAula";
 import Aulas from "./pages/admin/aulas/Aulas";
+import AulaDetalle from "./pages/admin/aulas/AulaDetalle";
 import GestionFinanciera from "./pages/admin/finanzas/GestionFinanciera";
 import Pensiones from "./pages/admin/pensiones/pensiones";
 import Reportes from "./pages/admin/reportes/Reportes";
@@ -44,11 +45,8 @@ import Acciones from "./pages/admin/anioescolar/Acciones";
 import Seguros from "./pages/admin/seguros/Seguros";
 import AdminAIChat from "./pages/admin/iachat/AIChat";
 import BimestralDocente from "./pages/admin/bimestralDocente/BimestralDocente";
-import Roles from "./pages/admin/roles/Roles";
-import AsignacionCursos from "./pages/admin/asignacion-cursos/AsignacionCursos";
 import CursosGrado from "./pages/admin/cursos-grado/CursosGrado";
 import CursosGradoDetalle from "./pages/admin/cursos-grado/CursosGradoDetalle";
-import AsignacionDocenteCursoAula from "./pages/admin/asignacion-docente-curso-aula/AsignacionDocenteCursoAula";
 
 // Teacher Pages
 import TeacherOverview from "./pages/dashboards/TeacherOverview";
@@ -199,8 +197,6 @@ function App() {
               <Route path="matricula" element={<Matricula />} />
               <Route path="trabajadores" element={<Trabajadores />} />
               <Route path="padres" element={<Padres />} />
-              <Route path="roles" element={<Roles />} />
-              <Route path="asignacion-cursos" element={<AsignacionCursos />} />
               <Route path="planificaciones" element={<Planificaciones />} />
               <Route path="cronogramas" element={<Cronogramas />} />
               <Route
@@ -209,6 +205,7 @@ function App() {
               />
               <Route path="bimestral-docente" element={<BimestralDocente />} />
               <Route path="aulas" element={<Aulas />} />
+              <Route path="aulas/:id" element={<AulaDetalle />} />
               <Route path="asignacion-aula" element={<AsignacionAula />} />
               <Route path="finanzas" element={<GestionFinanciera />} />
               <Route path="pensiones" element={<Pensiones />} />
@@ -225,7 +222,6 @@ function App() {
               <Route path="cursos" element={<Cursos />} />
               <Route path="cursos-grado" element={<CursosGrado />} />
               <Route path="cursos-grado/:idGrado" element={<CursosGradoDetalle />} />
-              <Route path="asignacion-docente-curso-aula" element={<AsignacionDocenteCursoAula />} />
               <Route path="configuraciones" element={<Configuraciones />} />
             </Route>
 

@@ -89,6 +89,28 @@ export const aulaService = {
   },
 
   /**
+   * Obtener el detalle de un aula (tutor + docentes con cursos)
+   * @param {string|number} id - ID del aula
+   * @returns {Promise<Object>} Detalle del aula
+   */
+  async getAulaDetalle(id) {
+    try {
+      const response = await api.get(`/aula/${id}/detalle`);
+      return (
+        response.data?.info?.data ||
+        response.data?.data ||
+        response.data ||
+        {}
+      );
+    } catch (error) {
+      console.error("Error al obtener detalle del aula:", error);
+      throw new Error(
+        error.response?.data?.message || "Error al obtener detalle del aula",
+      );
+    }
+  },
+
+  /**
    * Crear una nueva aula
    * @param {Object} aulaData - Datos del aula
    * @returns {Promise<Object>} Aula creada

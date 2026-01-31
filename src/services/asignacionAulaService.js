@@ -59,14 +59,14 @@ export const asignacionAulaService = {
       console.log('📝 Creando asignación de aula:', asignacionData);
       
       // Validar datos requeridos
-      const requiredFields = ['fechaAsignacion', 'estadoActivo', 'idAula', 'idTrabajador'];
+      const requiredFields = ['idAula', 'idTrabajador'];
       const missingFields = requiredFields.filter(field => asignacionData[field] === undefined || asignacionData[field] === null);
       
       if (missingFields.length > 0) {
         throw new Error(`Faltan campos requeridos: ${missingFields.join(', ')}`);
       }
       
-      const response = await api.post('/asignacion-aula', asignacionData);
+      const response = await api.post('/asignacion-docente-curso-aula', asignacionData);
       
       console.log('✅ Asignación creada exitosamente:', response.data);
       return response.data;
@@ -83,7 +83,7 @@ export const asignacionAulaService = {
   getAllAsignaciones: async () => {
     try {
       console.log('🔍 Obteniendo todas las asignaciones de aula');
-      const response = await api.get('/asignacion-aula');
+      const response = await api.get('/asignacion-docente-curso-aula');
       
       console.log('✅ Asignaciones obtenidas:', response.data);
       return response.data;

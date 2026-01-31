@@ -42,10 +42,7 @@ const ModalVerMatricula = ({ isOpen, onClose, matricula }) => {
   const [voucherError, setVoucherError] = useState(false);
 
   // Debug: Verificar datos de matrícula
-  console.log('🔍 ModalVerMatricula - Datos recibidos:', matricula);
-  console.log('🖼️ VoucherImg:', matricula?.voucherImg);
-  console.log('📄 VoucherImg tipo:', typeof matricula?.voucherImg);
-  console.log('📏 VoucherImg longitud:', matricula?.voucherImg?.length);
+
 
   if (!matricula) return null;
 

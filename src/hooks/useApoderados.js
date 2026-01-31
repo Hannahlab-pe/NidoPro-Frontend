@@ -51,12 +51,9 @@ export const useApoderados = () => {
       const apoderadosData = response.info?.data || [];
       setApoderados(Array.isArray(apoderadosData) ? apoderadosData : []);
       
-      console.log('👨‍👩‍👧‍👦 Apoderados cargados:', apoderadosData.length);
-      console.log('👨‍👩‍👧‍👦 Datos de apoderados:', apoderadosData);
       
       // Log después de setApoderados para ver si se actualiza
       setTimeout(() => {
-        console.log('👨‍👩‍👧‍👦 Estado después de setApoderados:', apoderados);
       }, 100);
       
       // Actualizar estadísticas si están disponibles

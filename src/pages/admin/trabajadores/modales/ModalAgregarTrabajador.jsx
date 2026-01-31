@@ -9,15 +9,9 @@ import { toast } from "sonner";
 import trabajadorService from "src/services/trabajadorService";
 import { useCursos } from "src/hooks/useCursos";
 import { useCreateAsignacionCurso } from "src/hooks/queries/useAsignacionCursosQueries";
+import { useRoles } from "src/hooks/useRoles";
 
-// IDs de roles disponibles
-const ROLES = [
-  { id: "7c643246-b7ee-4982-aedb-53fc27d19ed2", nombre: "DOCENTE" },
-  { id: "0c69ff5d-6091-4c56-b953-15ff7871f1fa", nombre: "SECRETARIA" },
-  { id: "34221058-9fdd-4187-b9eb-c4ae79e92b35", nombre: "ADMINISTRADOR" },
-  { id: "8c31ef16-3316-4788-a3d4-cf40d053b95f", nombre: "ESPECIALISTA" },
-];
-const DOCENTE_ROLE_ID = "7c643246-b7ee-4982-aedb-53fc27d19ed2";
+const ROLE_WHITELIST = ["ADMINISTRADOR", "SECRETARIA", "DOCENTE", "ESPECIALISTA"];
 
 // Esquema de validación
 const validationSchema = yup.object({
@@ -29,11 +23,7 @@ const validationSchema = yup.object({
     .required("El número de documento es requerido")
     .trim(),
   idRol: yup.string().required("El rol es requerido"),
-  idCurso: yup.string().when("idRol", {
-    is: DOCENTE_ROLE_ID,
-    then: (schema) => schema.required("Seleccione un curso"),
-    otherwise: (schema) => schema.nullable(),
-  }),
+  idCurso: yup.string().nullable(),
   correo: yup.string().email("El correo no es válido").nullable(),
   telefono: yup.string().nullable(),
   direccion: yup.string().nullable(),
@@ -43,6 +33,14 @@ const ModalAgregarTrabajador = ({ isOpen, onClose, onSuccess }) => {
   const queryClient = useQueryClient();
   const { data: cursos = [], isLoading: loadingCursos } = useCursos();
   const asignarCursoMutation = useCreateAsignacionCurso();
+  const { roles = [], loading: loadingRoles } = useRoles();
+
+  const visibleRoles = roles.filter((rol) =>
+    ROLE_WHITELIST.includes(rol.nombre?.toUpperCase())
+  );
+  const docenteRoleId = roles.find(
+    (rol) => rol.nombre?.toLowerCase() === "docente"
+  )?.idRol;
 
   const createMutation = useMutation({
     mutationFn: (data) => trabajadorService.createTrabajadorSimple(data),
@@ -53,6 +51,7 @@ const ModalAgregarTrabajador = ({ isOpen, onClose, onSuccess }) => {
     handleSubmit,
     formState: { errors },
     reset,
+    setError,
     watch,
   } = useForm({
     resolver: yupResolver(validationSchema),
@@ -72,6 +71,14 @@ const ModalAgregarTrabajador = ({ isOpen, onClose, onSuccess }) => {
   const onSubmit = async (data) => {
     try {
       const { idCurso, ...trabajadorData } = data;
+
+      if (docenteRoleId && data.idRol === docenteRoleId && !idCurso) {
+        setError("idCurso", {
+          type: "manual",
+          message: "Seleccione un curso para docentes",
+        });
+        return;
+      }
       trabajadorData.estaActivo = true;
       const response = await createMutation.mutateAsync(trabajadorData);
 
@@ -82,7 +89,7 @@ const ModalAgregarTrabajador = ({ isOpen, onClose, onSuccess }) => {
         response?.data?.id ||
         response?.info?.data?.idTrabajador;
 
-      if (data.idRol === DOCENTE_ROLE_ID && idCurso) {
+      if (docenteRoleId && data.idRol === docenteRoleId && idCurso) {
         if (!createdId) {
           throw new Error("No se pudo obtener el ID del trabajador creado");
         }
@@ -225,11 +232,17 @@ const ModalAgregarTrabajador = ({ isOpen, onClose, onSuccess }) => {
                       <select
                         {...register("idRol")}
                         className={inputClass(errors.idRol)}
-                        disabled={creating}
+                        disabled={creating || loadingRoles}
                       >
-                        <option value="">Seleccione un rol</option>
-                        {ROLES.map((rol) => (
-                          <option key={rol.id} value={rol.id}>
+                        <option value="">
+                          {loadingRoles
+                            ? "Cargando roles..."
+                            : visibleRoles.length
+                              ? "Seleccione un rol"
+                              : "No hay roles disponibles"}
+                        </option>
+                        {visibleRoles.map((rol) => (
+                          <option key={rol.idRol || rol.id} value={rol.idRol || rol.id}>
                             {rol.nombre}
                           </option>
                         ))}
@@ -239,7 +252,7 @@ const ModalAgregarTrabajador = ({ isOpen, onClose, onSuccess }) => {
                       )}
                     </div>
 
-                    {selectedRol === DOCENTE_ROLE_ID && (
+                    {selectedRol === docenteRoleId && (
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                           Curso *

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Users } from 'lucide-react';
-import { DataTable, studentsColumns, studentsFilters } from '../../../../components/common/DataTable';
+import { DataTable } from '../../../../components/common/DataTable';
 
 /**
  * Tabla de estudiantes refactorizada usando el componente DataTable unificado
@@ -11,59 +11,71 @@ const TablaEstudiantes = ({
   onAdd,
   onEdit,
   onDelete,
-  onView,
-  onImport,
-  onExport
+  onView
 }) => {
-  // Extraer aulas únicas de los estudiantes para el filtro
-  const aulasUnicas = React.useMemo(() => {
-    const aulasSet = new Set();
-    estudiantes.forEach(estudiante => {
-      // Buscar la matrícula activa más reciente
-      const matriculaActiva = estudiante.matriculas?.find(m => m.matriculaAula?.estado === 'activo') || estudiante.matriculas?.[0];
-      const aula = matriculaActiva?.matriculaAula?.aula;
-      
-      if (aula && aula.seccion && aula.idGrado?.grado) {
-        const aulaKey = `${aula.idGrado.grado} ${aula.seccion}`;
-        aulasSet.add(aulaKey);
+  const columns = React.useMemo(
+    () => [
+      {
+        Header: 'Estudiante',
+        accessor: 'nombre',
+        sortable: true,
+        Cell: ({ value, row }) => (
+          <div className="min-w-0">
+            <div className="font-medium text-gray-900 truncate">{`${value || ''} ${row.apellido || ''}`.trim()}</div>
+            <div className="text-sm text-gray-500 truncate">
+              {row.nroDocumento
+                ? `${row.tipoDocumento || 'DNI'}: ${row.nroDocumento}`
+                : 'Sin documento'}
+            </div>
+          </div>
+        )
+      },
+      {
+        Header: 'Aula',
+        accessor: 'matriculas',
+        sortable: true,
+        Cell: ({ value }) => {
+          const matriculaActiva =
+            value?.find((m) => m.matriculaAula?.estado === 'activo') || value?.[0];
+          const aula = matriculaActiva?.matriculaAula?.aula;
+
+          if (!aula) {
+            return <div className="text-sm text-gray-400 italic">Sin aula</div>;
+          }
+
+          return (
+            <div className="text-sm">
+              <div className="font-medium text-gray-900">{aula.seccion || 'N/A'}</div>
+              <div className="text-xs text-gray-500">{aula.idGrado?.grado || ''}</div>
+            </div>
+          );
+        }
+      },
+      {
+        Header: 'Estado',
+        accessor: 'idUsuario.estaActivo',
+        sortable: true,
+        Cell: ({ value, row }) => {
+          const isActive = value !== undefined ? value : row.idUsuario?.estaActivo;
+          return (
+            <span
+              className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+              }`}
+            >
+              {isActive ? 'Activo' : 'Inactivo'}
+            </span>
+          );
+        }
       }
-    });
-    
-    return Array.from(aulasSet).sort();
-  }, [estudiantes]);
-
-  // Crear opciones dinámicas para el filtro de aulas
-  const aulaFilterOptions = aulasUnicas.map(aulaNombre => ({
-    value: aulaNombre,
-    label: aulaNombre
-  }));
-
-  // Configurar filtros con aulas dinámicas
-  const filtersWithAulas = {
-    ...studentsFilters,
-    aula: {
-      label: 'Aula',
-      placeholder: 'Todas las aulas',
-      options: [
-        { value: '', label: 'Todas las aulas' },
-        ...aulaFilterOptions
-      ]
-    }
-  };
-
-  // Debug logs
-  console.log('🔍 TablaEstudiantes - Datos recibidos:', estudiantes);
-  console.log('📊 TablaEstudiantes - Cantidad de estudiantes:', estudiantes.length);
-  console.log('📋 TablaEstudiantes - Columnas disponibles:', studentsColumns.length);
-  console.log('🎯 TablaEstudiantes - Primera columna:', studentsColumns[0]);
-  console.log('🏫 TablaEstudiantes - Aulas únicas extraídas:', aulasUnicas);
-  console.log('📝 TablaEstudiantes - Opciones de filtro aula:', aulaFilterOptions);
-  console.log('🔢 TablaEstudiantes - Número de opciones:', aulaFilterOptions.length);
+    ],
+    []
+  );
 
   return (
     <DataTable
       data={estudiantes}
-      columns={studentsColumns}
+      columns={columns}
       loading={loading}
       title="Tabla de Estudiantes"
       icon={Users}
@@ -72,8 +84,6 @@ const TablaEstudiantes = ({
       onEdit={onEdit}
       onDelete={onDelete}
       onView={onView}
-      onImport={onImport}
-      onExport={onExport}
       actions={{
         add: false, // Los estudiantes se agregan solo a través de matrícula
         edit: true,
@@ -81,7 +91,6 @@ const TablaEstudiantes = ({
         view: true,
         import: false, // Import manejado por matrícula
       }}
-      filters={filtersWithAulas}
       addButtonText="Agregar Estudiante"
       loadingMessage="Cargando estudiantes..."
       emptyMessage="No hay estudiantes registrados"

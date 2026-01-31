@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
-import { X, UserCheck, School, Calendar } from 'lucide-react';
+import { X, UserCheck, School, BookOpen } from 'lucide-react';
 import { useAulasAsignacion } from '../../../../hooks/useAulasAsignacion';
 import { useTrabajadores } from '../../../../hooks/useTrabajadores';
 
@@ -9,8 +9,7 @@ const ModalAsignarDocente = ({ isOpen, onClose }) => {
   const [formData, setFormData] = useState({
     idAula: '',
     idTrabajador: '',
-    fechaAsignacion: '',
-    estadoActivo: true
+    idCurso: ''
   });
 
   const [errors, setErrors] = useState({});
@@ -64,18 +63,47 @@ const ModalAsignarDocente = ({ isOpen, onClose }) => {
       setFormData({
         idAula: '',
         idTrabajador: '',
-        fechaAsignacion: new Date().toISOString().split('T')[0],
-        estadoActivo: true
+        idCurso: ''
       });
       setErrors({});
     }
   }, [isOpen]);
 
+  const selectedDocente = useMemo(
+    () => docentes.find((docente) => (docente.idTrabajador || docente.id) === formData.idTrabajador),
+    [docentes, formData.idTrabajador]
+  );
+
+  const cursosDocente = useMemo(() => {
+    const asignaciones = selectedDocente?.asignacionCursos || [];
+    return asignaciones
+      .map((asignacion) => asignacion.idCurso || asignacion.curso)
+      .filter(Boolean)
+      .map((curso) => ({
+        id: curso.idCurso || curso.id,
+        nombre: curso.nombreCurso || curso.nombre || 'Curso'
+      }))
+      .filter((curso) => curso.id);
+  }, [selectedDocente]);
+
+  useEffect(() => {
+    if (!formData.idTrabajador) {
+      setFormData((prev) => ({ ...prev, idCurso: '' }));
+      return;
+    }
+
+    if (cursosDocente.length === 1) {
+      setFormData((prev) => ({ ...prev, idCurso: cursosDocente[0].id }));
+    } else if (cursosDocente.length === 0) {
+      setFormData((prev) => ({ ...prev, idCurso: '' }));
+    }
+  }, [formData.idTrabajador, cursosDocente]);
+
   const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: value
     }));
 
     if (errors[name]) {
@@ -94,8 +122,8 @@ const ModalAsignarDocente = ({ isOpen, onClose }) => {
       newErrors.idTrabajador = 'Debe seleccionar un docente';
     }
 
-    if (!formData.fechaAsignacion) {
-      newErrors.fechaAsignacion = 'La fecha de asignación es obligatoria';
+    if (cursosDocente.length > 1 && !formData.idCurso) {
+      newErrors.idCurso = 'Debe seleccionar un curso';
     }
 
     setErrors(newErrors);
@@ -108,7 +136,12 @@ const ModalAsignarDocente = ({ isOpen, onClose }) => {
     if (!validateForm()) return;
 
     try {
-      await createAsignacion(formData);
+      const payload = {
+        idAula: formData.idAula,
+        idTrabajador: formData.idTrabajador,
+        idCurso: formData.idCurso || undefined
+      };
+      await createAsignacion(payload);
       if (refetchAsignaciones) {
         await refetchAsignaciones();
       }
@@ -226,38 +259,39 @@ const ModalAsignarDocente = ({ isOpen, onClose }) => {
                     )}
                   </div>
 
-                  {/* Fecha Asignación */}
+                  {/* Curso */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      <Calendar className="w-4 h-4 inline mr-2" />
-                      Fecha de Asignación *
+                      <BookOpen className="w-4 h-4 inline mr-2" />
+                      Curso
                     </label>
-                    <input
-                      type="date"
-                      name="fechaAsignacion"
-                      value={formData.fechaAsignacion}
-                      onChange={handleInputChange}
-                      className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 ${
-                        errors.fechaAsignacion ? 'border-red-500' : 'border-gray-300'
-                      }`}
-                    />
-                    {errors.fechaAsignacion && (
-                      <p className="mt-1 text-sm text-red-600">{errors.fechaAsignacion}</p>
+                    {cursosDocente.length > 1 ? (
+                      <select
+                        name="idCurso"
+                        value={formData.idCurso}
+                        onChange={handleInputChange}
+                        className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 ${
+                          errors.idCurso ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                        disabled={!formData.idTrabajador}
+                      >
+                        <option value="">Seleccionar curso</option>
+                        {cursosDocente.map((curso) => (
+                          <option key={curso.id} value={curso.id}>
+                            {curso.nombre}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <div className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-gray-50 text-sm text-gray-700">
+                        {cursosDocente.length === 1
+                          ? cursosDocente[0].nombre
+                          : 'El docente no tiene cursos asignados'}
+                      </div>
                     )}
-                  </div>
-
-                  {/* Estado Activo */}
-                  <div className="flex items-center">
-                    <input
-                      type="checkbox"
-                      name="estadoActivo"
-                      checked={formData.estadoActivo}
-                      onChange={handleInputChange}
-                      className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-                    />
-                    <label className="ml-2 text-sm text-gray-700">
-                      Asignación activa
-                    </label>
+                    {errors.idCurso && (
+                      <p className="mt-1 text-sm text-red-600">{errors.idCurso}</p>
+                    )}
                   </div>
 
                   {/* Buttons */}
