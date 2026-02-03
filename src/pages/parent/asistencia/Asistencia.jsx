@@ -19,7 +19,7 @@ import { useHistorialAsistenciasEstudiante } from '../../../hooks/queries/useAsi
 import { formatDatePeru } from '../../../utils/dateUtils';
 
 const Asistencia = () => {
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
+  const [selectedMonth, setSelectedMonth] = useState('');
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('todos');
@@ -117,7 +117,7 @@ const Asistencia = () => {
   const asistenciasFiltradas = React.useMemo(() => {
     return asistencias.filter(asistencia => {
       const { mes, anio } = getMesAnioPeru(asistencia.fecha);
-      const mesCoincide = mes === selectedMonth;
+      const mesCoincide = selectedMonth === '' ? true : mes === selectedMonth;
       const añoCoincide = anio === selectedYear;
       
       // Filtro por estado
@@ -135,9 +135,10 @@ const Asistencia = () => {
       }
 
       // Filtro por búsqueda (fecha u observaciones)
+      const observacionTexto = (asistencia.observaciones || '').toString();
       const busquedaCoincide = searchTerm === '' || 
         asistencia.fecha.includes(searchTerm) ||
-        asistencia.observaciones.toLowerCase().includes(searchTerm.toLowerCase());
+        observacionTexto.toLowerCase().includes(searchTerm.toLowerCase());
 
       return mesCoincide && añoCoincide && estadoCoincide && busquedaCoincide;
     }).sort((a, b) => {
@@ -297,9 +298,12 @@ const Asistencia = () => {
             </label>
             <select
               value={selectedMonth}
-              onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
+              onChange={(e) =>
+                setSelectedMonth(e.target.value === '' ? '' : parseInt(e.target.value))
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
+              <option value="">Todos</option>
               {meses.map((mes, index) => (
                 <option key={index} value={index}>
                   {mes}
@@ -354,7 +358,7 @@ const Asistencia = () => {
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold text-gray-900">
-              Registro de Asistencias - {meses[selectedMonth]} {selectedYear}
+              Registro de Asistencias - {selectedMonth === '' ? 'Todos los meses' : meses[selectedMonth]} {selectedYear}
             </h3>
             <span className="text-sm text-gray-600">
               {asistenciasFiltradas.length} registro(s)
@@ -370,7 +374,7 @@ const Asistencia = () => {
               <p className="text-sm text-gray-500">
                 {filterStatus !== 'todos' || searchTerm !== '' 
                   ? 'Intenta cambiar los filtros de búsqueda'
-                  : `No hay asistencias registradas para ${meses[selectedMonth]} ${selectedYear}`
+                  : `No hay asistencias registradas para ${selectedMonth === '' ? 'todo el año' : meses[selectedMonth]} ${selectedYear}`
                 }
               </p>
             </div>
