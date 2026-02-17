@@ -16,7 +16,7 @@ export const asignacionCursosKeys = {
 const asignacionCursosService = {
   // Obtener todas las asignaciones de cursos
   getAsignacionCursos: async (filters = {}) => {
-    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002/api/v1';
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
     const token = localStorage.getItem('token');
 
     const response = await axios.get(`${API_BASE_URL}/asignacion-curso`, {
@@ -33,7 +33,7 @@ const asignacionCursosService = {
 
   // Obtener asignación por ID
   getAsignacionCursoById: async (id) => {
-    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002/api/v1';
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
     const token = localStorage.getItem('token');
 
     const response = await axios.get(`${API_BASE_URL}/asignacion-curso/${id}`, {
@@ -48,7 +48,7 @@ const asignacionCursosService = {
 
   // Crear asignación de curso
   createAsignacionCurso: async (asignacionData) => {
-    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002/api/v1';
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
     const token = localStorage.getItem('token');
 
     const response = await axios.post(`${API_BASE_URL}/asignacion-curso`, asignacionData, {
@@ -63,7 +63,7 @@ const asignacionCursosService = {
 
   // Actualizar asignación de curso
   updateAsignacionCurso: async ({ id, asignacionData }) => {
-    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002/api/v1';
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
     const token = localStorage.getItem('token');
 
     const response = await axios.patch(`${API_BASE_URL}/asignacion-curso/${id}`, asignacionData, {
@@ -78,7 +78,7 @@ const asignacionCursosService = {
 
   // Eliminar asignación de curso (desactivar)
   deleteAsignacionCurso: async (id) => {
-    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002/api/v1';
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
     const token = localStorage.getItem('token');
 
     const response = await axios.delete(`${API_BASE_URL}/asignacion-curso/${id}`, {

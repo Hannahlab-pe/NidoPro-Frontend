@@ -16,7 +16,7 @@ const Seguros = () => {
   const fetchSeguros = async () => {
     try {
       setLoading(true);
-      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002/api/v1';
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
       const token = localStorage.getItem('token') || JSON.parse(localStorage.getItem('auth-storage'))?.state?.token;
 
       const response = await fetch(`${API_BASE_URL}/tipo-seguro`, {

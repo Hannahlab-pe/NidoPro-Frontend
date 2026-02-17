@@ -15,7 +15,7 @@ const fetchEvaluacionesProfesor = async (idTrabajador) => {
   }
 
   // Usar la URL de la API desde variables de entorno
-  const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002/api/v1';
+  const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
   const baseUrl = API_BASE_URL.replace('/api/v1', ''); // Remover /api/v1 si está incluido en la variable
   const response = await fetch(`${API_BASE_URL}/comentario-docente/trabajador/${idTrabajador}`, {
     method: 'GET',

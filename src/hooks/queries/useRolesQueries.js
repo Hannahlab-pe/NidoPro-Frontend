@@ -16,7 +16,7 @@ export const rolesKeys = {
 const rolesService = {
   // Obtener todos los roles
   getRoles: async (filters = {}) => {
-    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002/api/v1';
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
     const token = localStorage.getItem('token');
 
     const response = await axios.get(`${API_BASE_URL}/rol`, {
@@ -33,7 +33,7 @@ const rolesService = {
 
   // Obtener rol por ID
   getRolById: async (id) => {
-    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002/api/v1';
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
     const token = localStorage.getItem('token');
 
     const response = await axios.get(`${API_BASE_URL}/rol/${id}`, {
@@ -48,7 +48,7 @@ const rolesService = {
 
   // Crear rol
   createRol: async (rolData) => {
-    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002/api/v1';
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
     const token = localStorage.getItem('token');
 
     const response = await axios.post(`${API_BASE_URL}/rol`, rolData, {
@@ -63,7 +63,7 @@ const rolesService = {
 
   // Actualizar rol
   updateRol: async ({ id, ...rolData }) => {
-    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002/api/v1';
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
     const token = localStorage.getItem('token');
 
     const response = await axios.patch(`${API_BASE_URL}/rol/${id}`, rolData, {
@@ -78,7 +78,7 @@ const rolesService = {
 
   // Eliminar rol
   deleteRol: async (id) => {
-    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002/api/v1';
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
     const token = localStorage.getItem('token');
 
     await axios.delete(`${API_BASE_URL}/rol/${id}`, {
@@ -92,7 +92,7 @@ const rolesService = {
 
   // Cambiar estado del rol
   toggleRolStatus: async (id) => {
-    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002/api/v1';
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
     const token = localStorage.getItem('token');
 
     const response = await axios.patch(`${API_BASE_URL}/rol/${id}/toggle-status`, {}, {

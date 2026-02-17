@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Base URL del API
 const API_BASE_URL =
-  import.meta.env.VITE_API_URL || "http://localhost:3002/api/v1";
+  import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1";
 
 // Configuración de axios para auth
 const authApi = axios.create({
@@ -319,6 +319,27 @@ export const authService = {
       throw new Error(
         error.response?.data?.message || "Error al cambiar contraseña"
       );
+    }
+  },
+
+  // Cambiar contraseña
+  async changePassword(data) {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("No hay sesión activa");
+      }
+
+      const response = await authApi.post("/auth/change-password", data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error("Error al cambiar contraseña:", error);
+      throw error;
     }
   },
 };

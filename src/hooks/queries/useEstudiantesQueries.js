@@ -16,7 +16,7 @@ export const estudiantesKeys = {
 // Servicio API para estudiantes
 const estudiantesService = {
   getEstudiantes: async (filters = {}) => {
-    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002/api/v1';
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
     const token = localStorage.getItem('token');
     
     const response = await axios.get(`${API_BASE_URL}/estudiante`, {
@@ -33,7 +33,7 @@ const estudiantesService = {
 
   // Obtener estudiante por ID
   getEstudianteById: async (id) => {
-    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002/api/v1';
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
     const token = localStorage.getItem('token');
     
     const response = await axios.get(`${API_BASE_URL}/estudiante/${id}`, {
@@ -48,7 +48,7 @@ const estudiantesService = {
 
   // Crear estudiante
   createEstudiante: async (estudianteData) => {
-    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002/api/v1';
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
     const token = localStorage.getItem('token');
     
     const response = await axios.post(`${API_BASE_URL}/estudiante`, estudianteData, {
@@ -70,7 +70,7 @@ const estudiantesService = {
       throw new Error('ID del estudiante es requerido para actualizar');
     }
     
-    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002/api/v1';
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
     const token = localStorage.getItem('token');
     
     const response = await axios.patch(`${API_BASE_URL}/estudiante/${id}`, estudianteData, {
@@ -85,7 +85,7 @@ const estudiantesService = {
 
   // Eliminar estudiante
   deleteEstudiante: async (id) => {
-    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002/api/v1';
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
     const token = localStorage.getItem('token');
     
     await axios.delete(`${API_BASE_URL}/estudiante/${id}`, {
@@ -99,7 +99,7 @@ const estudiantesService = {
 
   // Cambiar estado del estudiante (desactivar)
   toggleEstudianteStatus: async (id) => {
-    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002/api/v1';
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
     const token = localStorage.getItem('token');
     
     console.log(`🔄 Cambiando estado del estudiante ID: ${id}`);

@@ -1,7 +1,7 @@
 // src/services/storageService.js
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
 const STORAGE_URL = `${API_BASE_URL}/storage`;
 
 const api = axios.create({

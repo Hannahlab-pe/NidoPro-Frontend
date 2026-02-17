@@ -17,7 +17,7 @@ export const padresKeys = {
 const padresService = {
   // Obtener todos los padres con estudiantes
   getPadres: async (filters = {}) => {
-    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002/api/v1';
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
     const token = localStorage.getItem('token');
     
     const response = await axios.get(`${API_BASE_URL}/apoderado/estudiantes`, {
@@ -34,7 +34,7 @@ const padresService = {
 
   // Obtener padre por ID
   getPadreById: async (id) => {
-    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002/api/v1';
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
     const token = localStorage.getItem('token');
     
     const response = await axios.get(`${API_BASE_URL}/apoderado/${id}`, {
@@ -49,7 +49,7 @@ const padresService = {
 
   // Crear padre
   createPadre: async (padreData) => {
-    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002/api/v1';
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
     const token = localStorage.getItem('token');
     
     const response = await axios.post(`${API_BASE_URL}/apoderado`, padreData, {
@@ -64,7 +64,7 @@ const padresService = {
 
   // Actualizar padre
   updatePadre: async ({ id, ...padreData }) => {
-    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002/api/v1';
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
     const token = localStorage.getItem('token');
     
     const response = await axios.patch(`${API_BASE_URL}/apoderado/${id}`, padreData, {
@@ -79,7 +79,7 @@ const padresService = {
 
   // Eliminar padre
   deletePadre: async (id) => {
-    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002/api/v1';
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
     const token = localStorage.getItem('token');
     
     await axios.delete(`${API_BASE_URL}/apoderado/${id}`, {
@@ -93,7 +93,7 @@ const padresService = {
 
   // Cambiar estado del padre
   togglePadreStatus: async (id) => {
-    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002/api/v1';
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
     const token = localStorage.getItem('token');
     
     const response = await axios.patch(`${API_BASE_URL}/apoderado/${id}/toggle-status`, {}, {

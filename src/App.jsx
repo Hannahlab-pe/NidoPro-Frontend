@@ -12,6 +12,7 @@ import { useAuthStore } from "./store";
 import { ProtectedRoute } from "./components/auth";
 import ChangePasswordModal from "./components/auth/ChangePasswordModal";
 import Login from "./pages/auth/Login";
+import ChangePassword from "./pages/auth/ChangePassword";
 
 // Layouts
 import AdminLayout from "./components/layout/AdminLayout";
@@ -179,6 +180,18 @@ function App() {
                   <Navigate to={getDefaultRouteByRole(user)} replace />
                 ) : (
                   <Login />
+                )
+              }
+            />
+
+            {/* Change Password - accesible solo si está autenticado */}
+            <Route
+              path="/change-password"
+              element={
+                isAuthenticated ? (
+                  <ChangePassword />
+                ) : (
+                  <Navigate to="/login" replace />
                 )
               }
             />

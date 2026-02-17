@@ -637,7 +637,7 @@ export const usePensionesSimple = () => {
       // Usar fetch directamente para el endpoint simple
       const token = localStorage.getItem("token");
       const API_BASE_URL =
-        import.meta.env.VITE_API_URL || "http://localhost:3002/api/v1";
+        import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1";
 
       const response = await fetch(`${API_BASE_URL}/pension`, {
         method: "POST",
@@ -675,7 +675,7 @@ export const usePensionesSimple = () => {
 
       const token = localStorage.getItem("token");
       const API_BASE_URL =
-        import.meta.env.VITE_API_URL || "http://localhost:3002/api/v1";
+        import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1";
 
       const response = await fetch(`${API_BASE_URL}/pension/${id}`, {
         method: "PATCH",

@@ -15,29 +15,38 @@ const Dashboard = () => {
     return <Navigate to="/login" replace />;
   }
 
-  // Obtener el nombre del rol
-  const roleName = user.role?.nombre?.toLowerCase();
+  // VERIFICAR SI NECESITA CAMBIAR CONTRASEÑA
+  if (user.cambioContrasena === false) {
+    return <Navigate to="/change-password" replace />;
+  }
+
+  // Obtener el nombre del rol - soportar ambas estructuras
+  const roleName = (user.rol || user.role?.nombre)?.toLowerCase();
 
   // Redirigir según el rol del usuario
-  if (roleName === "admin" || roleName === "administrador" || roleName === "directora") {
-    return <Navigate to="/admin" replace />;
-  }
-  
-  if (roleName === "secretaria") {
-    return <Navigate to="/admin" replace />;
-  }
-  
-  if (roleName === "trabajador" || roleName === "docente" || roleName === "profesor") {
-    return <Navigate to="/teacher" replace />;
-  }
-  
-  if (roleName === "padre" || roleName === "parent" || roleName === "estudiante") {
-    return <Navigate to="/parent" replace />;
-  }
-  
-  if (roleName === "especialista") {
-    // Por ahora redirigir a teacher, más adelante crear SpecialistLayout
-    return <Navigate to="/teacher" replace />;
+  // Redirigir según el rol del usuario
+  switch (roleName) {
+    case "admin":
+    case "administrador":
+    case "directora":
+    case "secretaria":
+      return <Navigate to="/admin" replace />;
+    
+    case "trabajador":
+    case "docente":
+    case "profesor":
+    case "teacher":
+    case "especialista":
+      return <Navigate to="/teacher" replace />;
+    
+    case "padre":
+    case "parent":
+    case "estudiante":
+    case "student":
+      return <Navigate to="/parent" replace />;
+    
+    default:
+      break;
   }
 
   // Si el rol no es reconocido, mostrar error y permitir logout
@@ -59,7 +68,7 @@ const Dashboard = () => {
             <strong>Email:</strong> {user.email}
           </p>
           <p className="text-sm text-gray-700">
-            <strong>Rol:</strong> {user.role?.nombre}
+            <strong>Rol:</strong> {user.rol || user.role?.nombre || 'No asignado'}
           </p>
         </div>
         <button
@@ -77,8 +86,5 @@ const Dashboard = () => {
     </div>
   );
 };
-
-export default Dashboard;
-;
 
 export default Dashboard;

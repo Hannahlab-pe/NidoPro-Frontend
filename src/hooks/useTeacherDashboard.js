@@ -47,7 +47,7 @@ export const useTeacherDashboard = () => {
         throw new Error('No se encontró token de autenticación');
       }
 
-      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002/api/v1';
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
 
       const response = await fetch(`${API_BASE_URL}/trabajador/aulas/${entidadId}`, {
         method: 'GET',
@@ -109,7 +109,7 @@ export const useTeacherDashboard = () => {
 
       if (!token) return;
 
-      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002/api/v1';
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
 
       let totalEstudiantes = 0;
       const estudiantesPorAula = {};
