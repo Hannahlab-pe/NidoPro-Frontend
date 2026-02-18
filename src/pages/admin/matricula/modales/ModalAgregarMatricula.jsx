@@ -17,7 +17,7 @@ import {
   validateMatriculaData,
   generateDataSummary 
 } from '../../../../utils/matriculaValidation';
-import FirebaseStorageService from '../../../../services/firebaseStorageService';
+import { StorageService } from '../../../../services/storageService';
 
   const schema = yup.object({
   // Información de Matrícula

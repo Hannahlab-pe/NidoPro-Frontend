@@ -1,6 +1,6 @@
 // src/services/api/trabajadorService.js
 import axios from "axios";
-import { FirebaseStorageService } from "./firebaseStorageService";
+import { StorageService } from "./storageService";
 
 // Base URL del API
 const API_BASE_URL =
@@ -285,7 +285,7 @@ export const trabajadorService = {
         // Subir archivo de contrato si existe
         if (archivoContrato) {
           console.log("📄 Subiendo archivo de contrato...");
-          const contratoResult = await FirebaseStorageService.uploadFile(
+          const contratoResult = await StorageService.uploadFile(
             archivoContrato,
             "trabajadores/contratos",
             trabajadorData.correo || "anonymous"
@@ -297,7 +297,7 @@ export const trabajadorService = {
         // Subir archivo firmado si existe
         if (archivoFirmado) {
           console.log("📝 Subiendo archivo firmado...");
-          const firmadoResult = await FirebaseStorageService.uploadFile(
+          const firmadoResult = await StorageService.uploadFile(
             archivoFirmado,
             "trabajadores/firmados",
             trabajadorData.correo || "anonymous"
@@ -309,7 +309,7 @@ export const trabajadorService = {
         // Si no se encontraron archivos específicos, subir el primer archivo como contrato
         if (!archivoContrato && !archivoFirmado && archivos.length > 0) {
           console.log("📄 Subiendo primer archivo como contrato...");
-          const contratoResult = await FirebaseStorageService.uploadFile(
+          const contratoResult = await StorageService.uploadFile(
             archivos[0],
             "trabajadores/contratos",
             trabajadorData.correo || "anonymous"

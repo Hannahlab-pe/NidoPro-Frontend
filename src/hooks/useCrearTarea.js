@@ -5,7 +5,7 @@ import { tareaService } from '../services/tareaService';
 import { aulaService } from '../services/aulaService';
 import { getIdTrabajadorFromToken } from '../utils/tokenUtils';
 import { useAuthStore } from '../store/useAuthStore';
-import { FirebaseStorageService } from '../services/firebaseStorageService';
+import { StorageService } from '../services/storageService';
 
 /**
  * Hook personalizado para crear tareas con subida de archivos a Firebase Storage
@@ -85,7 +85,7 @@ export const useCrearTarea = () => {
           setUploadingFile(true);
           toast.info('Subiendo archivo a la nube...');
 
-          const uploadResult = await FirebaseStorageService.uploadFile(
+          const uploadResult = await StorageService.uploadFile(
             archivo,
             'tareas',
             idTrabajador
@@ -137,7 +137,7 @@ export const useCrearTarea = () => {
           const urlParts = archivoUrl.split('/o/')[1]?.split('?')[0];
           if (urlParts) {
             const filePath = decodeURIComponent(urlParts);
-            await FirebaseStorageService.deleteFile(filePath);
+            await StorageService.deleteFile(filePath);
             console.log('🗑️ [HOOK CREAR TAREA] Archivo eliminado por error en creación');
           }
         } catch (cleanupError) {

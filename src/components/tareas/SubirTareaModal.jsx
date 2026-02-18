@@ -4,7 +4,7 @@ import { Fragment } from 'react';
 import { X, Upload, FileText, Camera, Check, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import tareaService from '../../services/tareaService';
-import { FirebaseStorageService } from '../../services/firebaseStorageService';
+import { StorageService } from '../../services/storageService';
 
 const SubirTareaModal = ({ isOpen, onClose, tarea, onSuccess }) => {
   const [formData, setFormData] = useState({
@@ -49,7 +49,7 @@ const SubirTareaModal = ({ isOpen, onClose, tarea, onSuccess }) => {
 
       try {
         // Subir archivo a Firebase Storage
-        const uploadResult = await FirebaseStorageService.uploadFile(file, 'tareas');
+        const uploadResult = await StorageService.uploadFile(file, 'tareas');
         
         console.log('✅ Archivo subido exitosamente a Firebase:', uploadResult);
         

@@ -11,9 +11,8 @@ import {
   AlertCircle,
   CheckCircle
 } from 'lucide-react';
-import { storage } from '../../../../firebase-config';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { toast } from 'sonner';
+import { StorageService } from '../../../../services/storageService';
 
 const ModalEvaluacionDocente = ({
   isOpen,
@@ -119,16 +118,9 @@ const ModalEvaluacionDocente = ({
       setUploading(true);
       toast.loading('Subiendo archivo...', { id: 'upload-file' });
 
-      // Crear nombre único para el archivo
-      const timestamp = Date.now();
-      const fileName = `${timestamp}_${file.name}`;
-      const storageRef = ref(storage, `evaluaciones-docentes/${fileName}`);
-
-      // Subir archivo
-      const snapshot = await uploadBytes(storageRef, file);
-
-      // Obtener URL de descarga
-      const downloadURL = await getDownloadURL(snapshot.ref);
+      // Subir archivo usando StorageService
+      const uploadResult = await StorageService.uploadFile(file, 'evaluaciones-docentes');
+      const downloadURL = uploadResult.url;
 
       toast.dismiss('upload-file');
       toast.success('Archivo subido exitosamente');
