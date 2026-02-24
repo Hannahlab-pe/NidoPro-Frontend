@@ -186,6 +186,44 @@ const cajaService = {
   },
 
   /**
+   * Obtener resumen mensual de caja
+   */
+  async obtenerResumen(mes, anio) {
+    try {
+      const token = localStorage.getItem('token');
+
+      if (!token) {
+        throw new Error('Token de autorización no encontrado');
+      }
+
+      const params = new URLSearchParams();
+      if (mes) params.append('mes', mes);
+      if (anio) params.append('anio', anio);
+
+      const url = `${API_BASE_URL}/caja-simple/resumen?${params.toString()}`;
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      return { success: true, resumen: data };
+
+    } catch (error) {
+      console.error('❌ Error al obtener resumen de caja:', error);
+      throw new Error(error.message || 'Error al obtener resumen de caja');
+    }
+  },
+
+  /**
    * Obtener dashboard financiero general
    */
   async obtenerDashboardFinanciero() {
