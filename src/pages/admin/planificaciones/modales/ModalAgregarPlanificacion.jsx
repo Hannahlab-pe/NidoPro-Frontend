@@ -175,13 +175,12 @@ const ModalAgregarPlanificacion = ({ open, onClose, onSuccess }) => {
 
     try {
       setUploadingFile(true);
-      toast.loading('Subiendo archivo a Google Cloud...', { id: 'upload' });
+      toast.loading('Subiendo archivo...', { id: 'upload' });
 
-      // Subir archivo a Google Cloud Storage
+      // Subir archivo al storage (mismo endpoint que vouchers de matrícula)
       const uploadResult = await StorageService.uploadFile(
         selectedFile,
-        'planificaciones',
-        user?.entidadId || 'anonymous'
+        'planificaciones'
       );
 
       toast.dismiss('upload');
