@@ -283,9 +283,16 @@ export const matriculaService = {
         fechaIngreso: matriculaData.fechaIngreso,
         idGrado: matriculaData.idGrado,
         costoMatricula: matriculaData.costoMatricula,
+        metodoPago: matriculaData.metodoPago || null,
+        anioEscolar: matriculaData.anioEscolar || new Date().getFullYear().toString(),
         apoderadoData: matriculaData.apoderadoData,
         estudianteData: matriculaData.estudianteData
       };
+
+      // Solo incluir voucherImg si existe una URL válida
+      if (matriculaData.voucherImg) {
+        payload.voucherImg = matriculaData.voucherImg;
+      }
 
       console.log('📋 Datos finales a enviar al backend (PASO 1):', JSON.stringify(payload, null, 2));
 

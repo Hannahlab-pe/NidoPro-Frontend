@@ -2,7 +2,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import matriculaService from '../../services/matriculaService';
-import { uploadVoucherImage } from '../../services/cloudinaryService';
+import StorageService from '../../services/storageService';
 
 // Query keys para matrícula
 export const matriculaKeys = {
@@ -72,24 +72,41 @@ export const useCreateMatricula = () => {
     mutationFn: async (matriculaData) => {
       let voucherUrl = null;
 
-      // Si hay un voucher, subirlo primero a Cloudinary
       if (matriculaData.voucherFile) {
         try {
-          const uploadResult = await uploadVoucherImage(matriculaData.voucherFile);
+          const uploadResult = await StorageService.uploadFile(
+            matriculaData.voucherFile,
+            'matricula-vouchers'
+          );
           voucherUrl = uploadResult.url;
         } catch (uploadError) {
           console.error('❌ Error al subir voucher:', uploadError);
-          // Continuar sin voucher si falla la subida
-          voucherUrl = '';
+          toast.warning('No se pudo subir el voucher, la matrícula continuará sin imagen');
+          voucherUrl = null;
         }
       }
 
-      // Preparar datos finales
+      const safeYear = matriculaData.anioEscolar
+        ? matriculaData.anioEscolar
+        : matriculaData.fechaIngreso
+          ? new Date(matriculaData.fechaIngreso).getFullYear().toString()
+          : new Date().getFullYear().toString();
+
       const finalData = {
         ...matriculaData,
-        voucherImg: voucherUrl || matriculaData.voucherImg || ''
+        anioEscolar: safeYear,
+        metodoPago: matriculaData.metodoPago
+          ? matriculaData.metodoPago.toUpperCase()
+          : matriculaData.metodoPago
       };
+
       delete finalData.voucherFile;
+
+      if (voucherUrl) {
+        finalData.voucherImg = voucherUrl;
+      } else {
+        delete finalData.voucherImg;
+      }
 
       return matriculaService.createMatricula(finalData);
     },
@@ -117,10 +134,12 @@ export const useUpdateMatricula = () => {
     mutationFn: async ({ id, ...matriculaData }) => {
       let voucherUrl = matriculaData.voucherImg;
 
-      // Si hay un nuevo voucher, subirlo primero
       if (matriculaData.voucherFile) {
         try {
-          const uploadResult = await uploadVoucherImage(matriculaData.voucherFile);
+          const uploadResult = await StorageService.uploadFile(
+            matriculaData.voucherFile,
+            'matricula-vouchers'
+          );
           voucherUrl = uploadResult.url;
         } catch (uploadError) {
           console.error('❌ Error al subir nuevo voucher:', uploadError);

@@ -17,8 +17,6 @@ import {
   validateMatriculaData,
   generateDataSummary 
 } from '../../../../utils/matriculaValidation';
-import { StorageService } from '../../../../services/storageService';
-
   const schema = yup.object({
   // Información de Matrícula
   costoMatricula: yup.number()
@@ -34,7 +32,7 @@ import { StorageService } from '../../../../services/storageService';
   // Voucher - requerido para métodos de pago que no sean efectivo
   voucherFile: yup.mixed()
     .when('metodoPago', {
-      is: (metodoPago) => metodoPago && metodoPago !== 'Efectivo',
+      is: (metodoPago) => metodoPago && metodoPago !== 'EFECTIVO',
       then: (schema) => schema.required('El voucher es requerido para este método de pago'),
       otherwise: (schema) => schema.nullable()
     }),
@@ -161,7 +159,7 @@ const ModalAgregarMatricula = ({ isOpen, onClose, refetch }) => {
   const { register, handleSubmit, formState: { errors }, reset, watch, setValue, setError, clearErrors, trigger, control } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
-      metodoPago: 'Transferencia bancaria',
+      metodoPago: 'TRANSFERENCIA',
       estudianteTipoDoc: 'DNI',
       apoderadoTipoDoc: 'DNI',
       fechaIngreso: new Date().toISOString().split('T')[0],
@@ -179,14 +177,13 @@ const ModalAgregarMatricula = ({ isOpen, onClose, refetch }) => {
   const selectedGrado = watch('idGrado');
   const tipoAsignacionAula = 'manual';
 
-  // Opciones predefinidas
+  // Opciones predefinidas — valores exactos que acepta el backend
   const metodosPago = [
-    'Efectivo', 
-    'Transferencia bancaria', 
-    'Depósito bancario', 
-    'Tarjeta de crédito', 
-    'Tarjeta de débito', 
-    'Pago móvil'
+    { value: 'EFECTIVO',      label: 'Efectivo' },
+    { value: 'TRANSFERENCIA', label: 'Transferencia bancaria' },
+    { value: 'YAPE',          label: 'Yape' },
+    { value: 'PLIN',          label: 'Plin' },
+    { value: 'TARJETA',       label: 'Tarjeta de crédito/débito' },
   ];
   const tiposDocumento = ['DNI', 'Carnet de Extranjería', 'Pasaporte'];
 
@@ -384,6 +381,8 @@ const ModalAgregarMatricula = ({ isOpen, onClose, refetch }) => {
         costoMatricula: data.costoMatricula.toString(),
         fechaIngreso: data.fechaIngreso,
         idGrado: data.idGrado,
+        metodoPago: data.metodoPago,
+        voucherFile,
         
         // Datos del apoderado (para crear nuevo o actualizar)
         apoderadoData: {
@@ -438,14 +437,22 @@ const ModalAgregarMatricula = ({ isOpen, onClose, refetch }) => {
       }
 
       // Limpiar campos undefined antes del envío
-      const cleanMatriculaData = JSON.parse(JSON.stringify(matriculaData, (key, value) =>
-        value === undefined ? null : value
+      // NOTA: JSON.stringify destruye objetos File, por eso guardamos voucherFile aparte
+      const rawFile = matriculaData.voucherFile;
+      const cleanMatriculaData = JSON.parse(JSON.stringify(
+        { ...matriculaData, voucherFile: undefined },
+        (key, value) => value === undefined ? null : value
       ));
+      // Re-adjuntar el archivo original (no serializable por JSON)
+      if (rawFile) {
+        cleanMatriculaData.voucherFile = rawFile;
+      }
 
       console.log('🧹 Datos limpiados para envío:', cleanMatriculaData);
+      console.log('🧹 voucherFile adjunto:', !!cleanMatriculaData.voucherFile);
       console.log('🧹 Contactos después de limpiar:', cleanMatriculaData.estudianteData?.contactosEmergencia);
 
-      // PASO 1: Crear matrícula
+      // PASO 1: (Mutación sube voucher → crea matrícula)
       const resultadoMatricula = await matricularEstudiante(cleanMatriculaData);
       console.log('✅ Resultado PASO 1:', resultadoMatricula);
 
@@ -694,8 +701,8 @@ const ModalAgregarMatricula = ({ isOpen, onClose, refetch }) => {
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                           >
                             {metodosPago.map((metodo) => (
-                              <option key={metodo} value={metodo}>
-                                {metodo}
+                              <option key={metodo.value} value={metodo.value}>
+                                {metodo.label}
                               </option>
                             ))}
                           </select>
