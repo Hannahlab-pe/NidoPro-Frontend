@@ -32,7 +32,7 @@ import {
   // Voucher - requerido para métodos de pago que no sean efectivo
   voucherFile: yup.mixed()
     .when('metodoPago', {
-      is: (metodoPago) => metodoPago && metodoPago !== 'EFECTIVO',
+      is: (metodoPago) => metodoPago && metodoPago !== 'Efectivo',
       then: (schema) => schema.required('El voucher es requerido para este método de pago'),
       otherwise: (schema) => schema.nullable()
     }),
@@ -159,7 +159,7 @@ const ModalAgregarMatricula = ({ isOpen, onClose, refetch }) => {
   const { register, handleSubmit, formState: { errors }, reset, watch, setValue, setError, clearErrors, trigger, control } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
-      metodoPago: 'TRANSFERENCIA',
+      metodoPago: 'Transferencia bancaria',
       estudianteTipoDoc: 'DNI',
       apoderadoTipoDoc: 'DNI',
       fechaIngreso: new Date().toISOString().split('T')[0],
@@ -179,11 +179,12 @@ const ModalAgregarMatricula = ({ isOpen, onClose, refetch }) => {
 
   // Opciones predefinidas — valores exactos que acepta el backend
   const metodosPago = [
-    { value: 'EFECTIVO',      label: 'Efectivo' },
-    { value: 'TRANSFERENCIA', label: 'Transferencia bancaria' },
-    { value: 'YAPE',          label: 'Yape' },
-    { value: 'PLIN',          label: 'Plin' },
-    { value: 'TARJETA',       label: 'Tarjeta de crédito/débito' },
+    { value: 'Efectivo',             label: 'Efectivo' },
+    { value: 'Transferencia bancaria', label: 'Transferencia bancaria' },
+    { value: 'Depósito bancario',    label: 'Depósito bancario' },
+    { value: 'Tarjeta de crédito',   label: 'Tarjeta de crédito' },
+    { value: 'Tarjeta de débito',    label: 'Tarjeta de débito' },
+    { value: 'Pago móvil',           label: 'Pago móvil' },
   ];
   const tiposDocumento = ['DNI', 'Carnet de Extranjería', 'Pasaporte'];
 

@@ -95,9 +95,7 @@ export const useCreateMatricula = () => {
       const finalData = {
         ...matriculaData,
         anioEscolar: safeYear,
-        metodoPago: matriculaData.metodoPago
-          ? matriculaData.metodoPago.toUpperCase()
-          : matriculaData.metodoPago
+        metodoPago: matriculaData.metodoPago || null
       };
 
       delete finalData.voucherFile;
