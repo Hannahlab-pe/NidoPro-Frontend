@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Users, 
-  Calendar, 
-  Clock, 
+import React, { useState, useEffect } from "react";
+import {
+  Users,
+  Calendar,
+  Clock,
   AlertTriangle,
   Search,
   Filter,
@@ -18,33 +18,39 @@ import {
   Loader2,
   BookOpen,
   RefreshCw,
-  Plus
-} from 'lucide-react';
-import { useAsistenciaProfesor, useEstudiantesAula, useAsistenciasPorAulaYFecha } from '../../../hooks/queries/useAsistenciaQueries';
-import { toast } from 'sonner';
+  Plus,
+} from "lucide-react";
+import {
+  useAsistenciaProfesor,
+  useEstudiantesAula,
+  useAsistenciasPorAulaYFecha,
+} from "../../../hooks/queries/useAsistenciaQueries";
+import { toast } from "sonner";
 
 const Asistencia = () => {
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [selectedDate, setSelectedDate] = useState(
+    new Date().toISOString().split("T")[0],
+  );
   const [selectedAula, setSelectedAula] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [asistencias, setAsistencias] = useState({});
 
   // Hook principal para gestión de asistencia
-  const { 
-    aulas, 
-    loadingAulas, 
+  const {
+    aulas,
+    loadingAulas,
     errorAulas,
     registrarAsistencia,
     loadingRegistro,
-    tieneAulas
+    tieneAulas,
   } = useAsistenciaProfesor();
 
   // Hook para obtener estudiantes del aula seleccionada
-  const { 
-    data: estudiantesData, 
-    isLoading: loadingEstudiantes, 
+  const {
+    data: estudiantesData,
+    isLoading: loadingEstudiantes,
     error: errorEstudiantes,
-    refetch: refetchEstudiantes
+    refetch: refetchEstudiantes,
   } = useEstudiantesAula(selectedAula?.id_aula || selectedAula?.idAula);
 
   // Hook para obtener asistencias existentes por aula y fecha
@@ -52,10 +58,10 @@ const Asistencia = () => {
     data: asistenciasExistentes,
     isLoading: loadingAsistenciasExistentes,
     error: errorAsistenciasExistentes,
-    refetch: refetchAsistenciasExistentes
+    refetch: refetchAsistenciasExistentes,
   } = useAsistenciasPorAulaYFecha(
-    selectedAula?.id_aula || selectedAula?.idAula, 
-    selectedDate
+    selectedAula?.id_aula || selectedAula?.idAula,
+    selectedDate,
   );
 
   // Seleccionar la primera aula disponible por defecto
@@ -66,43 +72,56 @@ const Asistencia = () => {
   }, [aulas, selectedAula]);
 
   // Procesar datos de estudiantes y asistencias
-  const estudiantes = estudiantesData?.estudiantes || estudiantesData?.data || [];
-  const asistenciasRegistradas = asistenciasExistentes?.info?.data || asistenciasExistentes?.asistencias || asistenciasExistentes?.data || [];
+  const estudiantes =
+    estudiantesData?.estudiantes || estudiantesData?.data || [];
+  const asistenciasRegistradas =
+    asistenciasExistentes?.info?.data ||
+    asistenciasExistentes?.asistencias ||
+    asistenciasExistentes?.data ||
+    [];
   const tieneAsistenciasRegistradas = asistenciasRegistradas.length > 0;
-  
+
   // Log solo para verificar cambios importantes
   useEffect(() => {
     if (selectedAula && estudiantes.length > 0) {
-      console.log('📊 Estado cargado:', {
+      console.log("📊 Estado cargado:", {
         aula: selectedAula?.nombre,
         fecha: selectedDate,
         estudiantes: estudiantes.length,
         asistenciasExistentes: tieneAsistenciasRegistradas,
-        totalAsistenciasRegistradas: asistenciasRegistradas.length
+        totalAsistenciasRegistradas: asistenciasRegistradas.length,
       });
     }
-  }, [selectedAula?.nombre, selectedDate, estudiantes.length, tieneAsistenciasRegistradas, asistenciasRegistradas.length]);
+  }, [
+    selectedAula?.nombre,
+    selectedDate,
+    estudiantes.length,
+    tieneAsistenciasRegistradas,
+    asistenciasRegistradas.length,
+  ]);
 
   // Inicializar asistencias cuando se cargan estudiantes o asistencias existentes
   useEffect(() => {
     if (estudiantes.length > 0) {
       const asistenciasIniciales = {};
-      
-      estudiantes.forEach(estudiante => {
-        const idEstudiante = estudiante.id_estudiante || estudiante.idEstudiante;
-        
+
+      estudiantes.forEach((estudiante) => {
+        const idEstudiante =
+          estudiante.id_estudiante || estudiante.idEstudiante;
+
         // Buscar si ya tiene asistencia registrada para esta fecha
         const asistenciaExistente = asistenciasRegistradas.find(
-          asist => (asist.id_estudiante || asist.idEstudiante) === idEstudiante
+          (asist) =>
+            (asist.id_estudiante || asist.idEstudiante) === idEstudiante,
         );
-        
+
         if (asistenciaExistente) {
           asistenciasIniciales[idEstudiante] = asistenciaExistente.estado;
         } else {
-          asistenciasIniciales[idEstudiante] = '';
+          asistenciasIniciales[idEstudiante] = "";
         }
       });
-      
+
       setAsistencias(asistenciasIniciales);
     }
   }, [estudiantes, asistenciasRegistradas]);
@@ -115,15 +134,15 @@ const Asistencia = () => {
   }, [selectedAula, selectedDate, refetchAsistenciasExistentes]);
 
   const handleAsistenciaChange = (estudianteId, estado) => {
-    setAsistencias(prev => ({
+    setAsistencias((prev) => ({
       ...prev,
-      [estudianteId]: estado
+      [estudianteId]: estado,
     }));
   };
 
   const handleGuardarAsistencias = async () => {
     if (!selectedAula) {
-      toast.error('Selecciona un aula primero');
+      toast.error("Selecciona un aula primero");
       return;
     }
 
@@ -132,53 +151,55 @@ const Asistencia = () => {
       fecha: selectedDate,
       id_aula: selectedAula.id_aula || selectedAula.idAula,
       asistencias: Object.entries(asistencias)
-        .filter(([_, estado]) => estado !== '') // Solo enviar asistencias que tienen estado
+        .filter(([_, estado]) => estado !== "") // Solo enviar asistencias que tienen estado
         .map(([estudianteId, estado]) => ({
           id_estudiante: estudianteId,
-          estado: estado
-        }))
+          estado: estado,
+        })),
     };
 
     if (asistenciasData.asistencias.length === 0) {
-      toast.error('No hay asistencias para registrar');
+      toast.error("No hay asistencias para registrar");
       return;
     }
 
     try {
       await registrarAsistencia(asistenciasData);
-      toast.success(`Asistencias guardadas correctamente para ${estudiantes.length} estudiantes`);
-      
+      toast.success(
+        `Asistencias guardadas correctamente para ${estudiantes.length} estudiantes`,
+      );
+
       // Refrescar datos después del registro
       await refetchAsistenciasExistentes();
     } catch (error) {
-      toast.error('Error al guardar las asistencias');
+      toast.error("Error al guardar las asistencias");
     }
   };
 
   const getEstadoColor = (estado) => {
     switch (estado) {
-      case 'presente':
-        return 'bg-green-100 text-green-800 border-green-200';
-      case 'ausente':
-        return 'bg-red-100 text-red-800 border-red-200';
-      case 'tardanza':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'justificado':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
+      case "presente":
+        return "bg-green-100 text-green-800 border-green-200";
+      case "ausente":
+        return "bg-red-100 text-red-800 border-red-200";
+      case "tardanza":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      case "justificado":
+        return "bg-blue-100 text-blue-800 border-blue-200";
       default:
-        return 'bg-gray-100 text-gray-600 border-gray-200';
+        return "bg-gray-100 text-gray-600 border-gray-200";
     }
   };
 
   const getEstadoIcon = (estado) => {
     switch (estado) {
-      case 'presente':
+      case "presente":
         return <UserCheck className="w-4 h-4" />;
-      case 'ausente':
+      case "ausente":
         return <UserX className="w-4 h-4" />;
-      case 'tardanza':
+      case "tardanza":
         return <Clock className="w-4 h-4" />;
-      case 'justificado':
+      case "justificado":
         return <BookOpen className="w-4 h-4" />;
       default:
         return null;
@@ -186,25 +207,39 @@ const Asistencia = () => {
   };
 
   // Filtrar estudiantes por término de búsqueda
-  const estudiantesFiltrados = estudiantes.filter(estudiante =>
+  const estudiantesFiltrados = estudiantes.filter((estudiante) =>
     `${estudiante.nombres} ${estudiante.apellido_paterno} ${estudiante.apellido_materno}`
       .toLowerCase()
-      .includes(searchTerm.toLowerCase())
+      .includes(searchTerm.toLowerCase()),
   );
 
   // Estadísticas
   const estadisticas = {
     total: estudiantesFiltrados.length,
-    presentes: Object.values(asistencias).filter(estado => estado === 'presente').length,
-    ausentes: Object.values(asistencias).filter(estado => estado === 'ausente').length,
-    tardanzas: Object.values(asistencias).filter(estado => estado === 'tardanza').length,
-    justificados: Object.values(asistencias).filter(estado => estado === 'justificado').length,
-    pendientes: Object.values(asistencias).filter(estado => estado === '').length
+    presentes: Object.values(asistencias).filter(
+      (estado) => estado === "presente",
+    ).length,
+    ausentes: Object.values(asistencias).filter(
+      (estado) => estado === "ausente",
+    ).length,
+    tardanzas: Object.values(asistencias).filter(
+      (estado) => estado === "tardanza",
+    ).length,
+    justificados: Object.values(asistencias).filter(
+      (estado) => estado === "justificado",
+    ).length,
+    pendientes: Object.values(asistencias).filter((estado) => estado === "")
+      .length,
   };
 
-  const porcentajeAsistencia = estadisticas.total > 0 
-    ? ((estadisticas.presentes + estadisticas.tardanzas) / estadisticas.total * 100).toFixed(1)
-    : 0;
+  const porcentajeAsistencia =
+    estadisticas.total > 0
+      ? (
+          ((estadisticas.presentes + estadisticas.tardanzas) /
+            estadisticas.total) *
+          100
+        ).toFixed(1)
+      : 0;
 
   if (loadingAulas) {
     return (
@@ -235,7 +270,9 @@ const Asistencia = () => {
         <div className="text-center">
           <School className="w-12 h-12 text-gray-400 mx-auto mb-4" />
           <p className="text-gray-600 mb-2">No tienes aulas asignadas</p>
-          <p className="text-sm text-gray-500">Contacta al administrador para asignar aulas</p>
+          <p className="text-sm text-gray-500">
+            Contacta al administrador para asignar aulas
+          </p>
         </div>
       </div>
     );
@@ -245,8 +282,12 @@ const Asistencia = () => {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Registro de Asistencia</h1>
-        <p className="text-gray-600">Gestiona la asistencia de estudiantes por aula y fecha</p>
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">
+          Registro de Asistencia
+        </h1>
+        <p className="text-gray-600">
+          Gestiona la asistencia de estudiantes por aula y fecha
+        </p>
       </div>
 
       {/* Controles */}
@@ -258,16 +299,21 @@ const Asistencia = () => {
               Aula
             </label>
             <select
-              value={selectedAula?.id_aula || selectedAula?.idAula || ''}
+              value={selectedAula?.id_aula || selectedAula?.idAula || ""}
               onChange={(e) => {
-                const aula = aulas.find(a => (a.id_aula || a.idAula) === e.target.value);
+                const aula = aulas.find(
+                  (a) => (a.id_aula || a.idAula) === e.target.value,
+                );
                 setSelectedAula(aula);
               }}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Seleccionar aula</option>
               {aulas.map((aula) => (
-                <option key={aula.id_aula || aula.idAula} value={aula.id_aula || aula.idAula}>
+                <option
+                  key={aula.id_aula || aula.idAula}
+                  value={aula.id_aula || aula.idAula}
+                >
                   {aula.nombre} - {aula.grado}
                 </option>
               ))}
@@ -322,7 +368,11 @@ const Asistencia = () => {
 
           <button
             onClick={handleGuardarAsistencias}
-            disabled={loadingRegistro || !selectedAula || estudiantesFiltrados.length === 0}
+            disabled={
+              loadingRegistro ||
+              !selectedAula ||
+              estudiantesFiltrados.length === 0
+            }
             className="flex items-center space-x-2 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loadingRegistro ? (
@@ -342,7 +392,9 @@ const Asistencia = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Total</p>
-                <p className="text-2xl font-bold text-gray-900">{estadisticas.total}</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {estadisticas.total}
+                </p>
               </div>
               <Users className="h-8 w-8 text-gray-600" />
             </div>
@@ -352,7 +404,9 @@ const Asistencia = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-green-600">Presentes</p>
-                <p className="text-2xl font-bold text-green-700">{estadisticas.presentes}</p>
+                <p className="text-2xl font-bold text-green-700">
+                  {estadisticas.presentes}
+                </p>
               </div>
               <UserCheck className="h-8 w-8 text-green-600" />
             </div>
@@ -362,7 +416,9 @@ const Asistencia = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-red-600">Ausentes</p>
-                <p className="text-2xl font-bold text-red-700">{estadisticas.ausentes}</p>
+                <p className="text-2xl font-bold text-red-700">
+                  {estadisticas.ausentes}
+                </p>
               </div>
               <UserX className="h-8 w-8 text-red-600" />
             </div>
@@ -372,7 +428,9 @@ const Asistencia = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-yellow-600">Tardanzas</p>
-                <p className="text-2xl font-bold text-yellow-700">{estadisticas.tardanzas}</p>
+                <p className="text-2xl font-bold text-yellow-700">
+                  {estadisticas.tardanzas}
+                </p>
               </div>
               <Clock className="h-8 w-8 text-yellow-600" />
             </div>
@@ -381,8 +439,12 @@ const Asistencia = () => {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-blue-600">Justificados</p>
-                <p className="text-2xl font-bold text-blue-700">{estadisticas.justificados}</p>
+                <p className="text-sm font-medium text-blue-600">
+                  Justificados
+                </p>
+                <p className="text-2xl font-bold text-blue-700">
+                  {estadisticas.justificados}
+                </p>
               </div>
               <BookOpen className="h-8 w-8 text-blue-600" />
             </div>
@@ -391,8 +453,12 @@ const Asistencia = () => {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-purple-600">% Asistencia</p>
-                <p className="text-2xl font-bold text-purple-700">{porcentajeAsistencia}%</p>
+                <p className="text-sm font-medium text-purple-600">
+                  % Asistencia
+                </p>
+                <p className="text-2xl font-bold text-purple-700">
+                  {porcentajeAsistencia}%
+                </p>
               </div>
               <TrendingUp className="h-8 w-8 text-purple-600" />
             </div>
@@ -407,18 +473,19 @@ const Asistencia = () => {
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-lg font-semibold text-gray-900">
-                  Estudiantes - {selectedAula.nombre}
+                  Estudiantes - {selectedAula.nombre} SDA
                 </h3>
                 <p className="text-sm text-gray-600">
-                  Fecha: {new Date(selectedDate).toLocaleDateString('es-ES', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
+                  Fecha:{" "}
+                  {new Date(selectedDate).toLocaleDateString("es-ES", {
+                    weekday: "long",
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
                   })}
                 </p>
               </div>
-              
+
               {tieneAsistenciasRegistradas && (
                 <div className="flex items-center space-x-2 text-sm text-green-600">
                   <UserCheck className="w-4 h-4" />
@@ -446,15 +513,18 @@ const Asistencia = () => {
               <div className="text-center py-8">
                 <Users className="w-8 h-8 text-gray-400 mx-auto mb-2" />
                 <p className="text-gray-600">
-                  {searchTerm ? 'No se encontraron estudiantes' : 'No hay estudiantes en esta aula'}
+                  {searchTerm
+                    ? "No se encontraron estudiantes"
+                    : "No hay estudiantes en esta aula"}
                 </p>
               </div>
             ) : (
               <div className="grid gap-4">
                 {estudiantesFiltrados.map((estudiante, index) => {
-                  const idEstudiante = estudiante.id_estudiante || estudiante.idEstudiante;
-                  const estadoActual = asistencias[idEstudiante] || '';
-                  
+                  const idEstudiante =
+                    estudiante.id_estudiante || estudiante.idEstudiante;
+                  const estadoActual = asistencias[idEstudiante] || "";
+
                   return (
                     <div
                       key={idEstudiante}
@@ -466,19 +536,21 @@ const Asistencia = () => {
                             {index + 1}
                           </span>
                         </div>
-                        
+
                         <div>
                           <h4 className="font-medium text-gray-900">
-                            {estudiante.nombres} {estudiante.apellido_paterno} {estudiante.apellido_materno}
+                            {estudiante.nombres} {estudiante.apellido_paterno}{" "}
+                            {estudiante.apellido_materno}
                           </h4>
-
                         </div>
                       </div>
 
                       <div className="flex items-center space-x-2">
                         {/* Estado actual */}
                         {estadoActual && (
-                          <div className={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium border ${getEstadoColor(estadoActual)}`}>
+                          <div
+                            className={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium border ${getEstadoColor(estadoActual)}`}
+                          >
                             {getEstadoIcon(estadoActual)}
                             <span className="capitalize">{estadoActual}</span>
                           </div>
@@ -487,11 +559,13 @@ const Asistencia = () => {
                         {/* Botones de estado */}
                         <div className="flex space-x-1">
                           <button
-                            onClick={() => handleAsistenciaChange(idEstudiante, 'presente')}
+                            onClick={() =>
+                              handleAsistenciaChange(idEstudiante, "presente")
+                            }
                             className={`p-2 rounded-md transition-colors ${
-                              estadoActual === 'presente'
-                                ? 'bg-green-600 text-white'
-                                : 'bg-gray-100 hover:bg-green-100 text-gray-600 hover:text-green-600'
+                              estadoActual === "presente"
+                                ? "bg-green-600 text-white"
+                                : "bg-gray-100 hover:bg-green-100 text-gray-600 hover:text-green-600"
                             }`}
                             title="Presente"
                           >
@@ -499,11 +573,13 @@ const Asistencia = () => {
                           </button>
 
                           <button
-                            onClick={() => handleAsistenciaChange(idEstudiante, 'ausente')}
+                            onClick={() =>
+                              handleAsistenciaChange(idEstudiante, "ausente")
+                            }
                             className={`p-2 rounded-md transition-colors ${
-                              estadoActual === 'ausente'
-                                ? 'bg-red-600 text-white'
-                                : 'bg-gray-100 hover:bg-red-100 text-gray-600 hover:text-red-600'
+                              estadoActual === "ausente"
+                                ? "bg-red-600 text-white"
+                                : "bg-gray-100 hover:bg-red-100 text-gray-600 hover:text-red-600"
                             }`}
                             title="Ausente"
                           >
@@ -511,11 +587,13 @@ const Asistencia = () => {
                           </button>
 
                           <button
-                            onClick={() => handleAsistenciaChange(idEstudiante, 'tardanza')}
+                            onClick={() =>
+                              handleAsistenciaChange(idEstudiante, "tardanza")
+                            }
                             className={`p-2 rounded-md transition-colors ${
-                              estadoActual === 'tardanza'
-                                ? 'bg-yellow-600 text-white'
-                                : 'bg-gray-100 hover:bg-yellow-100 text-gray-600 hover:text-yellow-600'
+                              estadoActual === "tardanza"
+                                ? "bg-yellow-600 text-white"
+                                : "bg-gray-100 hover:bg-yellow-100 text-gray-600 hover:text-yellow-600"
                             }`}
                             title="Tardanza"
                           >
@@ -523,11 +601,16 @@ const Asistencia = () => {
                           </button>
 
                           <button
-                            onClick={() => handleAsistenciaChange(idEstudiante, 'justificado')}
+                            onClick={() =>
+                              handleAsistenciaChange(
+                                idEstudiante,
+                                "justificado",
+                              )
+                            }
                             className={`p-2 rounded-md transition-colors ${
-                              estadoActual === 'justificado'
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-gray-100 hover:bg-blue-100 text-gray-600 hover:text-blue-600'
+                              estadoActual === "justificado"
+                                ? "bg-blue-600 text-white"
+                                : "bg-gray-100 hover:bg-blue-100 text-gray-600 hover:text-blue-600"
                             }`}
                             title="Justificado"
                           >
@@ -536,7 +619,9 @@ const Asistencia = () => {
 
                           {estadoActual && (
                             <button
-                              onClick={() => handleAsistenciaChange(idEstudiante, '')}
+                              onClick={() =>
+                                handleAsistenciaChange(idEstudiante, "")
+                              }
                               className="p-2 rounded-md bg-gray-100 hover:bg-gray-200 text-gray-600"
                               title="Limpiar"
                             >

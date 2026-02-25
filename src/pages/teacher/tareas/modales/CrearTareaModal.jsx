@@ -1,23 +1,33 @@
-import React, { useState, useEffect } from 'react';
-import { Dialog, Transition } from '@headlessui/react';
-import { Fragment } from 'react';
-import { X, Calendar, FileText, Users, AlertCircle, Upload, Loader2, CheckCircle, Trash2 } from 'lucide-react';
-import { toast } from 'sonner';
-import { tareaService } from '../../../../services/tareaService';
-import { aulaService } from '../../../../services/aulaService';
-import { getIdTrabajadorFromToken } from '../../../../utils/tokenUtils';
-import { useAuthStore } from '../../../../store/useAuthStore';
-import { StorageService } from '../../../../services/storageService';
+import React, { useState, useEffect } from "react";
+import { Dialog, Transition } from "@headlessui/react";
+import { Fragment } from "react";
+import {
+  X,
+  Calendar,
+  FileText,
+  Users,
+  AlertCircle,
+  Upload,
+  Loader2,
+  CheckCircle,
+  Trash2,
+} from "lucide-react";
+import { toast } from "sonner";
+import { tareaService } from "../../../../services/tareaService";
+import { aulaService } from "../../../../services/aulaService";
+import { getIdTrabajadorFromToken } from "../../../../utils/tokenUtils";
+import { useAuthStore } from "../../../../store/useAuthStore";
+import { StorageService } from "../../../../services/storageService";
 
 const CrearTareaModal = ({ isOpen, onClose, onSave }) => {
   const { user } = useAuthStore();
-  
+
   const [formData, setFormData] = useState({
-    titulo: '',
-    descripcion: '',
-    fechaEntrega: '',
-    idAula: '',
-    archivo: null // Cambiado de archivos[] a archivo único
+    titulo: "",
+    descripcion: "",
+    fechaEntrega: "",
+    idAula: "",
+    archivo: null, // Cambiado de archivos[] a archivo único
   });
 
   const [errors, setErrors] = useState({});
@@ -25,34 +35,40 @@ const CrearTareaModal = ({ isOpen, onClose, onSave }) => {
   const [aulas, setAulas] = useState([]);
   const [loadingAulas, setLoadingAulas] = useState(false);
   const [uploadingFile, setUploadingFile] = useState(false); // Cambiado de uploadingFiles
-  const [uploadedFileUrl, setUploadedFileUrl] = useState(''); // Cambiado de uploadedFiles
+  const [uploadedFileUrl, setUploadedFileUrl] = useState(""); // Cambiado de uploadedFiles
 
   // Cargar aulas al abrir el modal
   useEffect(() => {
     if (isOpen) {
-      console.log('🎓 [CREAR TAREA] Usuario actual:', { 
+      console.log("🎓 [CREAR TAREA] Usuario actual:", {
         rol: user?.role?.nombre || user?.rol,
         entidadId: user?.entidadId,
-        fullUserData: user 
+        fullUserData: user,
       });
-      
+
       // Función de debug para consola
       window.debugCrearTarea = () => {
-        console.log('🔧 DEBUG CREAR TAREA:');
-        console.log('- Token:', localStorage.getItem('token'));
-        console.log('- User from store:', user);
-        console.log('- getIdTrabajadorFromToken():', getIdTrabajadorFromToken());
-        console.log('- getEntidadIdFromToken():', getEntidadIdFromToken());
-        console.log('- localStorage entidadId:', localStorage.getItem('entidadId'));
+        console.log("🔧 DEBUG CREAR TAREA:");
+        console.log("- Token:", localStorage.getItem("token"));
+        console.log("- User from store:", user);
+        console.log(
+          "- getIdTrabajadorFromToken():",
+          getIdTrabajadorFromToken(),
+        );
+        console.log("- getEntidadIdFromToken():", getEntidadIdFromToken());
+        console.log(
+          "- localStorage entidadId:",
+          localStorage.getItem("entidadId"),
+        );
         return {
-          token: localStorage.getItem('token'),
+          token: localStorage.getItem("token"),
           user,
           idTrabajadorFromToken: getIdTrabajadorFromToken(),
           entidadIdFromToken: getEntidadIdFromToken(),
-          entidadIdFromStorage: localStorage.getItem('entidadId')
+          entidadIdFromStorage: localStorage.getItem("entidadId"),
         };
       };
-      
+
       cargarAulas();
     }
   }, [isOpen, user]);
@@ -60,58 +76,85 @@ const CrearTareaModal = ({ isOpen, onClose, onSave }) => {
   const cargarAulas = async () => {
     try {
       setLoadingAulas(true);
-      console.log('🔍 [CREAR TAREA] Cargando aulas asignadas al trabajador...');
-      
+      console.log("🔍 [CREAR TAREA] Cargando aulas asignadas al trabajador...");
+
       // Usar la función específica para obtener el ID del trabajador del token
       const trabajadorId = getIdTrabajadorFromToken();
-      console.log('👨‍🏫 [CREAR TAREA] ID Trabajador del token:', trabajadorId);
-      
+      console.log("👨‍🏫 [CREAR TAREA] ID Trabajador del token:", trabajadorId);
+
       // Fallback al store si no se encuentra en el token
-      const fallbackId = user?.entidadId || localStorage.getItem('entidadId');
-      console.log('� [CREAR TAREA] ID Fallback (store/localStorage):', fallbackId);
-      
+      const fallbackId = user?.entidadId || localStorage.getItem("entidadId");
+      console.log(
+        "� [CREAR TAREA] ID Fallback (store/localStorage):",
+        fallbackId,
+      );
+
       const finalTrabajadorId = trabajadorId || fallbackId;
-      console.log('🎯 [CREAR TAREA] ID final usado:', finalTrabajadorId);
-      
+      console.log("🎯 [CREAR TAREA] ID final usado:", finalTrabajadorId);
+
       if (!finalTrabajadorId) {
-        console.warn('⚠️ [CREAR TAREA] No se encontró ID del trabajador ni en token ni en store');
+        console.warn(
+          "⚠️ [CREAR TAREA] No se encontró ID del trabajador ni en token ni en store",
+        );
         setAulas([]);
         return;
       }
 
       // Usar el endpoint específico para obtener aulas asignadas al trabajador
-      console.log('🌐 [CREAR TAREA] Endpoint que se va a llamar:', `/trabajador/aulas/${finalTrabajadorId}`);
-      
+      console.log(
+        "🌐 [CREAR TAREA] Endpoint que se va a llamar:",
+        `/trabajador/aulas/${finalTrabajadorId}`,
+      );
+
       try {
-        const response = await aulaService.getAulasByTrabajador(finalTrabajadorId);
-        console.log('📥 [CREAR TAREA] Respuesta del endpoint trabajador/aulas:', response);
-        console.log('📥 [CREAR TAREA] Tipo de respuesta:', typeof response);
-        console.log('📥 [CREAR TAREA] Estructura de respuesta:', Object.keys(response || {}));
-        
+        const response =
+          await aulaService.getAulasByTrabajador(finalTrabajadorId);
+        console.log(
+          "📥 [CREAR TAREA] Respuesta del endpoint trabajador/aulas:",
+          response,
+        );
+        console.log("📥 [CREAR TAREA] Tipo de respuesta:", typeof response);
+        console.log(
+          "📥 [CREAR TAREA] Estructura de respuesta:",
+          Object.keys(response || {}),
+        );
+
         // Extraer el array de aulas de la respuesta
         const aulasData = response?.aulas || response?.data || [];
-        console.log('📚 [CREAR TAREA] Aulas asignadas obtenidas:', aulasData);
-        console.log('📚 [CREAR TAREA] Estructura primera aula:', aulasData[0]);
-        console.log('📚 [CREAR TAREA] Cantidad de aulas asignadas:', aulasData?.length);
-        
+        console.log("📚 [CREAR TAREA] Aulas asignadas obtenidas:", aulasData);
+        console.log("📚 [CREAR TAREA] Estructura primera aula:", aulasData[0]);
+        console.log(
+          "📚 [CREAR TAREA] Cantidad de aulas asignadas:",
+          aulasData?.length,
+        );
+
         setAulas(aulasData);
       } catch (error) {
-        console.warn('⚠️ [CREAR TAREA] Error con endpoint específico, intentando con getAllAulas:', error);
-        
+        console.warn(
+          "⚠️ [CREAR TAREA] Error con endpoint específico, intentando con getAllAulas:",
+          error,
+        );
+
         // Fallback: usar getAllAulas si el endpoint específico falla
         try {
           const response = await aulaService.getAllAulas();
           const aulasData = response?.info?.data || response?.data || [];
-          console.log('📚 [CREAR TAREA] Aulas obtenidas con fallback:', aulasData);
+          console.log(
+            "📚 [CREAR TAREA] Aulas obtenidas con fallback:",
+            aulasData,
+          );
           setAulas(aulasData);
         } catch (fallbackError) {
-          console.error('❌ [CREAR TAREA] Error también con fallback:', fallbackError);
+          console.error(
+            "❌ [CREAR TAREA] Error también con fallback:",
+            fallbackError,
+          );
           setAulas([]);
         }
       }
     } catch (error) {
-      console.error('❌ [CREAR TAREA] Error al cargar aulas asignadas:', error);
-      toast.error('Error al cargar las aulas asignadas');
+      console.error("❌ [CREAR TAREA] Error al cargar aulas asignadas:", error);
+      toast.error("Error al cargar las aulas asignadas");
       setAulas([]);
     } finally {
       setLoadingAulas(false);
@@ -119,35 +162,32 @@ const CrearTareaModal = ({ isOpen, onClose, onSave }) => {
   };
 
   // Debug: mostrar aulas procesadas para el select
-  console.log('🏫 [CREAR TAREA] Aulas finales para select:', aulas.map(aula => ({
-    id: aula.id_aula || aula.idAula || aula.id,
-    nombre: aula.nombre,
-    seccion: aula.seccion,
-    grado: aula.grado,
-    display: aula.grado && aula.seccion ? `${aula.grado} - ${aula.seccion}` : aula.nombre,
-    original: aula
-  })));
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     console.log(`🔄 [CREAR TAREA] Input change - ${name}:`, value);
-    
+
     // Debug específico para idAula
-    if (name === 'idAula') {
-      console.log('🏫 [CREAR TAREA] Aula seleccionada ID:', value);
-      const aulaSeleccionada = aulas.find(aula => aula.id_aula === value || aula.idAula === value);
-      console.log('🏫 [CREAR TAREA] Aula completa seleccionada:', aulaSeleccionada);
+    if (name === "idAula") {
+      console.log("🏫 [CREAR TAREA] Aula seleccionada ID:", value);
+      const aulaSeleccionada = aulas.find(
+        (aula) => aula.id_aula === value || aula.idAula === value,
+      );
+      console.log(
+        "🏫 [CREAR TAREA] Aula completa seleccionada:",
+        aulaSeleccionada,
+      );
     }
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
-    
+
     // Limpiar error cuando el usuario empiece a escribir
     if (errors[name]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [name]: ''
+        [name]: "",
       }));
     }
   };
@@ -164,36 +204,37 @@ const CrearTareaModal = ({ isOpen, onClose, onSave }) => {
 
     // Validar tipo de archivo
     if (!StorageService.validateFileType(file)) {
-      toast.error('Tipo de archivo no permitido', {
-        description: 'Solo se permiten: PDF, DOC, DOCX, imágenes (JPG, PNG, GIF)'
+      toast.error("Tipo de archivo no permitido", {
+        description:
+          "Solo se permiten: PDF, DOC, DOCX, imágenes (JPG, PNG, GIF)",
       });
-      e.target.value = '';
+      e.target.value = "";
       return;
     }
 
     // Validar tamaño (máximo 10MB)
     if (!StorageService.validateFileSize(file, 10)) {
-      toast.error('Archivo demasiado grande', {
-        description: 'El archivo no puede superar los 10MB'
+      toast.error("Archivo demasiado grande", {
+        description: "El archivo no puede superar los 10MB",
       });
-      e.target.value = '';
+      e.target.value = "";
       return;
     }
 
     // Agregar archivo
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       archivo: {
         file,
         info: fileInfo,
-        id: Date.now()
-      }
+        id: Date.now(),
+      },
     }));
 
     toast.success(`Archivo "${file.name}" agregado correctamente`);
 
     // Limpiar el input
-    e.target.value = '';
+    e.target.value = "";
   };
 
   const removeFile = () => {
@@ -201,54 +242,62 @@ const CrearTareaModal = ({ isOpen, onClose, onSave }) => {
     if (uploadedFileUrl) {
       try {
         // Extraer el path del archivo de la URL
-        const urlParts = uploadedFileUrl.split('/o/')[1]?.split('?')[0];
+        const urlParts = uploadedFileUrl.split("/o/")[1]?.split("?")[0];
         if (urlParts) {
           const filePath = decodeURIComponent(urlParts);
           StorageService.deleteFile(filePath);
-          toast.success('Archivo eliminado de la nube');
+          toast.success("Archivo eliminado de la nube");
         }
       } catch (error) {
-        console.error('Error al eliminar archivo de Firebase:', error);
-        toast.error('Error al eliminar archivo de la nube');
+        console.error("Error al eliminar archivo de Firebase:", error);
+        toast.error("Error al eliminar archivo de la nube");
       }
     }
 
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      archivo: null
+      archivo: null,
     }));
-    setUploadedFileUrl('');
+    setUploadedFileUrl("");
   };
 
   const validateForm = () => {
     const newErrors = {};
 
     if (!formData.titulo.trim()) {
-      newErrors.titulo = 'El título es obligatorio';
+      newErrors.titulo = "El título es obligatorio";
     }
 
     if (!formData.descripcion.trim()) {
-      newErrors.descripcion = 'La descripción es obligatoria';
+      newErrors.descripcion = "La descripción es obligatoria";
     }
 
     if (!formData.fechaEntrega) {
-      newErrors.fechaEntrega = 'La fecha de entrega es obligatoria';
+      newErrors.fechaEntrega = "La fecha de entrega es obligatoria";
     } else {
       const today = new Date();
       const entrega = new Date(formData.fechaEntrega);
       if (entrega <= today) {
-        newErrors.fechaEntrega = 'La fecha de entrega debe ser futura';
+        newErrors.fechaEntrega = "La fecha de entrega debe ser futura";
       }
     }
 
     if (!formData.idAula) {
-      newErrors.idAula = 'Debe seleccionar un aula';
+      newErrors.idAula = "Debe seleccionar un aula";
     } else {
       // Validar que el idAula sea un UUID válido o al menos que exista en las aulas
-      const aulaExiste = aulas.find(aula => aula.id_aula === formData.idAula || aula.idAula === formData.idAula);
+      const aulaExiste = aulas.find(
+        (aula) =>
+          aula.id_aula === formData.idAula || aula.idAula === formData.idAula,
+      );
       if (!aulaExiste) {
-        newErrors.idAula = 'El aula seleccionada no es válida';
-        console.error('❌ [CREAR TAREA] Aula no encontrada. idAula:', formData.idAula, 'Aulas disponibles:', aulas);
+        newErrors.idAula = "El aula seleccionada no es válida";
+        console.error(
+          "❌ [CREAR TAREA] Aula no encontrada. idAula:",
+          formData.idAula,
+          "Aulas disponibles:",
+          aulas,
+        );
       }
     }
 
@@ -260,47 +309,46 @@ const CrearTareaModal = ({ isOpen, onClose, onSave }) => {
     e.preventDefault();
 
     if (!validateForm()) {
-      toast.error('Por favor, corrige los errores en el formulario');
+      toast.error("Por favor, corrige los errores en el formulario");
       return;
     }
 
     try {
       setLoading(true);
-      console.log('🚀 [CREAR TAREA] Iniciando creación de tarea...');
+      console.log("🚀 [CREAR TAREA] Iniciando creación de tarea...");
 
       // Obtener el ID del trabajador del token
       const idTrabajador = getIdTrabajadorFromToken();
       if (!idTrabajador) {
-        throw new Error('No se pudo obtener el ID del trabajador del token');
+        throw new Error("No se pudo obtener el ID del trabajador del token");
       }
 
-      console.log('👨‍🏫 [CREAR TAREA] ID Trabajador obtenido:', idTrabajador);
+      console.log("👨‍🏫 [CREAR TAREA] ID Trabajador obtenido:", idTrabajador);
 
-      let archivoUrl = '';
+      let archivoUrl = "";
 
       // Subir archivo a Firebase Storage si hay un archivo
       if (formData.archivo) {
         try {
           setUploadingFile(true);
-          toast.info('Subiendo archivo a la nube...');
+          toast.info("Subiendo archivo a la nube...");
 
           const uploadResult = await StorageService.uploadFile(
             formData.archivo.file,
-            'tareas',
-            idTrabajador
+            "tareas",
+            idTrabajador,
           );
 
           archivoUrl = uploadResult.url;
           setUploadedFileUrl(archivoUrl);
 
-          toast.success('Archivo subido exitosamente');
+          toast.success("Archivo subido exitosamente");
 
-          console.log('📁 [CREAR TAREA] Archivo subido:', uploadResult);
-
+          console.log("📁 [CREAR TAREA] Archivo subido:", uploadResult);
         } catch (error) {
-          console.error('❌ [CREAR TAREA] Error al subir archivo:', error);
-          toast.error('Error al subir archivo', {
-            description: 'El archivo no se pudo subir. Inténtalo de nuevo.'
+          console.error("❌ [CREAR TAREA] Error al subir archivo:", error);
+          toast.error("Error al subir archivo", {
+            description: "El archivo no se pudo subir. Inténtalo de nuevo.",
           });
           return;
         } finally {
@@ -313,13 +361,13 @@ const CrearTareaModal = ({ isOpen, onClose, onSave }) => {
         titulo: formData.titulo.trim(),
         descripcion: formData.descripcion.trim(),
         fechaEntrega: formData.fechaEntrega,
-        estado: 'pendiente',
+        estado: "pendiente",
         archivoUrl: archivoUrl || null, // URL del archivo subido a Firebase
         idAula: formData.idAula,
-        idTrabajador: idTrabajador
+        idTrabajador: idTrabajador,
       };
 
-      console.log('📝 [CREAR TAREA] Datos a enviar:', tareaData);
+      console.log("📝 [CREAR TAREA] Datos a enviar:", tareaData);
 
       // Enviar al backend usando la función del hook padre
       if (onSave) {
@@ -328,42 +376,47 @@ const CrearTareaModal = ({ isOpen, onClose, onSave }) => {
 
       // Limpiar formulario y cerrar modal
       resetForm();
-      toast.success('Tarea creada exitosamente');
-
+      toast.success("Tarea creada exitosamente");
     } catch (error) {
-      console.error('❌ [CREAR TAREA] Error al crear tarea:', error);
+      console.error("❌ [CREAR TAREA] Error al crear tarea:", error);
 
       // Si hay error y se subió un archivo, eliminarlo de Firebase
       if (uploadedFileUrl) {
         try {
-          const urlParts = uploadedFileUrl.split('/o/')[1]?.split('?')[0];
+          const urlParts = uploadedFileUrl.split("/o/")[1]?.split("?")[0];
           if (urlParts) {
             const filePath = decodeURIComponent(urlParts);
             await StorageService.deleteFile(filePath);
-            console.log('🗑️ [CREAR TAREA] Archivo eliminado por error en creación');
+            console.log(
+              "🗑️ [CREAR TAREA] Archivo eliminado por error en creación",
+            );
           }
         } catch (cleanupError) {
-          console.error('❌ [CREAR TAREA] Error al limpiar archivo:', cleanupError);
+          console.error(
+            "❌ [CREAR TAREA] Error al limpiar archivo:",
+            cleanupError,
+          );
         }
       }
 
-      toast.error('Error al crear la tarea', {
-        description: error.message || 'Ocurrió un error inesperado'
+      toast.error("Error al crear la tarea", {
+        description: error.message || "Ocurrió un error inesperado",
       });
     } finally {
       setLoading(false);
       setUploadingFile(false);
     }
-  };  const resetForm = () => {
+  };
+  const resetForm = () => {
     setFormData({
-      titulo: '',
-      descripcion: '',
-      fechaEntrega: '',
-      idAula: '',
-      archivo: null
+      titulo: "",
+      descripcion: "",
+      fechaEntrega: "",
+      idAula: "",
+      archivo: null,
     });
     setErrors({});
-    setUploadedFileUrl('');
+    setUploadedFileUrl("");
   };
 
   const handleClose = () => {
@@ -377,7 +430,7 @@ const CrearTareaModal = ({ isOpen, onClose, onSave }) => {
   const getMinDate = () => {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    return tomorrow.toISOString().split('T')[0];
+    return tomorrow.toISOString().split("T")[0];
   };
 
   return (
@@ -414,11 +467,15 @@ const CrearTareaModal = ({ isOpen, onClose, onSave }) => {
                       <FileText className="w-6 h-6 text-blue-600" />
                     </div>
                     <div>
-                      <Dialog.Title as="h3" className="text-lg font-semibold text-gray-900">
+                      <Dialog.Title
+                        as="h3"
+                        className="text-lg font-semibold text-gray-900"
+                      >
                         Crear Nueva Tarea
                       </Dialog.Title>
                       <p className="text-sm text-gray-500">
-                        Crea una tarea y asígnala a todos los estudiantes del aula
+                        Crea una tarea y asígnala a todos los estudiantes del
+                        aula
                       </p>
                     </div>
                   </div>
@@ -445,7 +502,7 @@ const CrearTareaModal = ({ isOpen, onClose, onSave }) => {
                       onChange={handleInputChange}
                       placeholder="Ej: Ensayo sobre el calentamiento global"
                       className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                        errors.titulo ? 'border-red-300' : 'border-gray-300'
+                        errors.titulo ? "border-red-300" : "border-gray-300"
                       }`}
                       disabled={loading}
                     />
@@ -469,7 +526,9 @@ const CrearTareaModal = ({ isOpen, onClose, onSave }) => {
                       placeholder="Escribe las instrucciones y detalles de la tarea..."
                       rows={4}
                       className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                        errors.descripcion ? 'border-red-300' : 'border-gray-300'
+                        errors.descripcion
+                          ? "border-red-300"
+                          : "border-gray-300"
                       }`}
                       disabled={loading}
                     />
@@ -494,18 +553,26 @@ const CrearTareaModal = ({ isOpen, onClose, onSave }) => {
                         value={formData.idAula}
                         onChange={handleInputChange}
                         className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                          errors.idAula ? 'border-red-300' : 'border-gray-300'
+                          errors.idAula ? "border-red-300" : "border-gray-300"
                         }`}
                         disabled={loading || loadingAulas}
                       >
                         <option value="">
-                          {loadingAulas ? 'Cargando aulas asignadas...' : 'Seleccionar aula asignada'}
+                          {loadingAulas
+                            ? "Cargando aulas asignadas..."
+                            : "Seleccionar aula asignada"}
                         </option>
                         {aulas.map((aula) => (
-                          <option key={aula.id_aula || aula.idAula || aula.id} value={aula.id_aula || aula.idAula || aula.id}>
-                            {aula.grado && aula.seccion ? `${aula.grado} - ${aula.seccion}` : 
-                             aula.nombre || `Aula ${aula.seccion || aula.numero || aula.id}`}
-                            {aula.cantidadEstudiantes && ` (${aula.cantidadEstudiantes} estudiantes)`}
+                          <option
+                            key={aula.id_aula || aula.idAula || aula.id}
+                            value={aula.id_aula || aula.idAula || aula.id}
+                          >
+                            {aula.grado && aula.seccion
+                              ? `${aula.grado} - ${aula.seccion}`
+                              : aula.nombre ||
+                                `Aula ${aula.seccion || aula.numero || aula.id}`}
+                            {aula.cantidadEstudiantes &&
+                              ` (${aula.cantidadEstudiantes} estudiantes)`}
                           </option>
                         ))}
                       </select>
@@ -530,7 +597,9 @@ const CrearTareaModal = ({ isOpen, onClose, onSave }) => {
                         onChange={handleInputChange}
                         min={getMinDate()}
                         className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                          errors.fechaEntrega ? 'border-red-300' : 'border-gray-300'
+                          errors.fechaEntrega
+                            ? "border-red-300"
+                            : "border-gray-300"
                         }`}
                         disabled={loading}
                       />
@@ -588,7 +657,8 @@ const CrearTareaModal = ({ isOpen, onClose, onSave }) => {
                                 {formData.archivo.info.name}
                               </p>
                               <p className="text-xs text-gray-500">
-                                {formData.archivo.info.sizeFormatted} • {formData.archivo.info.extension.toUpperCase()}
+                                {formData.archivo.info.sizeFormatted} •{" "}
+                                {formData.archivo.info.extension.toUpperCase()}
                               </p>
                             </div>
                           </div>
@@ -609,7 +679,9 @@ const CrearTareaModal = ({ isOpen, onClose, onSave }) => {
                     {uploadingFile && (
                       <div className="mt-3 flex items-center justify-center space-x-2 text-blue-600">
                         <Loader2 className="w-4 h-4 animate-spin" />
-                        <span className="text-sm">Subiendo archivo a la nube...</span>
+                        <span className="text-sm">
+                          Subiendo archivo a la nube...
+                        </span>
                       </div>
                     )}
                   </div>
@@ -640,7 +712,7 @@ const CrearTareaModal = ({ isOpen, onClose, onSave }) => {
                           Creando tarea...
                         </>
                       ) : (
-                        'Crear Tarea'
+                        "Crear Tarea"
                       )}
                     </button>
                   </div>

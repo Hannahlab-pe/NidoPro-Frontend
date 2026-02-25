@@ -11,306 +11,315 @@ import {
   LogOut,
   CheckCircle,
   X,
-  ChevronRight,
+  ChevronDown,
   CircleUser,
   Bot,
   Gamepad2,
   Menu,
-  DollarSign,
   Bell,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
+
+const SECTIONS = [
+  {
+    id: "herramientas",
+    label: "Herramientas Educativas",
+    icon: Bot,
+    items: [
+      { path: "/parent/iachat", label: "Asistente IA", icon: MessageSquare },
+      { path: "/parent/juegos",  label: "Juegos",       icon: Gamepad2      },
+    ],
+  },
+  {
+    id: "academico",
+    label: "Trabajo Académico",
+    icon: BookOpen,
+    items: [
+      { path: "/parent/tareas",      label: "Actividades", icon: BookOpen  },
+      { path: "/parent/cronograma",  label: "Cronograma",  icon: Calendar  },
+      { path: "/parent/anotaciones", label: "Anotaciones", icon: Bell      },
+    ],
+  },
+  {
+    id: "gestion",
+    label: "Gestión de Estudiantes",
+    icon: CheckCircle,
+    items: [
+      { path: "/parent/asistencia", label: "Asistencia", icon: CheckCircle },
+    ],
+  },
+];
+
+const SidebarTooltip = ({ label }) => (
+  <span className="
+    absolute left-full top-1/2 -translate-y-1/2 ml-2 z-999
+    bg-gray-900 text-white text-xs font-medium px-2.5 py-1.5 rounded-md
+    whitespace-nowrap shadow-lg pointer-events-none
+    opacity-0 group-hover/tip:opacity-100
+    transition-opacity duration-150
+  ">
+    {label}
+  </span>
+);
 
 const ParentLayout = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const [collapsedSections, setCollapsedSections] = useState({});
   const location = useLocation();
   const { logout, user } = useAuthStore();
 
-  const menuItems = [
-    // DASHBOARD
-    {
-      path: "/parent",
-      label: "Panel Principal",
-      icon: BarChart3,
-      category: "dashboard",
-    },
-
-    // HERRAMIENTAS EDUCATIVAS
-    {
-      path: "/parent/iachat",
-      label: "Asistente IA",
-      icon: MessageSquare,
-      category: "herramientas",
-    },
-    {
-      path: "/parent/juegos",
-      label: "Juegos",
-      icon: Gamepad2,
-      category: "herramientas",
-    },
-
-    // TRABAJO ACADÉMICO
-    {
-      path: "/parent/tareas",
-      label: "Actividades",
-      icon: BookOpen,
-      category: "academico",
-    },
-    {
-      path: "/parent/cronograma",
-      label: "Cronograma",
-      icon: Calendar,
-      category: "academico",
-    },
-    {
-      path: "/parent/anotaciones",
-      label: "Anotaciones",
-      icon: Bell,
-      category: "academico",
-    },
-
-    // GESTIÓN DE ESTUDIANTES
-    {
-      path: "/parent/asistencia",
-      label: "Asistencia",
-      icon: CheckCircle,
-      category: "gestion",
-    },
-
-    // GESTIÓN FINANCIERA - DESHABILITADO
-    // {
-    //   path: "/parent/pensiones",
-    //   label: "Pensiones",
-    //   icon: DollarSign,
-    //   category: "financiero",
-    // },
-  ];
-
-  const getCategoryLabel = (category) => {
-    const labels = {
-      dashboard: "Dashboard",
-      herramientas: "Herramientas Educativas",
-      academico: "Trabajo Académico",
-      gestion: "Gestión de Estudiantes",
-      financiero: "Gestión Financiera",
-    };
-    return labels[category] || category;
+  const toggleSection = (sectionId) => {
+    setCollapsedSections((prev) => ({ ...prev, [sectionId]: !prev[sectionId] }));
   };
 
-  const getCategoryIcon = (category) => {
-    const icons = {
-      dashboard: BarChart3,
-      herramientas: Bot,
-      academico: BookOpen,
-      gestion: CheckCircle,
-      financiero: DollarSign,
-    };
-    return icons[category] || BookOpen;
-  };
+  const isItemActive = (path) => location.pathname === path;
 
   const handleLogoutClick = () => setIsLogoutModalOpen(true);
-  const handleConfirmLogout = () => {
-    setIsLogoutModalOpen(false);
-    logout();
-  };
+  const handleConfirmLogout = () => { setIsLogoutModalOpen(false); logout(); };
   const handleCancelLogout = () => setIsLogoutModalOpen(false);
 
   return (
-    <div className="flex h-screen bg-gray-50 border-r">
+    <div className="flex h-screen bg-gray-50">
+      {/* Header fijo */}
+      <header className="fixed inset-x-0 top-0 z-50">
+        <div className="w-full bg-yellow-600 px-4 lg:px-6 py-4">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center">
+              <button className="lg:hidden p-2 text-white hover:text-yellow-200" onClick={() => setIsMobileMenuOpen(true)}>
+                <Menu className="w-6 h-6" />
+              </button>
+              <button
+                className="hidden lg:flex p-2 text-white hover:text-yellow-200 transition-colors rounded-md hover:bg-yellow-700"
+                onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                title={isSidebarCollapsed ? "Expandir menu" : "Colapsar menu"}
+              >
+                {isSidebarCollapsed ? <PanelLeftOpen className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
+              </button>
+            </div>
+            <div className="flex-1 ml-4">
+              <h1 className="text-xl lg:text-2xl font-bold text-white">Panel Familiar</h1>
+              <p className="text-sm text-white/80 mt-1 hidden sm:block">
+                {user?.fullName || user?.nombre || user?.username} |{" "}
+                {new Date().toLocaleDateString("es-ES", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+              </p>
+            </div>
+            <div className="hidden sm:flex items-center gap-3">
+              <div className="flex flex-col leading-tight text-right">
+                <span className="text-white font-semibold text-sm truncate max-w-45">
+                  {user?.nombre || ""} {user?.apellido || ""}
+                </span>
+                <span className="text-xs text-white/80 truncate max-w-45">
+                  {user?.email || "correo@ejemplo.com"}
+                </span>
+              </div>
+              <div className="w-10 h-10 rounded-full border-2 border-white/70 bg-white/10 flex items-center justify-center">
+                <CircleUser className="w-5 h-5 text-white" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
       {isMobileMenuOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/30 lg:hidden"
-          onClick={() => setIsMobileMenuOpen(false)}
-        />
+        <div className="fixed inset-0 z-40 bg-black/30 lg:hidden" onClick={() => setIsMobileMenuOpen(false)} />
       )}
 
+      {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 flex flex-col ${
+        className={`fixed inset-y-0 left-0 z-40 bg-white shadow-lg transform transition-all duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 flex flex-col pt-20 ${
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        } ${isSidebarCollapsed ? "lg:w-20" : "lg:w-64"} w-64`}
       >
-        <div className="flex items-center bg-yellow-600 justify-between p-7 border-b border-gray-200 lg:justify-start">
-          <div className="flex items-center space-x-3 mt-1">
-            <span className="text-xl font-bold text-white tracking-wider">
-              EDA
-            </span>
-          </div>
-          <button
-            className="lg:hidden p-2 text-gray-400 hover:text-gray-600"
-            onClick={() => setIsMobileMenuOpen(false)}
-          >
-            <X className="w-6 h-6" />
-          </button>
-        </div>
+        <button className="lg:hidden absolute right-4 top-4 p-2 text-yellow-600 hover:text-yellow-500" onClick={() => setIsMobileMenuOpen(false)}>
+          <X className="w-6 h-6" />
+        </button>
 
-        <nav className="mt-6 px-3 flex-1 overflow-y-auto">
+        <nav className={`mt-6 flex-1 ${isSidebarCollapsed ? "overflow-visible" : "overflow-y-auto"} ${isSidebarCollapsed ? "lg:px-2" : "px-3"}`}>
           <div className="space-y-1 pb-4">
-            {menuItems.map((item, index) => {
-              const IconComponent = item.icon;
-              const isActive = location.pathname === item.path;
-              const prevItem = index > 0 ? menuItems[index - 1] : null;
-              const showCategorySeparator =
-                prevItem && prevItem.category !== item.category;
+
+            {/* Panel Principal */}
+            <div className="relative group/tip">
+              <Link
+                to="/parent"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`w-full flex items-center ${
+                  isSidebarCollapsed ? "lg:justify-center lg:px-2" : "justify-between px-4"
+                } py-3 mb-1 rounded-lg transition-all duration-200 group hover:translate-x-1 cursor-pointer ${
+                  isItemActive("/parent")
+                    ? "bg-yellow-600 text-white"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-800"
+                }`}
+              >
+                <div className="flex items-center">
+                  <BarChart3 className={`w-5 h-5 ${isItemActive("/parent") ? "text-white" : "text-gray-400 group-hover:text-gray-600"}`} />
+                  <span className={`font-medium whitespace-nowrap transition-all duration-200 ${
+                    isSidebarCollapsed
+                      ? "lg:w-0 lg:opacity-0 lg:overflow-hidden lg:pointer-events-none"
+                      : "lg:w-auto lg:opacity-100 lg:ml-3 lg:delay-150"
+                  }`}>
+                    Panel Principal
+                  </span>
+                </div>
+              </Link>
+              {isSidebarCollapsed && <SidebarTooltip label="Panel Principal" />}
+            </div>
+
+            {/* Secciones colapsables */}
+            {SECTIONS.map((section) => {
+              const SectionIcon = section.icon;
+              const isCollapsed = !!collapsedSections[section.id];
+              const hasActiveItem = section.items.some((item) => isItemActive(item.path));
 
               return (
-                <div key={item.path}>
-                  {showCategorySeparator && (
-                    <div className="my-4 px-4">
-                      <div className="h-px bg-gray-400"></div>
-                      <div className="text-sm font-bold text-yellow-900 uppercase tracking-wider mt-2 mb-1 flex items-center gap-2">
-                        {React.createElement(getCategoryIcon(item.category), {
-                          className: "w-4 h-4",
-                        })}
-                        {getCategoryLabel(item.category)}
-                      </div>
-                      <div className="h-px bg-gray-400"></div>
-                    </div>
-                  )}
-
-                  <Link
-                    to={item.path}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className={`w-full flex items-center justify-between px-4 py-3 mb-1 rounded-lg text-left transition-all duration-200 group hover:translate-x-2 cursor-pointer ${
-                      isActive
-                        ? "bg-yellow-600 text-white"
-                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                    }`}
-                  >
-                    <div className="flex items-center space-x-3">
-                      <IconComponent
-                        className={`w-5 h-5 ${
-                          isActive
-                            ? "text-white"
-                            : "text-gray-400 group-hover:text-gray-600"
-                        }`}
-                      />
-                      <span className="font-medium">{item.label}</span>
-                    </div>
-                    <ChevronRight
-                      className={`w-4 h-4 transition-transform ${
-                        isActive ? "rotate-90 text-white" : "text-gray-400"
+                <div key={section.id} className="mt-3">
+                  {/* Encabezado de sección */}
+                  <div className="relative group/tip">
+                    <button
+                      onClick={() => toggleSection(section.id)}
+                      className={`w-full flex items-center ${
+                        isSidebarCollapsed ? "lg:justify-center lg:px-2" : "px-3"
+                      } py-1.5 rounded-lg transition-all duration-200 group cursor-pointer ${
+                        hasActiveItem
+                          ? "bg-yellow-200 text-yellow-900"
+                          : "bg-yellow-100 text-yellow-700 hover:bg-yellow-200 hover:text-yellow-900"
                       }`}
-                    />
-                  </Link>
+                    >
+                      <SectionIcon className="w-4 h-4 shrink-0 text-yellow-500 group-hover:text-yellow-700" />
+                      <span className={`text-xs font-bold uppercase tracking-wider transition-all duration-200 ${
+                        isSidebarCollapsed
+                          ? "lg:w-0 lg:opacity-0 lg:overflow-hidden lg:pointer-events-none"
+                          : "lg:opacity-100 lg:ml-2 lg:delay-150"
+                      }`}>
+                        {section.label}
+                      </span>
+                      <ChevronDown className={`ml-auto w-4 h-4 shrink-0 transition-transform duration-300 text-yellow-400 ${
+                        isSidebarCollapsed ? "lg:hidden" : ""
+                      } ${isCollapsed ? "-rotate-90" : "rotate-0"}`} />
+                    </button>
+                    {isSidebarCollapsed && <SidebarTooltip label={section.label} />}
+                  </div>
+
+                  {/* Items con animación */}
+                  <div className={`transition-all duration-300 ease-in-out ${
+                    isCollapsed
+                      ? "overflow-hidden max-h-0 opacity-0"
+                      : `max-h-96 opacity-100 ${isSidebarCollapsed ? "overflow-visible" : "overflow-hidden"}`
+                  }`}>
+                    <div className={`mt-1 space-y-0.5 ${isSidebarCollapsed ? "" : "pl-2"}`}>
+                      {section.items.map((item) => {
+                        const ItemIcon = item.icon;
+                        const isActive = isItemActive(item.path);
+                        return (
+                          <div key={item.path} className="relative group/tip">
+                            <Link
+                              to={item.path}
+                              onClick={() => setIsMobileMenuOpen(false)}
+                              className={`w-full flex items-center ${
+                                isSidebarCollapsed ? "lg:justify-center lg:px-2" : "justify-between px-4"
+                              } py-2.5 rounded-lg transition-all duration-200 group hover:translate-x-1 cursor-pointer ${
+                                isActive
+                                  ? "bg-yellow-600 text-white"
+                                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-800"
+                              }`}
+                            >
+                              <div className="flex items-center">
+                                <ItemIcon className={`w-4 h-4 ${isActive ? "text-white" : "text-gray-400 group-hover:text-gray-600"}`} />
+                                <span className={`text-sm font-medium whitespace-nowrap transition-all duration-200 ${
+                                  isSidebarCollapsed
+                                    ? "lg:w-0 lg:opacity-0 lg:overflow-hidden lg:pointer-events-none"
+                                    : "lg:w-auto lg:opacity-100 lg:ml-3 lg:delay-150"
+                                }`}>
+                                  {item.label}
+                                </span>
+                              </div>
+                            </Link>
+                            {isSidebarCollapsed && <SidebarTooltip label={item.label} />}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
                 </div>
               );
             })}
           </div>
         </nav>
 
-        <div className="mt-auto px-3 pb-6 flex flex-col gap-3">
-          <div className="flex flex-row items-center bg-gray-200 rounded-xl px-3 py-2 mb-2 w-full shadow gap-3 hover:-translate-y-1 transition-all hover:bg-yellow-100 cursor-pointer">
-            <div className="w-11 h-11 rounded-full border-2 border-yellow-500 shadow bg-yellow-100 flex items-center justify-center">
-              <CircleUser className="w-6 h-6 text-yellow-600" />
-            </div>
-            <div className="flex flex-col min-w-0">
-              <span className="font-semibold text-gray-900 text-sm truncate">
-                {user?.nombre || ""} {user?.apellido || ""}
-              </span>
-              <span className="text-xs text-gray-700 truncate">
-                {user?.email || "correo@ejemplo.com"}
-              </span>
-              {user?.role?.nombre && (
-                <span className="text-[10px] text-white bg-yellow-500 rounded px-2 py-0.5 mt-1 mb-1 w-fit font-semibold tracking-wide uppercase">
-                  {user.role.nombre}
+        {/* Footer: card usuario con rol + logout */}
+        <div className={`mt-auto border-t border-gray-200 ${isSidebarCollapsed ? "lg:p-2" : "p-3"}`}>
+          {!isSidebarCollapsed && (
+            <div className="flex flex-row items-center bg-gray-200 rounded-xl px-3 py-2 mb-3 w-full shadow gap-3 hover:-translate-y-1 transition-all hover:bg-yellow-100 cursor-pointer">
+              <div className="w-11 h-11 rounded-full border-2 border-yellow-500 shadow bg-yellow-100 flex items-center justify-center">
+                <CircleUser className="w-6 h-6 text-yellow-600" />
+              </div>
+              <div className="flex flex-col min-w-0">
+                <span className="font-semibold text-gray-900 text-sm truncate">
+                  {user?.nombre || ""} {user?.apellido || ""}
                 </span>
-              )}
+                <span className="text-xs text-gray-700 truncate">
+                  {user?.email || "correo@ejemplo.com"}
+                </span>
+                {user?.role?.nombre && (
+                  <span className="text-[10px] text-white bg-yellow-500 rounded px-2 py-0.5 mt-1 w-fit font-semibold tracking-wide uppercase">
+                    {user.role.nombre}
+                  </span>
+                )}
+              </div>
             </div>
+          )}
+          <div className="relative group/tip">
+            <button
+              className={`w-full flex items-center bg-red-50 text-red-600 hover:bg-red-100 cursor-pointer rounded-lg transition-colors duration-200 ${
+                isSidebarCollapsed ? "lg:justify-center lg:px-2 lg:py-3" : "space-x-3 px-4 py-3"
+              }`}
+              onClick={handleLogoutClick}
+            >
+              <LogOut className="w-5 h-5" />
+              <span className={`font-medium whitespace-nowrap transition-opacity duration-200 ${
+                isSidebarCollapsed ? "lg:opacity-0 lg:pointer-events-none" : "lg:opacity-100 lg:delay-150"
+              }`}>
+                Cerrar Sesión
+              </span>
+            </button>
+            {isSidebarCollapsed && <SidebarTooltip label="Cerrar Sesión" />}
           </div>
-          <button
-            className="w-full flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
-            onClick={handleLogoutClick}
-          >
-            <LogOut className="w-5 h-5" />
-            <span className="font-medium">Cerrar Sesión</span>
-          </button>
         </div>
       </aside>
 
-      <main className="flex-1 flex flex-col overflow-hidden lg:ml-0">
-        <header className="bg-yellow-600 border-gray-200 px-4 lg:px-6 py-4">
-          <div className="flex items-center justify-between">
-            <button
-              className="lg:hidden p-2 text-gray-400 hover:text-gray-600"
-              onClick={() => setIsMobileMenuOpen(true)}
-            >
-              <Menu className="w-6 h-6" />
-            </button>
-            <div className="flex-1 lg:ml-0 ml-4">
-              <h1 className="text-xl lg:text-2xl font-bold text-white">
-                Panel Familiar
-              </h1>
-              <p className="text-sm text-white mt-1 hidden sm:block">
-                {user?.fullName || user?.nombre || user?.username} |{" "}
-                {new Date().toLocaleDateString("es-ES", {
-                  weekday: "long",
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
-              </p>
-            </div>
-          </div>
-        </header>
-
+      {/* Main */}
+      <main className="flex-1 flex flex-col overflow-hidden lg:ml-0 pt-20">
         <div className="p-4 lg:p-6 h-full overflow-y-auto">
-          <Outlet />
+          <Outlet context={{ isSidebarCollapsed, setIsSidebarCollapsed }} />
         </div>
       </main>
 
+      {/* Modal logout */}
       <Transition appear show={isLogoutModalOpen} as={Fragment}>
         <Dialog as="div" className="relative z-50" onClose={handleCancelLogout}>
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
+          <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0" enterTo="opacity-100" leave="ease-in duration-200" leaveFrom="opacity-100" leaveTo="opacity-0">
             <div className="fixed inset-0 bg-black/20 backdrop-blur-md" />
           </Transition.Child>
           <div className="fixed inset-0 overflow-y-auto">
             <div className="flex min-h-full items-center justify-center p-4 text-center">
-              <Transition.Child
-                as={Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0 scale-95"
-                enterTo="opacity-100 scale-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100 scale-100"
-                leaveTo="opacity-0 scale-95"
-              >
+              <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0 scale-95" enterTo="opacity-100 scale-100" leave="ease-in duration-200" leaveFrom="opacity-100 scale-100" leaveTo="opacity-0 scale-95">
                 <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
                   <div className="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full mb-4">
                     <LogOut className="w-6 h-6 text-red-600" />
                   </div>
-                  <Dialog.Title
-                    as="h3"
-                    className="text-lg font-medium leading-6 text-gray-900 text-center mb-2"
-                  >
+                  <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900 text-center mb-2">
                     ¿Cerrar sesión?
                   </Dialog.Title>
-                  <div className="mt-2">
-                    <p className="text-sm text-gray-500 text-center">
-                      ¿Estás seguro de que quieres cerrar sesión? Perderás el
-                      acceso a tu cuenta familiar.
-                    </p>
-                  </div>
+                  <p className="text-sm text-gray-500 text-center mt-2">
+                    ¿Estás seguro de que quieres cerrar sesión? Perderás el acceso a tu cuenta familiar.
+                  </p>
                   <div className="mt-6 flex space-x-3">
-                    <button
-                      type="button"
-                      className="flex-1 inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200"
-                      onClick={handleCancelLogout}
-                    >
+                    <button type="button" className="flex-1 inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none transition-colors duration-200" onClick={handleCancelLogout}>
                       Cancelar
                     </button>
-                    <button
-                      type="button"
-                      className="flex-1 inline-flex justify-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors duration-200"
-                      onClick={handleConfirmLogout}
-                    >
+                    <button type="button" className="flex-1 inline-flex justify-center rounded-md bg-red-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none transition-colors duration-200" onClick={handleConfirmLogout}>
                       Cerrar sesión
                     </button>
                   </div>

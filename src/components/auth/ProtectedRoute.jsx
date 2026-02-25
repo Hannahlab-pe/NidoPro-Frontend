@@ -1,9 +1,14 @@
-import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
-import { useAuthStore } from '../../store';
+import React from "react";
+import { Navigate, useLocation } from "react-router-dom";
+import { useAuthStore } from "../../store";
 
-const ProtectedRoute = ({ children, requiredRole = null, requiredPermission = null }) => {
-  const { isAuthenticated, user, hasRole, hasPermission, loading } = useAuthStore();
+const ProtectedRoute = ({
+  children,
+  requiredRole = null,
+  requiredPermission = null,
+}) => {
+  const { isAuthenticated, user, hasRole, hasPermission, loading } =
+    useAuthStore();
   const location = useLocation();
 
   // Mostrar loading mientras se inicializa la autenticación
@@ -25,7 +30,7 @@ const ProtectedRoute = ({ children, requiredRole = null, requiredPermission = nu
 
   // Verificar si necesita cambiar contraseña (solo para debugging)
   if (user && user.cambioContrasena === false) {
-    console.log('🔐 Usuario necesita cambiar contraseña:', user.nombre);
+    // Usuario necesita cambiar contraseña
   }
 
   // Verificar rol específico si es requerido
@@ -51,7 +56,9 @@ const ProtectedRoute = ({ children, requiredRole = null, requiredPermission = nu
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
             <h2 className="text-lg font-semibold mb-2">Acceso Denegado</h2>
             <p>No tienes permisos para realizar esta acción.</p>
-            <p className="text-sm mt-2">Permiso requerido: {requiredPermission}</p>
+            <p className="text-sm mt-2">
+              Permiso requerido: {requiredPermission}
+            </p>
           </div>
         </div>
       </div>

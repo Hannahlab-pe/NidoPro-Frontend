@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Calendar, BookOpen, FileText, UserCheck, Edit } from 'lucide-react';
+import StatCard from '../../../components/common/StatCard';
 import { toast } from 'sonner';
 import CrearEvaluacionModal from './modales/CrearEvaluacionModal';
 import EvaluarEstudianteModal from './modales/EvaluarEstudianteModal';
@@ -145,7 +146,7 @@ const EvaluacionesEstudiantes = () => {
   if (isLoading) {
     return (
       <div className="flex flex-col justify-center items-center min-h-64 px-4">
-        <div className="animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-b-2 border-green-600"></div>
         <span className="ml-3 text-gray-600 text-sm sm:text-base mt-2">Cargando evaluaciones...</span>
       </div>
     );
@@ -185,7 +186,7 @@ const EvaluacionesEstudiantes = () => {
               </p>
               <button
                 onClick={handleCrearEvaluacion}
-                className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-blue-700"
+                className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Crear Primera Evaluación
@@ -233,7 +234,7 @@ const EvaluacionesEstudiantes = () => {
                         <div className="flex flex-col sm:flex-row gap-2">
                           <button
                             onClick={() => handleEditarEvaluacion(evaluacion)}
-                            className="w-full sm:w-auto inline-flex items-center justify-center px-2 sm:px-3 py-2 border border-transparent text-xs sm:text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+                            className="w-full sm:w-auto inline-flex items-center justify-center px-2 sm:px-3 py-2 border border-transparent text-xs sm:text-sm leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
                           >
                             <Edit className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                             <span className="hidden sm:inline">Editar</span>
@@ -275,40 +276,13 @@ const EvaluacionesEstudiantes = () => {
       />
 
       {/* Estadísticas */}
-      <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-          <div className="flex items-center">
-            <FileText className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600" />
-            <div className="ml-3">
-              <p className="text-sm font-medium text-gray-600">Total Evaluaciones</p>
-              <p className="text-xl sm:text-2xl font-semibold text-gray-900">{evaluaciones.length}</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-          <div className="flex items-center">
-            <BookOpen className="w-6 h-6 sm:w-8 sm:h-8 text-green-600" />
-            <div className="ml-3">
-              <p className="text-sm font-medium text-gray-600">Cursos Disponibles</p>
-              <p className="text-xl sm:text-2xl font-semibold text-gray-900">{cursos.length}</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 sm:col-span-2 lg:col-span-1">
-          <div className="flex items-center">
-            <Calendar className="w-6 h-6 sm:w-8 sm:h-8 text-purple-600" />
-            <div className="ml-3">
-              <p className="text-sm font-medium text-gray-600">Evaluaciones este mes</p>
-              <p className="text-xl sm:text-2xl font-semibold text-gray-900">
-                {evaluaciones.filter(e => {
-                  const fecha = new Date(e.fecha);
-                  const ahora = new Date();
-                  return fecha.getMonth() === ahora.getMonth() && fecha.getFullYear() === ahora.getFullYear();
-                }).length}
-              </p>
-            </div>
-          </div>
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <StatCard icon={FileText}  label="Total Evaluaciones"    value={evaluaciones.length}  color="#16a34a" />
+        <StatCard icon={BookOpen}  label="Cursos Disponibles"    value={cursos.length}         color="#2563eb" />
+        <StatCard icon={Calendar}  label="Evaluaciones este mes" value={evaluaciones.filter(e => {
+          const fecha = new Date(e.fecha); const ahora = new Date();
+          return fecha.getMonth() === ahora.getMonth() && fecha.getFullYear() === ahora.getFullYear();
+        }).length} color="#9333ea" />
       </div>
     </div>
   );

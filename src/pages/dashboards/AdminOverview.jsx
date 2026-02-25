@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useOutletContext } from "react-router-dom";
 import { useAdminDashboard } from "../../hooks/useAdminDashboard";
 import { useAuthStore } from "../../store";
 import {
@@ -7,7 +7,22 @@ import {
   FinancialTrendChart,
   CategoryPieChart,
 } from "../../components/charts";
-import { TrendingUp, DollarSign, RefreshCw, Bot } from "lucide-react";
+import { TrendingUp, DollarSign, RefreshCw, Bot, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+
+// Componente aislado: solo él re-renderiza cuando cambia el estado del sidebar
+const SidebarToggle = () => {
+  const { isSidebarCollapsed, setIsSidebarCollapsed } = useOutletContext() || {};
+  if (typeof setIsSidebarCollapsed !== "function") return null;
+  return (
+    <button
+      className="hidden lg:flex p-2 text-gray-500 hover:text-blue-600 transition-colors rounded-md hover:bg-blue-50"
+      onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+      title={isSidebarCollapsed ? "Expandir menu" : "Colapsar menu"}
+    >
+      {isSidebarCollapsed ? <PanelLeftOpen className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
+    </button>
+  );
+};
 
 const AdminOverview = () => {
   const { user } = useAuthStore();
@@ -22,9 +37,12 @@ const AdminOverview = () => {
   return (
     <div className="space-y-6 lg:space-y-8">
       <div className="flex items-center justify-between">
-        <h1 className="text-5xl font-bold text-gray-700">
-          Bienvenido, {user?.nombre || ""}
-        </h1>
+        <div className="flex items-center gap-2">
+          <SidebarToggle />
+          <h1 className="text-5xl font-bold text-gray-700">
+            Bienvenido, {user?.nombre || ""}
+          </h1>
+        </div>
         {dashboardLoading && (
           <div className="flex items-center space-x-2 text-blue-600">
             <RefreshCw className="w-5 h-5 animate-spin" />

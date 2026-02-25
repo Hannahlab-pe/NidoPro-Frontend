@@ -1,20 +1,32 @@
-
-import { Fragment, useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
-import { Dialog, Transition } from '@headlessui/react';
-import { FileText, Loader2, Save, X, Upload, File, Eye, Trash2 } from 'lucide-react';
-import { toast } from 'sonner';
-import { useAuthStore } from '../../../../store';
-import { planificacionService } from '../../../../services/planificacionService';
-import StorageService from '../../../../services/storageService';
+import { Fragment, useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import { Dialog, Transition } from "@headlessui/react";
+import {
+  FileText,
+  Loader2,
+  Save,
+  X,
+  Upload,
+  File,
+  Eye,
+  Trash2,
+} from "lucide-react";
+import { toast } from "sonner";
+import { useAuthStore } from "../../../../store";
+import { planificacionService } from "../../../../services/planificacionService";
+import StorageService from "../../../../services/storageService";
 
 const validationSchema = yup.object({
-  tipoPlanificacion: yup.string().required('El tipo de planificación es requerido'),
-  fechaPlanificacion: yup.string().required('La fecha de planificación es requerida'),
-  archivo: yup.mixed().required('Debe seleccionar un archivo'),
-  observaciones: yup.string().required('Las observaciones son requeridas')
+  tipoPlanificacion: yup
+    .string()
+    .required("El tipo de planificación es requerido"),
+  fechaPlanificacion: yup
+    .string()
+    .required("La fecha de planificación es requerida"),
+  archivo: yup.mixed().required("Debe seleccionar un archivo"),
+  observaciones: yup.string().required("Las observaciones son requeridas"),
 });
 
 const FormField = ({ label, error, required, children, className = "" }) => (
@@ -27,17 +39,12 @@ const FormField = ({ label, error, required, children, className = "" }) => (
   </div>
 );
 
-
 const ModalAgregarPlanificacion = ({ open, onClose, onSuccess }) => {
   const { user } = useAuthStore();
-  
-  console.log('🎯 ModalAgregarPlanificacion - Props recibidas:', { open, hasOnClose: !!onClose, hasOnSuccess: !!onSuccess });
-  console.log('👤 Usuario del store:', user);
-  console.log('🔑 Estado de autenticación:', { open, hasUser: !!user, entidadId: user?.entidadId });
 
   const [aulas, setAulas] = useState([]);
   const [loadingAulas, setLoadingAulas] = useState(false);
-  const [selectedAulaId, setSelectedAulaId] = useState('');
+  const [selectedAulaId, setSelectedAulaId] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
   const [filePreview, setFilePreview] = useState(null);
   const [uploadingFile, setUploadingFile] = useState(false);
@@ -48,20 +55,20 @@ const ModalAgregarPlanificacion = ({ open, onClose, onSuccess }) => {
     setValue,
     formState: { errors, isSubmitting },
     reset,
-    watch
+    watch,
   } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {
-      tipoPlanificacion: '',
-      fechaPlanificacion: '',
+      tipoPlanificacion: "",
+      fechaPlanificacion: "",
       archivo: null,
-      observaciones: ''
-    }
+      observaciones: "",
+    },
   });
 
   // Registrar el campo archivo manualmente
   useEffect(() => {
-    register('archivo');
+    register("archivo");
   }, [register]);
 
   // Limpiar archivo cuando se cierra el modal
@@ -74,37 +81,33 @@ const ModalAgregarPlanificacion = ({ open, onClose, onSuccess }) => {
 
   // Obtener aulas del trabajador cuando se abre el modal
   useEffect(() => {
-    console.log('🔍 useEffect ejecutándose:', { open, userEntidadId: user?.entidadId, user });
     if (open && user?.entidadId) {
-      console.log('🚀 Llamando a fetchAulasTrabajador con id:', user.entidadId);
       fetchAulasTrabajador();
-    } else {
-      console.log('❌ No se ejecuta fetchAulasTrabajador:', { open, hasUser: !!user, hasEntidadId: !!user?.entidadId, user });
     }
   }, [open, user?.entidadId]);
 
   const fetchAulasTrabajador = async () => {
     try {
-      console.log('📡 Iniciando petición de aulas para trabajador:', user.entidadId);
       setLoadingAulas(true);
-      const response = await planificacionService.getAulasTrabajador(user.entidadId);
-      console.log('📨 Respuesta del API de aulas:', response);
+      const response = await planificacionService.getAulasTrabajador(
+        user.entidadId,
+      );
 
       if (response.success && response.aulas.length > 0) {
-        console.log('✅ Aulas encontradas:', response.aulas);
         setAulas(response.aulas);
         // Si solo hay una aula, la seleccionamos automáticamente
         if (response.aulas.length === 1) {
           setSelectedAulaId(response.aulas[0].id_aula);
-          console.log('🎯 Aula seleccionada automáticamente:', response.aulas[0].id_aula);
         }
       } else {
-        console.log('⚠️ No se encontraron aulas:', response);
-        toast.error('No se encontraron aulas asignadas al trabajador');
+        toast.error("No se encontraron aulas asignadas al trabajador");
       }
     } catch (error) {
-      console.error('❌ Error al obtener aulas:', error);
-      const errorMessage = error.response?.data?.message || error.message || 'Error al cargar las aulas asignadas';
+      console.error("❌ Error al obtener aulas:", error);
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Error al cargar las aulas asignadas";
       toast.error(errorMessage);
     } finally {
       setLoadingAulas(false);
@@ -118,29 +121,31 @@ const ModalAgregarPlanificacion = ({ open, onClose, onSuccess }) => {
 
     // Validar tipo de archivo
     const allowedTypes = [
-      'application/pdf',
-      'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'application/vnd.ms-excel',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      'image/jpeg',
-      'image/png',
-      'image/gif'
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "application/vnd.ms-excel",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "image/jpeg",
+      "image/png",
+      "image/gif",
     ];
 
     if (!StorageService.validateFileType(file, allowedTypes)) {
-      toast.error('Tipo de archivo no permitido. Use PDF, Word, Excel o imágenes.');
+      toast.error(
+        "Tipo de archivo no permitido. Use PDF, Word, Excel o imágenes.",
+      );
       return;
     }
 
     // Validar tamaño (máximo 10MB)
     if (!StorageService.validateFileSize(file, 10)) {
-      toast.error('El archivo es demasiado grande. Máximo 10MB.');
+      toast.error("El archivo es demasiado grande. Máximo 10MB.");
       return;
     }
 
     setSelectedFile(file);
-    setValue('archivo', file);
+    setValue("archivo", file);
 
     // Crear preview del archivo
     const fileInfo = StorageService.getFileInfo(file);
@@ -151,114 +156,101 @@ const ModalAgregarPlanificacion = ({ open, onClose, onSuccess }) => {
   const handleRemoveFile = () => {
     setSelectedFile(null);
     setFilePreview(null);
-    setValue('archivo', null);
+    setValue("archivo", null);
     // Limpiar el input file
-    const fileInput = document.getElementById('archivo-input');
-    if (fileInput) fileInput.value = '';
+    const fileInput = document.getElementById("archivo-input");
+    if (fileInput) fileInput.value = "";
   };
 
   const onSubmit = async (data) => {
     if (!selectedAulaId) {
-      toast.error('Debe seleccionar un aula');
+      toast.error("Debe seleccionar un aula");
       return;
     }
 
     if (!selectedFile) {
-      toast.error('Debe seleccionar un archivo');
+      toast.error("Debe seleccionar un archivo");
       return;
     }
 
     if (!user?.entidadId) {
-      toast.error('No se pudo obtener la información del usuario');
+      toast.error("No se pudo obtener la información del usuario");
       return;
     }
 
     try {
       setUploadingFile(true);
-      toast.loading('Subiendo archivo...', { id: 'upload' });
+      toast.loading("Subiendo archivo...", { id: "upload" });
 
       // Subir archivo al storage (mismo endpoint que vouchers de matrícula)
       const uploadResult = await StorageService.uploadFile(
         selectedFile,
-        'planificaciones'
+        "planificaciones",
       );
 
-      toast.dismiss('upload');
-      toast.success('Archivo subido exitosamente');
+      toast.dismiss("upload");
+      toast.success("Archivo subido exitosamente");
 
       const payload = {
-        tipoPlanificacion: data.tipoPlanificacion === 'Anual' ? 'Planificación Anual' :
-                          data.tipoPlanificacion === 'Mensual' ? 'Planificación Mensual' :
-                          data.tipoPlanificacion === 'Semanal' ? 'Planificación Semanal' :
-                          'Planificación Diaria', // Formato esperado por el backend
-        fechaPlanificacion: data.fechaPlanificacion + 'T00:00:00.000Z', // Formato ISO completo
+        tipoPlanificacion:
+          data.tipoPlanificacion === "Anual"
+            ? "Planificación Anual"
+            : data.tipoPlanificacion === "Mensual"
+              ? "Planificación Mensual"
+              : data.tipoPlanificacion === "Semanal"
+                ? "Planificación Semanal"
+                : "Planificación Diaria", // Formato esperado por el backend
+        fechaPlanificacion: data.fechaPlanificacion + "T00:00:00.000Z", // Formato ISO completo
         archivoUrl: uploadResult.url,
-        observaciones: data.observaciones || '', // Asegurar que no sea null
+        observaciones: data.observaciones || "", // Asegurar que no sea null
         idTrabajador: user.entidadId,
-        idAula: selectedAulaId
+        idAula: selectedAulaId,
       };
 
-      console.log('📤 Enviando planificación:', payload);
-      console.log('🔍 Valores antes de enviar:', {
-        selectedAulaId,
-        userEntidadId: user?.entidadId,
-        selectedFile: !!selectedFile,
-        uploadResultUrl: uploadResult?.url
-      });
-      console.log('🔍 Detalles del payload:', {
-        tipoPlanificacion: payload.tipoPlanificacion,
-        fechaPlanificacion: payload.fechaPlanificacion,
-        archivoUrl: payload.archivoUrl?.substring(0, 50) + '...',
-        observaciones: payload.observaciones,
-        idTrabajador: payload.idTrabajador,
-        idAula: payload.idAula,
-        tipos: {
-          tipoPlanificacion: typeof payload.tipoPlanificacion,
-          fechaPlanificacion: typeof payload.fechaPlanificacion,
-          archivoUrl: typeof payload.archivoUrl,
-          observaciones: typeof payload.observaciones,
-          idTrabajador: typeof payload.idTrabajador,
-          idAula: typeof payload.idAula
-        }
-      });
-
       // Validar que todos los campos requeridos estén presentes y sean válidos
-      if (!payload.tipoPlanificacion || typeof payload.tipoPlanificacion !== 'string') {
-        throw new Error('Tipo de planificación inválido');
+      if (
+        !payload.tipoPlanificacion ||
+        typeof payload.tipoPlanificacion !== "string"
+      ) {
+        throw new Error("Tipo de planificación inválido");
       }
-      if (!payload.fechaPlanificacion || typeof payload.fechaPlanificacion !== 'string') {
-        throw new Error('Fecha de planificación inválida');
+      if (
+        !payload.fechaPlanificacion ||
+        typeof payload.fechaPlanificacion !== "string"
+      ) {
+        throw new Error("Fecha de planificación inválida");
       }
-      if (!payload.archivoUrl || typeof payload.archivoUrl !== 'string') {
-        throw new Error('URL del archivo inválida');
+      if (!payload.archivoUrl || typeof payload.archivoUrl !== "string") {
+        throw new Error("URL del archivo inválida");
       }
-      if (!payload.idTrabajador || typeof payload.idTrabajador !== 'string') {
-        throw new Error('ID del trabajador inválido');
+      if (!payload.idTrabajador || typeof payload.idTrabajador !== "string") {
+        throw new Error("ID del trabajador inválido");
       }
-      if (!payload.idAula || typeof payload.idAula !== 'string') {
-        throw new Error('ID del aula inválido');
+      if (!payload.idAula || typeof payload.idAula !== "string") {
+        throw new Error("ID del aula inválido");
       }
 
       // Enviar datos al API
       await planificacionService.crearPlanificacion(payload);
-      toast.success('Planificación registrada correctamente');
+      toast.success("Planificación registrada correctamente");
 
       // Llamar a onSuccess si está definido
       if (onSuccess) {
-        console.log('🔄 Llamando onSuccess después de crear planificación');
         onSuccess();
       }
 
       reset();
-      setSelectedAulaId('');
+      setSelectedAulaId("");
       setSelectedFile(null);
       setFilePreview(null);
       onClose();
-
     } catch (error) {
-      console.error('Error al crear planificación:', error);
-      toast.dismiss('upload');
-      const errorMessage = error.response?.data?.message || error.message || 'Error al registrar la planificación';
+      console.error("Error al crear planificación:", error);
+      toast.dismiss("upload");
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Error al registrar la planificación";
       toast.error(errorMessage);
     } finally {
       setUploadingFile(false);
@@ -267,13 +259,11 @@ const ModalAgregarPlanificacion = ({ open, onClose, onSuccess }) => {
 
   const handleClose = () => {
     reset();
-    setSelectedAulaId('');
+    setSelectedAulaId("");
     setSelectedFile(null);
     setFilePreview(null);
     onClose();
   };
-
-  console.log('🎨 Renderizando modal:', { open, aulasCount: aulas.length, loadingAulas });
 
   return (
     <Transition appear show={open} as={Fragment}>
@@ -313,7 +303,8 @@ const ModalAgregarPlanificacion = ({ open, onClose, onSuccess }) => {
                         Agregar Planificación
                       </Dialog.Title>
                       <p className="text-sm text-gray-500">
-                        Complete la información para registrar una planificación docente
+                        Complete la información para registrar una planificación
+                        docente
                       </p>
                     </div>
                   </div>
@@ -327,8 +318,15 @@ const ModalAgregarPlanificacion = ({ open, onClose, onSuccess }) => {
 
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField label="Tipo de Planificación" error={errors.tipoPlanificacion?.message} required>
-                      <select {...register('tipoPlanificacion')} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <FormField
+                      label="Tipo de Planificación"
+                      error={errors.tipoPlanificacion?.message}
+                      required
+                    >
+                      <select
+                        {...register("tipoPlanificacion")}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
                         <option value="">Seleccionar tipo</option>
                         <option value="Diaria">Diaria</option>
                         <option value="Semanal">Semanal</option>
@@ -336,11 +334,25 @@ const ModalAgregarPlanificacion = ({ open, onClose, onSuccess }) => {
                         <option value="Anual">Anual</option>
                       </select>
                     </FormField>
-                    <FormField label="Fecha de Planificación" error={errors.fechaPlanificacion?.message} required>
-                      <input {...register('fechaPlanificacion')} type="date" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    <FormField
+                      label="Fecha de Planificación"
+                      error={errors.fechaPlanificacion?.message}
+                      required
+                    >
+                      <input
+                        {...register("fechaPlanificacion")}
+                        type="date"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
                     </FormField>
                   </div>
-                  <FormField label="Aula" error={!selectedAulaId ? 'Debe seleccionar un aula' : undefined} required>
+                  <FormField
+                    label="Aula"
+                    error={
+                      !selectedAulaId ? "Debe seleccionar un aula" : undefined
+                    }
+                    required
+                  >
                     <select
                       value={selectedAulaId}
                       onChange={(e) => setSelectedAulaId(e.target.value)}
@@ -348,7 +360,9 @@ const ModalAgregarPlanificacion = ({ open, onClose, onSuccess }) => {
                       disabled={loadingAulas}
                     >
                       <option value="">
-                        {loadingAulas ? 'Cargando aulas...' : 'Seleccionar aula'}
+                        {loadingAulas
+                          ? "Cargando aulas..."
+                          : "Seleccionar aula"}
                       </option>
                       {aulas.map((aula) => (
                         <option key={aula.id_aula} value={aula.id_aula}>
@@ -357,7 +371,11 @@ const ModalAgregarPlanificacion = ({ open, onClose, onSuccess }) => {
                       ))}
                     </select>
                   </FormField>
-                  <FormField label="Archivo" error={errors.archivo?.message} required>
+                  <FormField
+                    label="Archivo"
+                    error={errors.archivo?.message}
+                    required
+                  >
                     <div className="space-y-3">
                       {!selectedFile ? (
                         <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
@@ -377,7 +395,9 @@ const ModalAgregarPlanificacion = ({ open, onClose, onSuccess }) => {
                           />
                           <button
                             type="button"
-                            onClick={() => document.getElementById('archivo-input').click()}
+                            onClick={() =>
+                              document.getElementById("archivo-input").click()
+                            }
                             className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
                           >
                             Seleccionar Archivo
@@ -402,7 +422,12 @@ const ModalAgregarPlanificacion = ({ open, onClose, onSuccess }) => {
                             <div className="flex items-center space-x-2">
                               <button
                                 type="button"
-                                onClick={() => window.open(URL.createObjectURL(selectedFile), '_blank')}
+                                onClick={() =>
+                                  window.open(
+                                    URL.createObjectURL(selectedFile),
+                                    "_blank",
+                                  )
+                                }
                                 className="p-1 text-gray-400 hover:text-blue-500 transition-colors"
                                 title="Vista previa"
                               >
@@ -422,8 +447,17 @@ const ModalAgregarPlanificacion = ({ open, onClose, onSuccess }) => {
                       )}
                     </div>
                   </FormField>
-                  <FormField label="Observaciones" error={errors.observaciones?.message} required>
-                    <textarea {...register('observaciones')} rows={4} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Observaciones adicionales..." />
+                  <FormField
+                    label="Observaciones"
+                    error={errors.observaciones?.message}
+                    required
+                  >
+                    <textarea
+                      {...register("observaciones")}
+                      rows={4}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Observaciones adicionales..."
+                    />
                   </FormField>
                   <div className="flex justify-end space-x-3 pt-4 border-t">
                     <button
@@ -435,13 +469,21 @@ const ModalAgregarPlanificacion = ({ open, onClose, onSuccess }) => {
                     </button>
                     <button
                       type="submit"
-                      disabled={isSubmitting || !selectedAulaId || loadingAulas || uploadingFile || !selectedFile}
+                      disabled={
+                        isSubmitting ||
+                        !selectedAulaId ||
+                        loadingAulas ||
+                        uploadingFile ||
+                        !selectedFile
+                      }
                       className="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
                       {isSubmitting || uploadingFile ? (
                         <>
                           <Loader2 className="w-4 h-4 animate-spin" />
-                          {uploadingFile ? 'Subiendo archivo...' : 'Guardando...'}
+                          {uploadingFile
+                            ? "Subiendo archivo..."
+                            : "Guardando..."}
                         </>
                       ) : (
                         <>

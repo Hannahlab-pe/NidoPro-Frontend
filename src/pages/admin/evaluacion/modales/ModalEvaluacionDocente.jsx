@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Dialog, Transition } from '@headlessui/react';
+import React, { useState, useRef, useEffect } from "react";
+import { Dialog, Transition } from "@headlessui/react";
 import {
   X,
   Upload,
@@ -9,10 +9,13 @@ import {
   Save,
   Loader,
   AlertCircle,
-  CheckCircle
-} from 'lucide-react';
-import { toast } from 'sonner';
-import { StorageService } from '../../../../services/storageService';
+  CheckCircle,
+  File,
+  Eye,
+  Trash2,
+} from "lucide-react";
+import { toast } from "sonner";
+import StorageService from "../../../../services/storageService";
 
 const ModalEvaluacionDocente = ({
   isOpen,
@@ -20,20 +23,21 @@ const ModalEvaluacionDocente = ({
   evaluacion,
   trabajadores,
   onGuardar,
-  coordinadorId
+  coordinadorId,
 }) => {
   const [formData, setFormData] = useState({
-    motivo: '',
-    descripcion: '',
-    archivoUrl: '',
-    idTrabajador: '',
-    idCoordinador: coordinadorId || ''
+    motivo: "",
+    descripcion: "",
+    archivoUrl: "",
+    idTrabajador: "",
+    idCoordinador: coordinadorId || "",
   });
 
   const [errors, setErrors] = useState({});
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [filePreview, setFilePreview] = useState(null);
   const fileInputRef = useRef(null);
 
   // Resetear formulario cuando se abre el modal
@@ -42,23 +46,25 @@ const ModalEvaluacionDocente = ({
       if (evaluacion) {
         // Modo edición
         setFormData({
-          motivo: evaluacion.motivo || '',
-          descripcion: evaluacion.descripcion || '',
-          archivoUrl: evaluacion.archivoUrl || '',
-          idTrabajador: evaluacion.idTrabajador?.idTrabajador || '',
-          idCoordinador: evaluacion.idCoordinador?.idCoordinador || coordinadorId || ''
+          motivo: evaluacion.motivo || "",
+          descripcion: evaluacion.descripcion || "",
+          archivoUrl: evaluacion.archivoUrl || "",
+          idTrabajador: evaluacion.idTrabajador?.idTrabajador || "",
+          idCoordinador:
+            evaluacion.idCoordinador?.idCoordinador || coordinadorId || "",
         });
         setSelectedFile(null);
       } else {
         // Modo creación
         setFormData({
-          motivo: '',
-          descripcion: '',
-          archivoUrl: '',
-          idTrabajador: '',
-          idCoordinador: coordinadorId || ''
+          motivo: "",
+          descripcion: "",
+          archivoUrl: "",
+          idTrabajador: "",
+          idCoordinador: coordinadorId || "",
         });
         setSelectedFile(null);
+        setFilePreview(null);
       }
       setErrors({});
     }
@@ -69,21 +75,21 @@ const ModalEvaluacionDocente = ({
     const newErrors = {};
 
     if (!formData.motivo.trim()) {
-      newErrors.motivo = 'El motivo es obligatorio';
+      newErrors.motivo = "El motivo es obligatorio";
     }
 
     if (!formData.descripcion.trim()) {
-      newErrors.descripcion = 'La descripción es obligatoria';
+      newErrors.descripcion = "La descripción es obligatoria";
     } else if (formData.descripcion.trim().length < 10) {
-      newErrors.descripcion = 'La descripción debe tener mínimo 10 caracteres';
+      newErrors.descripcion = "La descripción debe tener mínimo 10 caracteres";
     }
 
     if (!formData.idTrabajador) {
-      newErrors.idTrabajador = 'Debe seleccionar un trabajador';
+      newErrors.idTrabajador = "Debe seleccionar un trabajador";
     }
 
     if (!formData.idCoordinador) {
-      newErrors.idCoordinador = 'No se pudo obtener el ID del coordinador';
+      newErrors.idCoordinador = "No se pudo obtener el ID del coordinador";
     }
 
     setErrors(newErrors);
@@ -93,44 +99,68 @@ const ModalEvaluacionDocente = ({
   // Manejar cambio de archivo
   const handleFileChange = (event) => {
     const file = event.target.files[0];
-    if (file) {
-      // Validar tipo de archivo
-      const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
-      if (!allowedTypes.includes(file.type)) {
-        toast.error('Solo se permiten archivos PDF e imágenes (JPG, PNG)');
-        return;
-      }
+    if (!file) return;
 
-      // Validar tamaño (máximo 10MB)
-      if (file.size > 10 * 1024 * 1024) {
-        toast.error('El archivo no puede superar los 10MB');
-        return;
-      }
+    // Validar tipo de archivo usando StorageService
+    const allowedTypes = [
+      "application/pdf",
+      "image/jpeg",
+      "image/png",
+      "image/jpg",
+    ];
 
-      setSelectedFile(file);
-      setFormData(prev => ({ ...prev, archivoUrl: '' })); // Limpiar URL anterior
+    if (!StorageService.validateFileType(file, allowedTypes)) {
+      toast.error("Solo se permiten archivos PDF e imágenes (JPG, PNG)");
+      return;
+    }
+
+    // Validar tamaño (máximo 10MB) usando StorageService
+    if (!StorageService.validateFileSize(file, 10)) {
+      toast.error("El archivo no puede superar los 10MB");
+      return;
+    }
+
+    setSelectedFile(file);
+    setFormData((prev) => ({ ...prev, archivoUrl: "" })); // Limpiar URL anterior
+
+    // Crear preview del archivo
+    const fileInfo = StorageService.getFileInfo(file);
+    setFilePreview(fileInfo);
+  };
+
+  // Remover archivo seleccionado
+  const handleRemoveFile = () => {
+    setSelectedFile(null);
+    setFilePreview(null);
+    setFormData((prev) => ({ ...prev, archivoUrl: "" }));
+    // Limpiar el input file
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
   };
 
-  // Subir archivo a Firebase
-  const uploadFileToFirebase = async (file) => {
+  // Subir archivo a Google Cloud Storage
+  const uploadFileToStorage = async (file) => {
     try {
       setUploading(true);
-      toast.loading('Subiendo archivo...', { id: 'upload-file' });
+      toast.loading("Subiendo archivo...", { id: "upload-file" });
 
-      // Subir archivo usando StorageService
-      const uploadResult = await StorageService.uploadFile(file, 'evaluaciones-docentes');
-      const downloadURL = uploadResult.url;
+      // Subir archivo usando StorageService a carpeta 'evaluaciones-docentes'
+      const uploadResult = await StorageService.uploadFile(
+        file,
+        "evaluaciones-docentes",
+        coordinadorId,
+      );
 
-      toast.dismiss('upload-file');
-      toast.success('Archivo subido exitosamente');
+      toast.dismiss("upload-file");
+      toast.success("Archivo subido exitosamente");
 
-      return downloadURL;
+      return uploadResult.url;
     } catch (error) {
-      console.error('Error al subir archivo:', error);
-      toast.dismiss('upload-file');
-      toast.error('Error al subir el archivo');
-      throw new Error('Error al subir el archivo');
+      console.error("Error al subir archivo:", error);
+      toast.dismiss("upload-file");
+      toast.error("Error al subir el archivo: " + error.message);
+      throw error;
     } finally {
       setUploading(false);
     }
@@ -146,30 +176,29 @@ const ModalEvaluacionDocente = ({
 
     try {
       setSaving(true);
-      toast.loading('Guardando evaluación...', { id: 'save-evaluation' });
+      toast.loading("Guardando evaluación...", { id: "save-evaluation" });
 
       let archivoUrl = formData.archivoUrl;
 
-      // Si hay un archivo seleccionado, subirlo a Firebase
+      // Si hay un archivo seleccionado, subirlo a Google Cloud Storage
       if (selectedFile) {
-        archivoUrl = await uploadFileToFirebase(selectedFile);
+        archivoUrl = await uploadFileToStorage(selectedFile);
       }
 
       // Preparar datos finales - si no hay archivoUrl, mandar null
       const evaluacionData = {
         ...formData,
-        archivoUrl: archivoUrl || null // Si no hay URL, mandar null
+        archivoUrl: archivoUrl || null, // Si no hay URL, mandar null
       };
 
       // Llamar a la función de guardar
       await onGuardar(evaluacionData);
 
-      toast.dismiss('save-evaluation');
-
+      toast.dismiss("save-evaluation");
     } catch (error) {
-      console.error('Error al guardar evaluación:', error);
-      toast.dismiss('save-evaluation');
-      toast.error('Error al guardar la evaluación: ' + error.message);
+      console.error("Error al guardar evaluación:", error);
+      toast.dismiss("save-evaluation");
+      toast.error("Error al guardar la evaluación: " + error.message);
     } finally {
       setSaving(false);
     }
@@ -177,10 +206,10 @@ const ModalEvaluacionDocente = ({
 
   // Manejar cambios en el formulario
   const handleChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
     // Limpiar error del campo
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
+      setErrors((prev) => ({ ...prev, [field]: "" }));
     }
   };
 
@@ -219,10 +248,14 @@ const ModalEvaluacionDocente = ({
                     </div>
                     <div>
                       <Dialog.Title className="text-lg font-semibold text-white">
-                        {evaluacion ? 'Editar Evaluación' : 'Nueva Evaluación Docente'}
+                        {evaluacion
+                          ? "Editar Evaluación"
+                          : "Nueva Evaluación Docente"}
                       </Dialog.Title>
                       <p className="text-sm text-blue-100">
-                        {evaluacion ? 'Modificar evaluación existente' : 'Crear nueva evaluación docente'}
+                        {evaluacion
+                          ? "Modificar evaluación existente"
+                          : "Crear nueva evaluación docente"}
                       </p>
                     </div>
                   </div>
@@ -245,16 +278,24 @@ const ModalEvaluacionDocente = ({
                     <div className="relative">
                       <select
                         value={formData.idTrabajador}
-                        onChange={(e) => handleChange('idTrabajador', e.target.value)}
+                        onChange={(e) =>
+                          handleChange("idTrabajador", e.target.value)
+                        }
                         className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-10 ${
-                          errors.idTrabajador ? 'border-red-500' : 'border-gray-300'
+                          errors.idTrabajador
+                            ? "border-red-500"
+                            : "border-gray-300"
                         }`}
                         disabled={saving}
                       >
                         <option value="">Seleccionar docente...</option>
                         {trabajadores.map((trabajador) => (
-                          <option key={trabajador.idTrabajador} value={trabajador.idTrabajador}>
-                            {trabajador.nombre} {trabajador.apellido} - {trabajador.idRol?.nombre}
+                          <option
+                            key={trabajador.idTrabajador}
+                            value={trabajador.idTrabajador}
+                          >
+                            {trabajador.nombre} {trabajador.apellido} -{" "}
+                            {trabajador.idRol?.nombre}
                           </option>
                         ))}
                       </select>
@@ -276,10 +317,10 @@ const ModalEvaluacionDocente = ({
                     <input
                       type="text"
                       value={formData.motivo}
-                      onChange={(e) => handleChange('motivo', e.target.value)}
+                      onChange={(e) => handleChange("motivo", e.target.value)}
                       placeholder="Ej: Excelente desempeño en clases"
                       className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                        errors.motivo ? 'border-red-500' : 'border-gray-300'
+                        errors.motivo ? "border-red-500" : "border-gray-300"
                       }`}
                       disabled={saving}
                     />
@@ -299,11 +340,15 @@ const ModalEvaluacionDocente = ({
                     <div className="relative">
                       <textarea
                         value={formData.descripcion}
-                        onChange={(e) => handleChange('descripcion', e.target.value)}
+                        onChange={(e) =>
+                          handleChange("descripcion", e.target.value)
+                        }
                         placeholder="Describa detalladamente la evaluación del docente (mínimo 10 caracteres)..."
                         rows={4}
                         className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none ${
-                          errors.descripcion ? 'border-red-500' : 'border-gray-300'
+                          errors.descripcion
+                            ? "border-red-500"
+                            : "border-gray-300"
                         }`}
                         disabled={saving}
                       />
@@ -313,7 +358,9 @@ const ModalEvaluacionDocente = ({
                       <p className="text-xs text-gray-500">
                         Mínimo 10 caracteres
                       </p>
-                      <p className={`text-xs ${formData.descripcion.length < 10 ? 'text-red-500' : 'text-green-500'}`}>
+                      <p
+                        className={`text-xs ${formData.descripcion.length < 10 ? "text-red-500" : "text-green-500"}`}
+                      >
                         {formData.descripcion.length}/10 caracteres
                       </p>
                     </div>
@@ -331,47 +378,80 @@ const ModalEvaluacionDocente = ({
                       Archivo Adjunto (Opcional)
                     </label>
                     <div className="space-y-3">
-                      {/* Input de archivo */}
-                      <div className="flex items-center gap-3">
-                        <input
-                          ref={fileInputRef}
-                          type="file"
-                          accept=".pdf,.jpg,.jpeg,.png"
-                          onChange={handleFileChange}
-                          className="hidden"
-                          disabled={saving || uploading}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => fileInputRef.current?.click()}
-                          className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
-                          disabled={saving || uploading}
-                        >
-                          <Upload className="w-4 h-4" />
-                          {selectedFile ? 'Cambiar archivo' : 'Seleccionar archivo'}
-                        </button>
-
-                        {uploading && (
-                          <div className="flex items-center gap-2 text-blue-600">
-                            <Loader className="w-4 h-4 animate-spin" />
-                            <span className="text-sm">Subiendo...</span>
+                      {!selectedFile ? (
+                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
+                          <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                          <p className="text-sm text-gray-600 mb-2">
+                            Arrastra un archivo aquí o haz clic para seleccionar
+                          </p>
+                          <p className="text-xs text-gray-500 mb-4">
+                            PDF o imágenes JPG, PNG (máx. 10MB)
+                          </p>
+                          <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept=".pdf,.jpg,.jpeg,.png"
+                            onChange={handleFileChange}
+                            className="hidden"
+                            disabled={saving || uploading}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => fileInputRef.current?.click()}
+                            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50"
+                            disabled={saving || uploading}
+                          >
+                            Seleccionar Archivo
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="border border-gray-300 rounded-lg p-4 bg-gray-50">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-3">
+                              <div className="p-2 bg-blue-100 rounded-lg">
+                                <File className="w-5 h-5 text-blue-600" />
+                              </div>
+                              <div>
+                                <p className="text-sm font-medium text-gray-900">
+                                  {filePreview?.name}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  {filePreview?.sizeFormatted}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  window.open(
+                                    URL.createObjectURL(selectedFile),
+                                    "_blank",
+                                  )
+                                }
+                                className="p-1 text-gray-400 hover:text-blue-500 transition-colors"
+                                title="Vista previa"
+                                disabled={uploading}
+                              >
+                                <Eye className="w-4 h-4" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={handleRemoveFile}
+                                className="p-1 text-gray-400 hover:text-red-500 transition-colors"
+                                title="Remover archivo"
+                                disabled={uploading}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
                           </div>
-                        )}
-                      </div>
-
-                      {/* Archivo seleccionado */}
-                      {selectedFile && (
-                        <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg">
-                          <CheckCircle className="w-4 h-4 text-green-600" />
-                          <span className="text-sm text-gray-700">
-                            {selectedFile.name} ({(selectedFile.size / 1024 / 1024).toFixed(2)} MB)
-                          </span>
                         </div>
                       )}
 
                       {/* Archivo existente (modo edición) */}
                       {evaluacion?.archivoUrl && !selectedFile && (
-                        <div className="flex items-center gap-2 p-3 bg-green-50 rounded-lg">
+                        <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
                           <FileText className="w-4 h-4 text-green-600" />
                           <span className="text-sm text-gray-700">
                             Archivo adjunto existente
@@ -380,7 +460,7 @@ const ModalEvaluacionDocente = ({
                             href={evaluacion.archivoUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-blue-600 hover:text-blue-700 text-sm underline"
+                            className="text-blue-600 hover:text-blue-700 text-sm font-medium underline ml-auto"
                           >
                             Ver archivo
                           </a>
@@ -412,7 +492,7 @@ const ModalEvaluacionDocente = ({
                       ) : (
                         <>
                           <Save className="w-4 h-4" />
-                          {evaluacion ? 'Actualizar' : 'Guardar'} Evaluación
+                          {evaluacion ? "Actualizar" : "Guardar"} Evaluación
                         </>
                       )}
                     </button>
