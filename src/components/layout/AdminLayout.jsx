@@ -3,6 +3,7 @@ import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 import { useAuthStore } from "../../store";
+import SystemTour from "../common/SystemTour";
 import {
   BarChart3,
   Users as UsersIcon,
@@ -201,7 +202,7 @@ const AdminLayout = () => {
         >
           <div className="space-y-1 pb-4">
             {/* Panel Principal */}
-            <div className="relative group/tip">
+            <div className="relative group/tip" data-tour="dashboard">
               <Link
                 to="/admin"
                 onClick={() => setIsMobileMenuOpen(false)}
@@ -244,7 +245,7 @@ const AdminLayout = () => {
               return (
                 <div key={section.id} className="mt-3">
                   {/* Encabezado de sección */}
-                  <div className="relative group/tip">
+                  <div className="relative group/tip" data-tour={`${section.id}-section`}>
                     <button
                       onClick={() => toggleSection(section.id)}
                       className={`w-full flex items-center ${
@@ -293,7 +294,7 @@ const AdminLayout = () => {
                         const ItemIcon = item.icon;
                         const isActive = isItemActive(item.path);
                         return (
-                          <div key={item.path} className="relative group/tip">
+                          <div key={item.path} className="relative group/tip" data-tour={item.label.toLowerCase().replace(/ /g, '-')}>
                             <Link
                               to={item.path}
                               onClick={() => setIsMobileMenuOpen(false)}
@@ -433,6 +434,9 @@ const AdminLayout = () => {
           </div>
         </Dialog>
       </Transition>
+
+      {/* Tour guiado del sistema */}
+      <SystemTour />
     </div>
   );
 };
