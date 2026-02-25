@@ -260,6 +260,100 @@ const cajaService = {
       throw new Error(error.message || 'Error al obtener dashboard financiero');
     }
   },
+
+  /**
+   * Obtener ingresos paginados
+   */
+  async obtenerIngresosPaginados({ page = 1, limit = 15, mes, anio }) {
+    try {
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        throw new Error('Token de autorización no encontrado');
+      }
+
+      const params = new URLSearchParams();
+      params.append('page', page);
+      params.append('limit', limit);
+      if (mes) params.append('mes', mes);
+      if (anio) params.append('anio', anio);
+
+      const url = `${API_BASE_URL}/caja-simple/ingresos?${params.toString()}`;
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      
+      return {
+        success: true,
+        data: data.data || [],
+        total: data.total || 0,
+        page: data.page || 1,
+        totalPages: data.totalPages || 1
+      };
+
+    } catch (error) {
+      console.error('❌ Error al obtener ingresos paginados:', error);
+      throw new Error(error.message || 'Error al obtener ingresos paginados');
+    }
+  },
+
+  /**
+   * Obtener egresos paginados
+   */
+  async obtenerEgresosPaginados({ page = 1, limit = 15, mes, anio }) {
+    try {
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        throw new Error('Token de autorización no encontrado');
+      }
+
+      const params = new URLSearchParams();
+      params.append('page', page);
+      params.append('limit', limit);
+      if (mes) params.append('mes', mes);
+      if (anio) params.append('anio', anio);
+
+      const url = `${API_BASE_URL}/caja-simple/egresos?${params.toString()}`;
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      
+      return {
+        success: true,
+        data: data.data || [],
+        total: data.total || 0,
+        page: data.page || 1,
+        totalPages: data.totalPages || 1
+      };
+
+    } catch (error) {
+      console.error('❌ Error al obtener egresos paginados:', error);
+      throw new Error(error.message || 'Error al obtener egresos paginados');
+    }
+  },
 };
 
 export default cajaService;

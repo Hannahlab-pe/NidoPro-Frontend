@@ -75,6 +75,7 @@ const Caja = () => {
   const hoy = new Date();
   const [mes, setMes] = useState("");
   const [anio, setAnio] = useState(hoy.getFullYear());
+  const [filtroTipo, setFiltroTipo] = useState(""); // "" = Todos, "INGRESO", "EGRESO"
   const [loading, setLoading] = useState(false);
   const [movimientos, setMovimientos] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -155,7 +156,16 @@ const Caja = () => {
     }
   };
 
-  const tableRows = useMemo(() => movimientos || [], [movimientos]);
+  const tableRows = useMemo(() => {
+    let filtered = movimientos || [];
+    
+    // Filtrar por tipo si se seleccionó uno
+    if (filtroTipo) {
+      filtered = filtered.filter(mov => mov.tipo === filtroTipo);
+    }
+    
+    return filtered;
+  }, [movimientos, filtroTipo]);
 
   const columns = useMemo(
     () => [
@@ -170,6 +180,22 @@ const Caja = () => {
             </div>
             <div className="text-xs text-gray-500">{row?.hora || ""}</div>
           </div>
+        ),
+      },
+      {
+        Header: "Tipo",
+        accessor: "tipo",
+        sortable: true,
+        Cell: ({ value }) => (
+          <span
+            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+              value === "INGRESO"
+                ? "bg-green-100 text-green-800"
+                : "bg-red-100 text-red-800"
+            }`}
+          >
+            {value === "INGRESO" ? "Ingreso" : "Egreso"}
+          </span>
         ),
       },
       {
@@ -202,11 +228,15 @@ const Caja = () => {
         Header: "Monto",
         accessor: "monto",
         sortable: true,
-        Cell: ({ value, row }) => (
-          <div className="text-right font-semibold text-gray-900">
-            {value ? Number(value).toFixed(2) : row?.monto ? Number(row.monto).toFixed(2) : ""}
-          </div>
-        ),
+        Cell: ({ value, row }) => {
+          const monto = value ? Number(value).toFixed(2) : row?.monto ? Number(row.monto).toFixed(2) : "";
+          const esIngreso = row?.tipo === "INGRESO";
+          return (
+            <div className={`text-right font-semibold ${esIngreso ? "text-green-600" : "text-red-600"}`}>
+              S/ {monto}
+            </div>
+          );
+        },
       },
       {
         Header: "Método",
@@ -250,8 +280,24 @@ const Caja = () => {
 
   const formatFecha = (value) => {
     if (!value) return "";
-    const date = new Date(value);
-    return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString("es-ES");
+    
+    // Si ya está en formato DD/MM/YYYY, devolverlo tal cual
+    if (typeof value === "string" && value.includes("/")) return value;
+    
+    // Convertir fecha ISO/timestamp a string si es necesario
+    let fechaStr = value;
+    if (value instanceof Date) {
+      fechaStr = value.toISOString();
+    }
+    
+    // Parsear YYYY-MM-DD directamente sin usar Date() para evitar conversión de timezone
+    const partes = fechaStr.split("T")[0].split("-");
+    if (partes.length === 3) {
+      const [year, month, day] = partes;
+      return `${day}/${month}/${year}`;
+    }
+    
+    return value;
   };
 
   return (
@@ -273,6 +319,18 @@ const Caja = () => {
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <div className="flex flex-col lg:flex-row lg:items-end gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+            <select
+              value={filtroTipo}
+              onChange={(e) => setFiltroTipo(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+            >
+              <option value="">Todos</option>
+              <option value="INGRESO">Ingresos</option>
+              <option value="EGRESO">Egresos</option>
+            </select>
+          </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Mes</label>
             <select

@@ -66,6 +66,14 @@ export const secretariaPagosService = {
     return response.data;
   },
 
+  async actualizarMontoInicial(idEstudiante, payload) {
+    const response = await api.patch(
+      `/secretaria-pagos/registro/${idEstudiante}/monto-inicial`,
+      payload
+    );
+    return response.data;
+  },
+
   async getResumenAulaMes(idAula, anio, mes) {
     const response = await api.get(
       `/secretaria-pagos/resumen/aula/${idAula}/${anio}/${mes}`
