@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { useMisEstudiantes } from '../../../hooks/useMisEstudiantes';
 import TablaMisEstudiantes from './tablas/TablaMisEstudiantes';
+import PageHeader from '../../../components/common/PageHeader';
 
 const MisEstudiantes = () => {
   // Hook personalizado para gestión de estudiantes del docente
@@ -41,15 +42,9 @@ const MisEstudiantes = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      <PageHeader title="Mis Estudiantes" theme="green" />
+      {/* Stats Card */}
       <div className="bg-white p-6 rounded-lg shadow-sm">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Mis Estudiantes</h1>
-            <p className="text-gray-600 mt-1">Gestiona los estudiantes de tus aulas asignadas</p>
-          </div>
-        </div>
-
         {/* Estadísticas */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-blue-50 p-4 rounded-lg">

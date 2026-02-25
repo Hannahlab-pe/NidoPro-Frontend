@@ -3,6 +3,7 @@ import { Plus, Calendar, BookOpen, FileText, UserCheck, Edit } from 'lucide-reac
 import { toast } from 'sonner';
 import CrearEvaluacionModal from './modales/CrearEvaluacionModal';
 import EvaluarEstudianteModal from './modales/EvaluarEstudianteModal';
+import PageHeader from '../../../components/common/PageHeader';
 
 const EvaluacionesEstudiantes = () => {
   const API_BASE_URL = import.meta.env.VITE_API_URL;
@@ -151,23 +152,20 @@ const EvaluacionesEstudiantes = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Evaluaciones de Estudiantes</h1>
-          <p className="text-gray-600 mt-1 text-sm sm:text-base">
-            Gestiona las evaluaciones que has creado para tus estudiantes
-          </p>
-        </div>
-        <button
-          onClick={handleCrearEvaluacion}
-          className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Nueva Evaluación
-        </button>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Evaluaciones de Estudiantes"
+        theme="green"
+        actions={
+          <button
+            onClick={handleCrearEvaluacion}
+            className="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Nueva Evaluación
+          </button>
+        }
+      />
 
       {/* Tabla de evaluaciones */}
       <div className="bg-white shadow-sm rounded-lg border border-gray-200">

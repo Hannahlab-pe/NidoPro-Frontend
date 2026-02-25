@@ -18,6 +18,7 @@ import TablaAulas from './tablas/TablaAulas';
 import aulaService from '../../../services/aulaService';
 import estudianteService from '../../../services/estudianteService';
 import { toast } from 'sonner';
+import PageHeader from '../../../components/common/PageHeader';
 
 const MisAulas = () => {
   const [aulas, setAulas] = useState([]);
@@ -122,21 +123,11 @@ const MisAulas = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="bg-white p-6 rounded-lg shadow-sm">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              {currentView === 'estudiantes' ? `Estudiantes - Aula ${selectedAula?.seccion}` : 'Mis Aulas'}
-            </h1>
-            <p className="text-gray-600 mt-1">
-              {currentView === 'estudiantes'
-                ? `Visualiza a los estudiantes del aula ${selectedAula?.seccion}`
-                : 'Gestiona las aulas asignadas y visualiza a los estudiantes'
-              }
-            </p>
-          </div>
-          {currentView === 'estudiantes' && (
+      <PageHeader
+        title={currentView === 'estudiantes' ? `Estudiantes - Aula ${selectedAula?.seccion}` : 'Mis Aulas'}
+        theme="green"
+        actions={
+          currentView === 'estudiantes' ? (
             <button
               onClick={handleRegresar}
               className="flex items-center space-x-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors shadow-md hover:shadow-lg"
@@ -144,9 +135,11 @@ const MisAulas = () => {
               <ArrowLeft className="w-5 h-5" />
               <span>Regresar a Mis Aulas</span>
             </button>
-          )}
-        </div>
-
+          ) : null
+        }
+      />
+      {/* Stats + Content Card */}
+      <div className="bg-white p-6 rounded-lg shadow-sm">
         {/* Estadísticas - Solo mostrar en vista de aulas */}
         {currentView === 'aulas' && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

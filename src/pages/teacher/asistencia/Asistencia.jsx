@@ -23,6 +23,7 @@ import {
 import { useAsistenciaProfesor, useEstudiantesAula, useAsistenciasPorAulaYFecha } from '../../../hooks/queries/useAsistenciaQueries';
 import { getCurrentDatePeru, formatDatePeru } from '../../../utils/dateUtils';
 import { toast } from 'sonner';
+import PageHeader from '../../../components/common/PageHeader';
 
 const Asistencia = () => {
   // Inicializar fecha una sola vez al montar el componente usando zona horaria de Perú
@@ -431,11 +432,7 @@ const Asistencia = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Registro de Asistencia</h1>
-        <p className="text-gray-600">Gestiona la asistencia de estudiantes por aula y fecha</p>
-      </div>
+      <PageHeader title="Registro de Asistencia" theme="green" />
 
       {/* Controles */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">

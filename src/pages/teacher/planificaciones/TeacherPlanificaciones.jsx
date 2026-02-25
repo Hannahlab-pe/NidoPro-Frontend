@@ -4,6 +4,7 @@ import { usePlanificacionesTrabajador } from '../../../hooks/usePlanificacionesT
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useTrabajadores } from 'src/hooks/queries/useTrabajadoresQueries';
 import { formatFechaEvaluacion } from '../../../utils/dateUtils';
+import PageHeader from '../../../components/common/PageHeader';
 
 const TeacherPlanificaciones = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -27,20 +28,20 @@ const TeacherPlanificaciones = () => {
   }
 
   return (
-    <div className="bg-white rounded-xl shadow p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">Mis Planificaciones</h2>
-        <button
-          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold shadow"
-          onClick={() => {
-            console.log('🖱️ Botón "Agregar Planificación" clickeado');
-            setIsModalOpen(true);
-            console.log('📂 Estado isModalOpen establecido a:', true);
-          }}
-        >
-          + Agregar Planificación
-        </button>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Planificaciones"
+        theme="green"
+        actions={
+          <button
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold shadow"
+            onClick={() => setIsModalOpen(true)}
+          >
+            + Agregar Planificación
+          </button>
+        }
+      />
+      <div className="bg-white rounded-xl shadow p-6">
       <ModalAgregarPlanificacion open={isModalOpen} onClose={() => setIsModalOpen(false)} onSuccess={refetch} />
       {/* Renderizar cards de planificaciones filtradas con mejor diseño */}
       {!idTrabajadorUsuario ? (
@@ -101,6 +102,7 @@ const TeacherPlanificaciones = () => {
       ) : (
         <div className="text-gray-500 text-center py-10">No hay planificaciones registradas.</div>
       )}
+      </div>
     </div>
   );
 };

@@ -23,6 +23,7 @@ import ModalAgregarActividad from './modales/ModalAgregarActividad';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useAulasByTrabajador } from '../../../hooks/queries/useAulasQueries';
 import { useCronogramaDocente } from '../../../hooks/queries/useCronogramaQueries';
+import PageHeader from '../../../components/common/PageHeader';
 
 // Configurar moment en español
 moment.locale('es');
@@ -314,24 +315,20 @@ const Horarios = () => {
   };
 
   return (
-    <div className={`${isMobile ? 'h-screen flex flex-col' : 'space-y-6'} ${isMobile ? '' : ''}`}>
-      {/* Header */}
-      <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0 ${isMobile ? 'px-4 py-3 bg-white border-b flex-shrink-0' : ''}`}>
-        
-        
-        <div className="flex items-center space-x-3">
-
-          <button 
+    <div className="space-y-6">
+      <PageHeader
+        title="Cronograma"
+        theme="green"
+        actions={
+          <button
             onClick={() => setIsModalOpen(true)}
-            className={`flex items-center space-x-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors ${
-              isMobile ? 'px-3 py-2 text-sm' : 'px-4 py-2'
-            }`}
+            className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
           >
-            <Plus className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
+            <Plus className="w-4 h-4" />
             <span>Nueva Actividad</span>
           </button>
-        </div>
-      </div>
+        }
+      />
 
 
       {/* Vista de Calendario */}

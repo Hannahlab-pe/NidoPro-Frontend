@@ -5,6 +5,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { Bell, CheckCircle, Clock, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import PageHeader from '../../../components/common/PageHeader';
 
 const Notificaciones = () => {
   const { user } = useAuthStore();
@@ -61,11 +62,8 @@ const Notificaciones = () => {
   }
 
   return (
-    <div className="p-4 sm:p-6">
-      <div className="mb-4 sm:mb-6">
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Notificaciones</h1>
-        <p className="text-gray-600 text-sm sm:text-base">Gestiona todas tus notificaciones del sistema</p>
-      </div>
+    <div className="space-y-6">
+      <PageHeader title="Notificaciones" theme="green" />
 
       {notifications.length === 0 ? (
         <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 sm:p-8 text-center">

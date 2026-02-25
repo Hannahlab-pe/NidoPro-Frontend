@@ -33,6 +33,7 @@ import DetallesTareaModal from './modales/DetallesTareaModal';
 import EliminarTareaModal from './modales/EliminarTareaModal';
 import VerEntregasModal from './modales/VerEntregasModal';
 import TareaCompletaModal from './modales/TareaCompletaModal';
+import PageHeader from '../../../components/common/PageHeader';
 
 const Tareas = () => {
   // Estados
@@ -204,18 +205,10 @@ const Tareas = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Gestión de Tareas</h1>
-            <p className="text-gray-600">Administra y haz seguimiento a las tareas de tus estudiantes</p>
-            {error && (
-              <div className="mt-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-2">
-                {error}
-              </div>
-            )}
-          </div>
+      <PageHeader
+        title="Gestión de Tareas"
+        theme="green"
+        actions={
           <div className="flex items-center space-x-3">
             <button
               onClick={refrescarTareas}
@@ -228,15 +221,16 @@ const Tareas = () => {
             <button
               onClick={() => setShowCrearModal(true)}
               disabled={loading}
-              className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+              className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
             >
               <Plus className="w-5 h-5" />
               <span>Nueva Tarea</span>
             </button>
           </div>
-        </div>
+        }
+      />
 
-        {/* Estadísticas */}
+      {/* Estadísticas */}
         <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
           <div className="bg-blue-50 rounded-lg p-4">
             <div className="flex items-center justify-between">
@@ -298,7 +292,6 @@ const Tareas = () => {
             </div>
           </div>
         </div>
-      </div>
 
       {/* Filtros y búsqueda */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">

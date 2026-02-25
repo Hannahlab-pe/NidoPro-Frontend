@@ -20,6 +20,7 @@ import {
   Minimize
 } from 'lucide-react';
 import openaiService from '../../../services/openaiService';
+import PageHeader from '../../../components/common/PageHeader';
 
 const AIChat = () => {
   // Debug API key on component mount
@@ -185,7 +186,9 @@ const AIChat = () => {
   };
 
   return (
-    <div className={`flex flex-col ${isFullscreen ? 'fixed inset-0 z-50 bg-white' : 'h-full'}`}>
+    <div className="space-y-4">
+      <PageHeader title="Asistente IA" theme="green" />
+      <div className={`flex flex-col ${isFullscreen ? 'fixed inset-0 z-50 bg-white' : 'h-full'}`}>
       {/* Header */}
       <div className="bg-white border-b border-gray-200 p-3 md:p-4">
         <div className="flex items-center justify-between">
@@ -417,6 +420,7 @@ const AIChat = () => {
             <span className="hidden md:inline">EDA IA v2.1</span>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

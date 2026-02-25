@@ -27,6 +27,7 @@ import { useAuthStore } from '../../../store/useAuthStore';
 import { useAnotacionesByTrabajador } from '../../../hooks/queries/useAnotacionesQueries';
 import { useAnotaciones } from '../../../hooks/useAnotaciones';
 import { AnotacionCard } from './components';
+import PageHeader from '../../../components/common/PageHeader';
 
 const Notas = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -299,28 +300,30 @@ const Notas = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setShowModalAgregar(true)}
-            className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Nueva Anotación</span>
-          </button>
-
-          <button
-            onClick={handleRefresh}
-            disabled={loadingAnotaciones}
-            className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors disabled:opacity-50 border border-gray-300"
-            title="Actualizar anotaciones"
-          >
-            <RefreshCw className={`w-4 h-4 ${loadingAnotaciones ? 'animate-spin' : ''}`} />
-            <span>Actualizar</span>
-          </button>
-        </div>
-      </div>
+      <PageHeader
+        title="Anotaciones"
+        theme="green"
+        actions={
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowModalAgregar(true)}
+              className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Nueva Anotación</span>
+            </button>
+            <button
+              onClick={handleRefresh}
+              disabled={loadingAnotaciones}
+              className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors disabled:opacity-50 border border-gray-300"
+              title="Actualizar anotaciones"
+            >
+              <RefreshCw className={`w-4 h-4 ${loadingAnotaciones ? 'animate-spin' : ''}`} />
+              <span>Actualizar</span>
+            </button>
+          </div>
+        }
+      />
 
       {/* Stats */}
 

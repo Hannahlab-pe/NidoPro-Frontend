@@ -3,6 +3,7 @@ import { useEvaluacionesProfesor } from '../../../hooks/useEvaluacionesProfesor'
 import { FileText, ExternalLink, Calendar, User } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatFechaEvaluacion } from '../../../utils/dateUtils';
+import PageHeader from '../../../components/common/PageHeader';
 
 const EvaluacionCard = ({ evaluacion }) => {
   const handleOpenArchivo = (archivoUrl) => {
@@ -135,13 +136,8 @@ const Evaluaciones = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">Mis Evaluaciones</h1>
-        <p className="text-gray-600">
-          Aquí puedes ver todas las evaluaciones realizadas por tus coordinadores.
-        </p>
-      </div>
+    <div className="space-y-6">
+      <PageHeader title="Mis Evaluaciones" theme="green" />
 
       <div className="space-y-4">
         {evaluaciones.map((evaluacion) => (
