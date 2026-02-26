@@ -22,6 +22,17 @@ const METODOS_PAGO = [
   "Tarjeta",
 ];
 
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+const isValidUuid = (value) =>
+  typeof value === "string" && UUID_REGEX.test(value.trim());
+
+const getAulaUuid = (aula) => {
+  if (!aula) return "";
+  return aula.idAula || aula.id_aula || (isValidUuid(aula.id) ? aula.id : "");
+};
+
 const ModalAgregarPension = ({ isOpen, onClose, aulas = [], onSuccess }) => {
   const [loadingEstudiantes, setLoadingEstudiantes] = useState(false);
   const [estudiantes, setEstudiantes] = useState([]);
@@ -381,8 +392,8 @@ const ModalAgregarPension = ({ isOpen, onClose, aulas = [], onSuccess }) => {
                         <option value="">Seleccione un aula</option>
                         {aulas.map((aula) => (
                           <option
-                            key={aula.idAula || aula.id}
-                            value={aula.idAula || aula.id}
+                            key={getAulaUuid(aula) || aula.id || aula.seccion}
+                            value={getAulaUuid(aula)}
                           >
                             {aula.seccion} -{" "}
                             {aula.idGrado?.grado || aula.grado || ""}

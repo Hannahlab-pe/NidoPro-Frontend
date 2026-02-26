@@ -104,7 +104,7 @@ const ModalEditarTrabajador = ({ isOpen, onClose, trabajador }) => {
         nombre: trabajador.nombre || '',
         apellido: trabajador.apellido || '',
         correo: trabajador.correo || '',
-        telefono: trabajador.telefono || '',
+        telefono: trabajador.telefono || trabajador.numero || '',
         direccion: trabajador.direccion || '',
         tipoDocumento: trabajador.tipoDocumento || 'DNI',
         nroDocumento: trabajador.nroDocumento || '',

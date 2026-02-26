@@ -5,6 +5,16 @@ import secretariaPagosService from "../../../services/secretariaPagosService";
 import { useAulasHook } from "../../../hooks/useAulas";
 
 const STORAGE_KEY = "secretaria_pensiones_aula_seleccionada";
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+const isValidUuid = (value) =>
+  typeof value === "string" && UUID_REGEX.test(value.trim());
+
+const getAulaUuid = (aula) => {
+  if (!aula) return "";
+  return aula.idAula || aula.id_aula || (isValidUuid(aula.id) ? aula.id : "");
+};
 
 const PensionesSecretaria = () => {
   const { aulas = [], loading: loadingAulas } = useAulasHook();
@@ -12,8 +22,15 @@ const PensionesSecretaria = () => {
   // Recuperar aula seleccionada del sessionStorage al montar el componente
   const [selectedAula, setSelectedAula] = useState(() => {
     const saved = sessionStorage.getItem(STORAGE_KEY);
-    return saved || "";
+    return isValidUuid(saved) ? saved : "";
   });
+
+  useEffect(() => {
+    const saved = sessionStorage.getItem(STORAGE_KEY);
+    if (saved && !isValidUuid(saved)) {
+      sessionStorage.removeItem(STORAGE_KEY);
+    }
+  }, []);
 
   const [registros, setRegistros] = useState([]);
   const [loadingRegistros, setLoadingRegistros] = useState(false);
@@ -30,7 +47,7 @@ const PensionesSecretaria = () => {
 
   const selectedAulaLabel = useMemo(() => {
     const found = aulas.find(
-      (aula) => (aula.idAula || aula.id) === selectedAula,
+      (aula) => getAulaUuid(aula) === selectedAula,
     );
     if (!found) return "";
     const grado = found.idGrado?.grado || found.grado || "";
@@ -77,8 +94,8 @@ const PensionesSecretaria = () => {
               </option>
               {aulas.map((aula) => (
                 <option
-                  key={aula.idAula || aula.id}
-                  value={aula.idAula || aula.id}
+                  key={getAulaUuid(aula) || aula.id || aula.seccion}
+                  value={getAulaUuid(aula)}
                 >
                   {aula.seccion} - {aula.idGrado?.grado || aula.grado || ""}
                 </option>

@@ -430,7 +430,7 @@ export const trabajadorService = {
         nombre: trabajadorData.nombre?.trim(),
         apellido: trabajadorData.apellido?.trim(),
         correo: trabajadorData.correo?.trim(),
-        numero: trabajadorData.numero?.trim(),
+        telefono: trabajadorData.telefono?.trim() || trabajadorData.numero?.trim(),
         direccion: trabajadorData.direccion?.trim(),
         tipoDocumento: trabajadorData.tipoDocumento,
         nroDocumento: trabajadorData.nroDocumento?.trim(),

@@ -4,6 +4,49 @@
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+const isValidUuid = (value) =>
+  typeof value === 'string' && UUID_REGEX.test(value.trim());
+
+const getUsuarioUuid = () => {
+  try {
+    const authData = localStorage.getItem('auth-storage');
+    if (authData) {
+      const parsedAuth = JSON.parse(authData);
+      const stateUser = parsedAuth?.state?.user;
+      const candidates = [
+        stateUser?.idTrabajador,
+        stateUser?.entidadId,
+        stateUser?.id,
+      ];
+
+      const found = candidates.find((candidate) => isValidUuid(candidate));
+      if (found) return found;
+    }
+
+    const token = localStorage.getItem('token');
+    if (token) {
+      const payload = JSON.parse(atob(token.split('.')[1] || ''));
+      const candidates = [
+        payload?.idTrabajador,
+        payload?.entidadId,
+        payload?.sub,
+        payload?.id,
+        payload?.userId,
+      ];
+
+      const found = candidates.find((candidate) => isValidUuid(candidate));
+      if (found) return found;
+    }
+  } catch (error) {
+    console.warn('⚠️ No se pudo obtener UUID de usuario para caja:', error);
+  }
+
+  return null;
+};
+
 const cajaService = {
   /**
    * Obtener todos los movimientos de caja
@@ -191,14 +234,20 @@ const cajaService = {
   async obtenerResumen(mes, anio) {
     try {
       const token = localStorage.getItem('token');
+      const idTrabajador = getUsuarioUuid();
 
       if (!token) {
         throw new Error('Token de autorización no encontrado');
       }
 
+      if (!idTrabajador) {
+        throw new Error('No se pudo identificar el usuario (UUID) para consultar caja');
+      }
+
       const params = new URLSearchParams();
       if (mes) params.append('mes', mes);
       if (anio) params.append('anio', anio);
+      params.append('idTrabajador', idTrabajador);
 
       const url = `${API_BASE_URL}/caja-simple/resumen?${params.toString()}`;
 
@@ -267,9 +316,14 @@ const cajaService = {
   async obtenerIngresosPaginados({ page = 1, limit = 15, mes, anio }) {
     try {
       const token = localStorage.getItem('token');
+      const idTrabajador = getUsuarioUuid();
       
       if (!token) {
         throw new Error('Token de autorización no encontrado');
+      }
+
+      if (!idTrabajador) {
+        throw new Error('No se pudo identificar el usuario (UUID) para consultar ingresos');
       }
 
       const params = new URLSearchParams();
@@ -277,6 +331,7 @@ const cajaService = {
       params.append('limit', limit);
       if (mes) params.append('mes', mes);
       if (anio) params.append('anio', anio);
+      params.append('idTrabajador', idTrabajador);
 
       const url = `${API_BASE_URL}/caja-simple/ingresos?${params.toString()}`;
 
@@ -314,9 +369,14 @@ const cajaService = {
   async obtenerEgresosPaginados({ page = 1, limit = 15, mes, anio }) {
     try {
       const token = localStorage.getItem('token');
+      const idTrabajador = getUsuarioUuid();
       
       if (!token) {
         throw new Error('Token de autorización no encontrado');
+      }
+
+      if (!idTrabajador) {
+        throw new Error('No se pudo identificar el usuario (UUID) para consultar egresos');
       }
 
       const params = new URLSearchParams();
@@ -324,6 +384,7 @@ const cajaService = {
       params.append('limit', limit);
       if (mes) params.append('mes', mes);
       if (anio) params.append('anio', anio);
+      params.append('idTrabajador', idTrabajador);
 
       const url = `${API_BASE_URL}/caja-simple/egresos?${params.toString()}`;
 
