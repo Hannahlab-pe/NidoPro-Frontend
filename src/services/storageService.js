@@ -333,12 +333,19 @@ export class StorageService {
    * @returns {Object}
    */
   static getFileInfo(file) {
+    const fileName = file?.name || '';
+    const extension = fileName.includes('.')
+      ? fileName.split('.').pop()?.toLowerCase() || ''
+      : '';
+
     return {
-      name: file.name,
-      size: file.size,
-      sizeFormatted: this.formatFileSize(file.size),
-      type: file.type,
-      lastModified: new Date(file.lastModified)
+      name: fileName,
+      size: file?.size || 0,
+      sizeFormatted: this.formatFileSize(file?.size || 0),
+      type: file?.type || '',
+      extension,
+      isImage: (file?.type || '').startsWith('image/'),
+      lastModified: file?.lastModified ? new Date(file.lastModified) : null
     };
   }
 

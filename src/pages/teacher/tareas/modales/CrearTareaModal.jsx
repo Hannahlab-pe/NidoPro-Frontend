@@ -238,18 +238,13 @@ const CrearTareaModal = ({ isOpen, onClose, onSave }) => {
   };
 
   const removeFile = () => {
-    // Si el archivo ya fue subido a Firebase, eliminarlo del storage
+    // Si el archivo ya fue subido, eliminarlo del storage
     if (uploadedFileUrl) {
       try {
-        // Extraer el path del archivo de la URL
-        const urlParts = uploadedFileUrl.split("/o/")[1]?.split("?")[0];
-        if (urlParts) {
-          const filePath = decodeURIComponent(urlParts);
-          StorageService.deleteFile(filePath);
-          toast.success("Archivo eliminado de la nube");
-        }
+        StorageService.deleteFile(uploadedFileUrl);
+        toast.success("Archivo eliminado de la nube");
       } catch (error) {
-        console.error("Error al eliminar archivo de Firebase:", error);
+        console.error("Error al eliminar archivo de storage:", error);
         toast.error("Error al eliminar archivo de la nube");
       }
     }
@@ -327,7 +322,7 @@ const CrearTareaModal = ({ isOpen, onClose, onSave }) => {
 
       let archivoUrl = "";
 
-      // Subir archivo a Firebase Storage si hay un archivo
+      // Subir archivo al endpoint de storage si hay un archivo
       if (formData.archivo) {
         try {
           setUploadingFile(true);
@@ -362,7 +357,7 @@ const CrearTareaModal = ({ isOpen, onClose, onSave }) => {
         descripcion: formData.descripcion.trim(),
         fechaEntrega: formData.fechaEntrega,
         estado: "pendiente",
-        archivoUrl: archivoUrl || null, // URL del archivo subido a Firebase
+        archivoUrl: archivoUrl || null,
         idAula: formData.idAula,
         idTrabajador: idTrabajador,
       };
@@ -380,17 +375,11 @@ const CrearTareaModal = ({ isOpen, onClose, onSave }) => {
     } catch (error) {
       console.error("❌ [CREAR TAREA] Error al crear tarea:", error);
 
-      // Si hay error y se subió un archivo, eliminarlo de Firebase
+      // Si hay error y se subió un archivo, eliminarlo de storage
       if (uploadedFileUrl) {
         try {
-          const urlParts = uploadedFileUrl.split("/o/")[1]?.split("?")[0];
-          if (urlParts) {
-            const filePath = decodeURIComponent(urlParts);
-            await StorageService.deleteFile(filePath);
-            console.log(
-              "🗑️ [CREAR TAREA] Archivo eliminado por error en creación",
-            );
-          }
+          await StorageService.deleteFile(uploadedFileUrl);
+          console.log("🗑️ [CREAR TAREA] Archivo eliminado por error en creación");
         } catch (cleanupError) {
           console.error(
             "❌ [CREAR TAREA] Error al limpiar archivo:",
@@ -658,7 +647,7 @@ const CrearTareaModal = ({ isOpen, onClose, onSave }) => {
                               </p>
                               <p className="text-xs text-gray-500">
                                 {formData.archivo.info.sizeFormatted} •{" "}
-                                {formData.archivo.info.extension.toUpperCase()}
+                                {(formData.archivo.info.extension || 'archivo').toUpperCase()}
                               </p>
                             </div>
                           </div>

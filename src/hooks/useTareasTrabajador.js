@@ -67,7 +67,7 @@ export const useTareasTrabajador = () => {
         fechaEntrega: tarea.fechaEntrega,
         estado: mapearEstado(tarea.estado),
         prioridad: tarea.prioridad || 'media',
-        archivoUrl: tarea.archivoUrl,
+        archivoUrl: tarea.archivoUrl || tarea.urlArchivo || tarea.archivo_url || tarea.fileUrl || null,
         fechaCreacion: tarea.fechaCreacion,
         materia: tarea.materia,
 
