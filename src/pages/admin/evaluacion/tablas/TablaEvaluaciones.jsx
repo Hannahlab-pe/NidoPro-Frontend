@@ -1,11 +1,12 @@
 import React from 'react';
 import { DataTable, evaluacionesColumns, evaluacionesFilters } from '../../../../components/common/DataTable';
-import { FileText, Plus } from 'lucide-react';
+import { FileText } from 'lucide-react';
 
 const TablaEvaluaciones = ({
   evaluaciones = [],
   loading = false,
   error = null,
+  onNueva,
   onEditar,
   onEliminar
 }) => {
@@ -31,18 +32,20 @@ const TablaEvaluaciones = ({
       data={evaluaciones}
       columns={evaluacionesColumns}
       loading={loading}
-      title="Tabla de Evaluaciones Docentes"
+      title="Tabla de Comentarios Docentes"
       icon={FileText}
       searchPlaceholder="Buscar evaluaciones..."
       filters={evaluacionesFilters}
       actions={{
-        add: false,
+        add: true,
         edit: true,
         delete: true,
         view: false,
         import: false,
         export: false
       }}
+      onAdd={onNueva}
+      addButtonText="Nueva Evaluación"
       onEdit={onEditar}
       onDelete={(item) => onEliminar(item.idComentario)}
       emptyStateConfig={{

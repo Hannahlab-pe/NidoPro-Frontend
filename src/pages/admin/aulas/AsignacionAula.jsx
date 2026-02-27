@@ -1,13 +1,13 @@
-﻿import React from 'react';
-import TablaAulas from './tablas/TablaAula';
-import { useAulasAsignacion } from '../../../hooks/useAulasAsignacion';
-import PageHeader from '../../../components/common/PageHeader';
+﻿import React from "react";
+import TablaAulas from "./tablas/TablaAula";
+import { useAulasAsignacion } from "../../../hooks/useAulasAsignacion";
+import PageHeader from "../../../components/common/PageHeader";
 
 const AsignacionAula = () => {
   const {
     asignaciones = [],
     loadingAsignaciones,
-    refetchAsignaciones
+    refetchAsignaciones,
   } = useAulasAsignacion();
 
   return (

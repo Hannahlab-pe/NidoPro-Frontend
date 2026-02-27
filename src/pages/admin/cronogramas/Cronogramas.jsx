@@ -26,6 +26,7 @@ import { useAulasAdmin } from '../../../hooks/queries/useAulasQueries';
 import { useCronogramaPorAula } from '../../../hooks/queries/useCronogramaQueries';
 import cronogramaService from '../../../services/cronogramaService';
 import { useAuth } from '../../../hooks/useAuth';
+import PageHeader from '../../../components/common/PageHeader';
 
 const Cronogramas = () => {
   const { getCurrentUser } = useAuth();
@@ -234,28 +235,21 @@ const Cronogramas = () => {
 
   return (
     <div className={`${isMobile ? 'h-screen flex flex-col' : 'space-y-6'} ${isMobile ? '' : ''}`}>
-      {/* Header */}
-      <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0 ${isMobile ? 'px-4 py-3 bg-white border-b flex-shrink-0' : ''}`}>
-        <div className="flex items-center space-x-3">
-          <CalendarDays className="w-6 h-6 text-blue-600" />
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Cronogramas</h1>
-            <p className="text-sm text-gray-600">Vista general de actividades por aula</p>
-          </div>
-        </div>
-
-        {/* Botón para agregar actividad */}
-        <button
-          onClick={handleOpenAddModal}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          Agregar Actividad
-        </button>
-      </div>
+      <PageHeader
+        title="Cronogramas"
+        actions={
+          <button
+            onClick={handleOpenAddModal}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Agregar Actividad
+          </button>
+        }
+      />
 
       {/* Selector de Aula */}
-      <div className={`${isMobile ? 'px-4 pb-3 bg-white border-b flex-shrink-0' : 'bg-white rounded-xl shadow-sm border border-gray-100 p-6'}`}>
+      <div className={`${isMobile ? 'px-4 pb-3 bg-white border-b shrink-0' : 'bg-white rounded-lg border border-gray-200 p-6'}`}>
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
           <div className="flex-1">
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -350,7 +344,7 @@ const Cronogramas = () => {
               </div>
 
               <div className="relative">
-                <div className="grid grid-cols-6 min-h-[600px]">
+                <div className="grid grid-cols-6 min-h-150">
                   {/* Time slots */}
                   <div className="border-r border-gray-200 bg-gray-50">
                     {[
@@ -360,7 +354,7 @@ const Cronogramas = () => {
                     ].map((time, index) => (
                       <div
                         key={time}
-                        className="h-[60px] border-b border-gray-100 px-4 py-2 text-sm text-gray-600"
+                        className="h-15 border-b border-gray-100 px-4 py-2 text-sm text-gray-600"
                       >
                         {index % 2 === 0 ? time : ''}
                       </div>
@@ -374,7 +368,7 @@ const Cronogramas = () => {
                       {Array.from({ length: 23 }, (_, i) => (
                         <div
                           key={i}
-                          className="h-[60px] border-b border-gray-100"
+                          className="h-15 border-b border-gray-100"
                         />
                       ))}
 

@@ -17,14 +17,8 @@ moment.locale('es');
 const ModalDetalleEvento = ({ isOpen, onClose, evento }) => {
   if (!evento) return null;
 
-  // Determinar colores para admin
-  const headerColors = {
-    gradient: 'from-blue-600 to-blue-500',
-    iconBg: 'bg-white/20',
-    text: 'text-white',
-    subtitle: 'text-blue-100',
-    button: 'bg-blue-600 hover:bg-blue-700'
-  };
+  // Estilo estandarizado de modal admin
+  const actionButtonClass = 'bg-blue-600 hover:bg-blue-700';
 
   const formatearFecha = (fecha) => {
     return moment(fecha).format('dddd, DD [de] MMMM [de] YYYY');
@@ -62,23 +56,23 @@ const ModalDetalleEvento = ({ isOpen, onClose, evento }) => {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-md sm:max-w-sm md:max-w-md mx-4 sm:mx-auto transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all">
+              <Dialog.Panel className="w-full max-w-md sm:max-w-sm md:max-w-md mx-4 sm:mx-auto transform overflow-hidden rounded-2xl bg-white text-left align-middle shadow-xl transition-all">
                 {/* Header */}
-                <div className={`flex items-center justify-between p-4 sm:p-6 border-b bg-gradient-to-r ${headerColors.gradient}`}>
+                <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
                   <div className="flex items-center gap-3">
-                    <div className={`w-8 h-8 sm:w-10 sm:h-10 ${headerColors.iconBg} rounded-lg flex items-center justify-center`}>
-                      <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
                     </div>
                     <div>
-                      <Dialog.Title className={`text-base sm:text-lg font-semibold ${headerColors.text}`}>
+                      <Dialog.Title className="text-base sm:text-lg font-semibold text-gray-900">
                         Detalles del Evento
                       </Dialog.Title>
-                      <p className={`text-xs sm:text-sm ${headerColors.subtitle}`}>Vista de Administrador</p>
+                      <p className="text-xs sm:text-sm text-gray-500">Vista de Administrador</p>
                     </div>
                   </div>
                   <button
                     onClick={onClose}
-                    className="text-white/80 hover:text-white transition-colors"
+                    className="text-gray-400 hover:text-gray-600 transition-colors"
                   >
                     <X className="w-5 h-5 sm:w-6 sm:h-6" />
                   </button>
@@ -241,7 +235,7 @@ const ModalDetalleEvento = ({ isOpen, onClose, evento }) => {
                   </button>
                   <button
                     onClick={onClose}
-                    className={`w-full sm:w-auto px-4 py-2 ${headerColors.button} text-white rounded-md transition-colors`}
+                    className={`w-full sm:w-auto px-4 py-2 ${actionButtonClass} text-white rounded-md transition-colors`}
                   >
                     Entendido
                   </button>

@@ -1,16 +1,19 @@
-import React from 'react';
-import { DataTable, matriculaColumns } from '../../../../components/common/DataTable';
+import React from "react";
+import {
+  DataTable,
+  matriculaColumns,
+} from "../../../../components/common/DataTable";
 
 /**
  * Tabla de matrícula usando el componente DataTable unificado
  */
-const TablaMatricula = ({ 
-  matriculas = [], 
+const TablaMatricula = ({
+  matriculas = [],
   loading = false,
-  onAdd, 
-  onEdit, 
-  onDelete, 
-  onView
+  onAdd,
+  onEdit,
+  onDelete,
+  onView,
 }) => {
   return (
     <DataTable
@@ -25,7 +28,7 @@ const TablaMatricula = ({
         delete: false,
         view: true,
         import: false,
-        export: false
+        export: false,
       }}
       onAdd={onAdd}
       onEdit={onEdit}

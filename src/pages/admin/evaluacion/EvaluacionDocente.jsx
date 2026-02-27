@@ -1,7 +1,5 @@
 import React, { useState } from "react";
-import { FileText, Plus, User, Calendar, Search, Filter } from "lucide-react";
 import PageHeader from "../../../components/common/PageHeader";
-import StatCard from "../../../components/common/StatCard";
 import ModalEvaluacionDocente from "./modales/ModalEvaluacionDocente";
 import TablaEvaluaciones from "./tablas/TablaEvaluaciones";
 import { useDocentes } from "../../../hooks/queries/useTrabajadoresQueries";
@@ -17,8 +15,6 @@ import { toast } from "sonner";
 const EvaluacionDocente = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEvaluacion, setSelectedEvaluacion] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterEstado, setFilterEstado] = useState("todos");
 
   // Obtener datos del usuario autenticado
   const { user } = useAuthStore();
@@ -63,23 +59,6 @@ const EvaluacionDocente = () => {
 
   // Combinar loading states
   const loading = loadingTrabajadores || loadingComentarios;
-
-  // Filtrar evaluaciones
-  const filteredEvaluaciones = evaluaciones.filter((evaluacion) => {
-    const matchesSearch =
-      evaluacion.motivo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      evaluacion.descripcion
-        ?.toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      evaluacion.idTrabajador?.nombre
-        ?.toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      evaluacion.idTrabajador?.apellido
-        ?.toLowerCase()
-        .includes(searchTerm.toLowerCase());
-
-    return matchesSearch;
-  });
 
   // Handlers
   const handleNuevaEvaluacion = () => {
@@ -138,90 +117,16 @@ const EvaluacionDocente = () => {
     }
   };
 
-  // Estadísticas
-  const stats = [
-    {
-      title: "Total Evaluaciones",
-      value: evaluaciones.length,
-      icon: FileText,
-      color: "#3B82F6",
-    },
-    {
-      title: "Trabajadores Evaluados",
-      value: new Set(evaluaciones.map((e) => e.idTrabajador?.idTrabajador))
-        .size,
-      icon: User,
-      color: "#10B981",
-    },
-    {
-      title: "Evaluaciones Este Mes",
-      value: evaluaciones.filter((e) => {
-        const fecha = new Date(e.fechaCreacion);
-        const ahora = new Date();
-        return (
-          fecha.getMonth() === ahora.getMonth() &&
-          fecha.getFullYear() === ahora.getFullYear()
-        );
-      }).length,
-      icon: Calendar,
-      color: "#F59E0B",
-    },
-  ];
-
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Evaluación Docente"
-        actions={
-          <button
-            onClick={handleNuevaEvaluacion}
-            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Nueva Evaluación</span>
-          </button>
-        }
-      />
-
-      {/* Filtros y búsqueda */}
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-        <div className="flex-1">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Buscar
-          </label>
-          <div className="relative">
-            <Search className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Buscar evaluaciones..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Estado
-          </label>
-          <select
-            value={filterEstado}
-            onChange={(e) => setFilterEstado(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            <option value="todos">Todos los estados</option>
-            <option value="activo">Activos</option>
-            <option value="inactivo">Inactivos</option>
-          </select>
-        </div>
-      </div>
+      <PageHeader title="Evaluación Docente" />
 
       {/* Tabla de evaluaciones */}
       <TablaEvaluaciones
-        evaluaciones={filteredEvaluaciones}
-        loading={loadingComentarios}
+        evaluaciones={evaluaciones}
+        loading={loading}
         error={errorComentarios}
+        onNueva={handleNuevaEvaluacion}
         onEditar={handleEditarEvaluacion}
         onEliminar={handleEliminarEvaluacion}
       />

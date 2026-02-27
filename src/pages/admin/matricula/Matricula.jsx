@@ -1,23 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import TablaMatricula from './tablas/TablaMatricula';
-import ModalAgregarMatricula from './modales/ModalAgregarMatricula';
-import ModalVerMatricula from './modales/ModalVerMatricula';
-import ModalEditarMatricula from './modales/ModalEditarMatricula';
-import ModalEliminarMatricula from './modales/ModalEliminarMatricula';
-import ModalErrorBoundary from '../../../components/common/ModalErrorBoundary';
-import PageHeader from '../../../components/common/PageHeader';
-import { useMatricula } from '../../../hooks/useMatricula';
+import React, { useState, useEffect } from "react";
+import TablaMatricula from "./tablas/TablaMatricula";
+import ModalAgregarMatricula from "./modales/ModalAgregarMatricula";
+import ModalVerMatricula from "./modales/ModalVerMatricula";
+import ModalEditarMatricula from "./modales/ModalEditarMatricula";
+import ModalEliminarMatricula from "./modales/ModalEliminarMatricula";
+import ModalErrorBoundary from "../../../components/common/ModalErrorBoundary";
+import PageHeader from "../../../components/common/PageHeader";
+import { useMatricula } from "../../../hooks/useMatricula";
 
 const Matricula = () => {
   // Usar hook con TanStack Query
-  const { 
-    students: matriculas, 
-    loading, 
-    loadMatriculas 
-  } = useMatricula();
-  
+  const { students: matriculas, loading, loadMatriculas } = useMatricula();
+
   const [selectedMatricula, setSelectedMatricula] = useState(null);
-  
+
   // Estados para modales
   const [showAddModal, setShowAddModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
@@ -26,14 +22,12 @@ const Matricula = () => {
 
   // Handlers para modales
   const handleAdd = () => setShowAddModal(true);
-  
-  // Debug: Verificar datos de matrículas
-  useEffect(() => {
 
-  }, [matriculas, loading]);
+  // Debug: Verificar datos de matrículas
+  useEffect(() => {}, [matriculas, loading]);
 
   const handleView = (matricula) => {
-    console.log('👁️ Intentando ver matrícula:', matricula);
+    console.log("👁️ Intentando ver matrícula:", matricula);
     setSelectedMatricula(matricula);
     setShowViewModal(true);
   };
@@ -47,7 +41,6 @@ const Matricula = () => {
     setSelectedMatricula(matricula);
     setShowDeleteModal(true);
   };
-
 
   const handleCloseModals = () => {
     setShowAddModal(false);
@@ -108,7 +101,6 @@ const Matricula = () => {
         onDelete={handleDeleteSuccess}
         matricula={selectedMatricula}
       />
-
     </div>
   );
 };

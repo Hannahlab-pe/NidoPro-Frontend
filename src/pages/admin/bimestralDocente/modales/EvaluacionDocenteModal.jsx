@@ -383,14 +383,23 @@ const EvaluacionDocenteModal = ({ isOpen, onClose, onSuccess }) => {
               leaveTo="opacity-0 scale-95"
             >
               <Dialog.Panel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                <div className="flex items-center justify-between mb-4">
-                  <Dialog.Title
-                    as="h3"
-                    className="text-lg font-medium leading-6 text-gray-900 flex items-center"
-                  >
-                    <Award className="w-5 h-5 mr-2 text-blue-600" />
-                    Evaluar Docente
-                  </Dialog.Title>
+                <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <Award className="w-5 h-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <Dialog.Title
+                        as="h3"
+                        className="text-lg font-semibold text-gray-900"
+                      >
+                        Evaluar Docente
+                      </Dialog.Title>
+                      <p className="text-sm text-gray-500">
+                        Registra la evaluación bimestral del docente
+                      </p>
+                    </div>
+                  </div>
                   <button
                     onClick={onClose}
                     disabled={submitting}
@@ -406,35 +415,6 @@ const EvaluacionDocenteModal = ({ isOpen, onClose, onSuccess }) => {
                   </div>
                 ) : (
                   <form onSubmit={handleSubmit(onSubmit, onError)} className="space-y-6">
-                    {/* Debug panel */}
-                    <div style={{background: '#fff3cd', padding: '10px', borderRadius: '5px', marginBottom: '10px', border: '1px solid #ffeaa7'}}>
-                      <small style={{color: '#856404'}}>
-                        🔧 Debug Mode: Tipo actual = {tipoCalificacion}
-                      </small>
-                      <br/>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const currentValues = watch();
-                          console.log("🔍 VALORES ACTUALES DEL FORMULARIO:");
-                          console.log(currentValues);
-                          console.log("🔍 ERRORES ACTUALES:");
-                          console.log(errors);
-                        }}
-                        style={{
-                          background: '#17a2b8',
-                          color: 'white',
-                          padding: '4px 8px',
-                          border: 'none',
-                          borderRadius: '3px',
-                          fontSize: '11px',
-                          marginTop: '5px',
-                          marginRight: '5px'
-                        }}
-                      >
-                        🔍 Ver Valores Actuales
-                      </button>
-                    </div>
                     {/* Sección de tipo de calificación */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">

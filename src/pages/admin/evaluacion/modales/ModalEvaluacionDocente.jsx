@@ -215,7 +215,7 @@ const ModalEvaluacionDocente = ({
 
   return (
     <Transition appear show={isOpen} as={React.Fragment}>
-      <Dialog as="div" className="relative z-50" onClose={() => {}}>
+      <Dialog as="div" className="relative z-50" onClose={onClose}>
         <Transition.Child
           as={React.Fragment}
           enter="ease-out duration-300"
@@ -225,7 +225,7 @@ const ModalEvaluacionDocente = ({
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-black/20 bg-opacity-25" />
+          <div className="fixed inset-0 bg-black/30" />
         </Transition.Child>
 
         <div className="fixed inset-0 overflow-y-auto">
@@ -239,20 +239,20 @@ const ModalEvaluacionDocente = ({
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-2xl mx-4 transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all">
+              <Dialog.Panel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white text-left align-middle shadow-xl transition-all">
                 {/* Header */}
-                <div className="flex items-center justify-between p-6 border-b bg-gradient-to-r from-blue-600 to-blue-500">
+                <div className="flex items-center justify-between p-6 border-b border-gray-200">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-                      <FileText className="w-5 h-5 text-white" />
+                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <FileText className="w-5 h-5 text-blue-600" />
                     </div>
                     <div>
-                      <Dialog.Title className="text-lg font-semibold text-white">
+                      <Dialog.Title className="text-lg font-semibold text-gray-900">
                         {evaluacion
                           ? "Editar Evaluación"
                           : "Nueva Evaluación Docente"}
                       </Dialog.Title>
-                      <p className="text-sm text-blue-100">
+                      <p className="text-sm text-gray-500">
                         {evaluacion
                           ? "Modificar evaluación existente"
                           : "Crear nueva evaluación docente"}
@@ -261,7 +261,7 @@ const ModalEvaluacionDocente = ({
                   </div>
                   <button
                     onClick={onClose}
-                    className="text-white/80 hover:text-white transition-colors"
+                    className="text-gray-400 hover:text-gray-600 transition-colors"
                     disabled={saving}
                   >
                     <X className="w-6 h-6" />
