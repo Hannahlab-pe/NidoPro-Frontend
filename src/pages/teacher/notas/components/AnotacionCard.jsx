@@ -5,6 +5,8 @@ import {
   User, 
   BookOpen, 
   Clock,
+  GraduationCap,
+  Building2,
   Edit,
   Trash2,
   MessageSquare
@@ -51,14 +53,14 @@ const AnotacionCard = ({ anotacion, onEdit, onDelete }) => {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200 p-6">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200 p-5 h-full flex flex-col">
       {/* Header de la card */}
-      <div className="flex items-start justify-between mb-4">
+      <div className="flex items-start justify-between gap-3 mb-4">
         <div className="flex-1">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+          <h3 className="text-base md:text-lg font-semibold text-gray-900 leading-tight mb-2">
             {anotacion.titulo}
           </h3>
-          <div className="flex items-center gap-4 text-sm text-gray-600">
+          <div className="flex items-center gap-3 text-sm text-gray-700 flex-wrap">
             <div className="flex items-center gap-1">
               <User className="w-4 h-4" />
               <span>
@@ -67,7 +69,17 @@ const AnotacionCard = ({ anotacion, onEdit, onDelete }) => {
             </div>
             <div className="flex items-center gap-1">
               <BookOpen className="w-4 h-4" />
-              <span>{anotacion.curso?.nombreCurso}</span>
+              <span>{anotacion.curso?.nombreCurso || 'Sin curso'}</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 text-xs text-gray-700 mt-3 flex-wrap">
+            <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-blue-50 border border-blue-100">
+              <GraduationCap className="w-4 h-4" />
+              <span>{anotacion.grado?.grado || 'Sin grado'}</span>
+            </div>
+            <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-100">
+              <Building2 className="w-4 h-4" />
+              <span>Sección {anotacion.aula?.seccion || 'Sin sección'}</span>
             </div>
           </div>
         </div>
@@ -96,34 +108,33 @@ const AnotacionCard = ({ anotacion, onEdit, onDelete }) => {
       </div>
 
       {/* Contenido de la observación */}
-      <div className="mb-4">
+      <div className="mb-4 flex-1 bg-gray-50 rounded-lg border border-gray-100 p-3">
         <div className="flex items-start gap-2">
-          <MessageSquare className="w-4 h-4 text-gray-400 mt-1 flex-shrink-0" />
-          <p className="text-gray-700 leading-relaxed">
+          <MessageSquare className="w-4 h-4 text-gray-400 mt-1 shrink-0" />
+          <p className="text-sm text-gray-700 leading-relaxed wrap-break-word">
             {anotacion.observacion}
           </p>
         </div>
       </div>
 
       {/* Footer con fechas */}
-      <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-        <div className="flex items-center gap-4 text-xs text-gray-500">
-          <div className="flex items-center gap-1">
+      <div className="pt-4 border-t border-gray-100">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-gray-500">
+          <div className="flex items-center gap-1 min-w-0">
             <Calendar className="w-3 h-3" />
             <span>Observación: {formatDate(anotacion.fechaObservacion)}</span>
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 min-w-0">
             <Clock className="w-3 h-3" />
             <span>Creado: {formatDateTime(anotacion.fechaCreacion)}</span>
           </div>
+          {/* Badge de estado o prioridad si existe */}
+          {anotacion.prioridad && (
+            <span className={`px-2 py-1 rounded-full text-xs font-medium border w-fit ${getPriorityColor(anotacion.prioridad)}`}>
+              {anotacion.prioridad}
+            </span>
+          )}
         </div>
-        
-        {/* Badge de estado o prioridad si existe */}
-        {anotacion.prioridad && (
-          <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getPriorityColor(anotacion.prioridad)}`}>
-            {anotacion.prioridad}
-          </span>
-        )}
       </div>
     </div>
   );

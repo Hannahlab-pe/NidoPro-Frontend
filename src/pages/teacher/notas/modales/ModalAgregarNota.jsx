@@ -12,7 +12,7 @@ import { useAuthStore } from '../../../../store/useAuthStore'
 import { useAnotaciones } from '../../../../hooks/useAnotaciones'
 import { useCursos } from '../../../../hooks/useCursos'
 import { useTrabajadores as useTrabajadoresQuery } from 'src/hooks/queries/useTrabajadoresQueries'
-import { useEstudiantesByTrabajadorAulas } from '../../../../hooks/queries/useAulasQueries'
+import { useAulasByTrabajador, useEstudiantesByAula } from '../../../../hooks/queries/useAulasQueries'
 import { getIdTrabajadorFromToken } from '../../../../utils/tokenUtils'
 
 const ModalAgregarNota = ({ isOpen, onClose, onSuccess }) => {
@@ -21,29 +21,10 @@ const ModalAgregarNota = ({ isOpen, onClose, onSuccess }) => {
   const { data: cursos, isLoading: loadingCursos } = useCursos()
   const { data: trabajadores, isLoading: loadingTrabajadores } = useTrabajadoresQuery()
 
-  // Obtener el idTrabajador del token JWT
-  const idTrabajadorFromToken = getIdTrabajadorFromToken()
-  
-  // Hook para obtener estudiantes de las aulas asignadas al trabajador
-  const { 
-    data: estudiantesData, 
-    isLoading: loadingStudents, 
-    error: errorStudents 
-  } = useEstudiantesByTrabajadorAulas(idTrabajadorFromToken, {
-    enabled: !!idTrabajadorFromToken
-  })
-
-  console.log('👨‍🏫 ID Trabajador desde token:', idTrabajadorFromToken);
-  console.log('👥 Datos de estudiantes filtrados:', estudiantesData);
-  console.log('📚 Loading estudiantes:', loadingStudents);
-  
-  if (errorStudents) {
-    console.error('❌ Error al cargar estudiantes:', errorStudents);
-  }
-
   // Estado del formulario
   const [formData, setFormData] = useState({
     idTrabajador: '',
+    idAula: '',
     idEstudiante: '',
     titulo: '',
     observacion: '',
@@ -53,6 +34,42 @@ const ModalAgregarNota = ({ isOpen, onClose, onSuccess }) => {
   })
 
   const [errors, setErrors] = useState({})
+
+  // Obtener el idTrabajador del token JWT
+  const idTrabajadorFromToken = getIdTrabajadorFromToken()
+
+  // Hook para obtener aulas asignadas al trabajador
+  const {
+    data: aulasData,
+    isLoading: loadingAulas,
+    error: errorAulas
+  } = useAulasByTrabajador(idTrabajadorFromToken, {
+    enabled: !!idTrabajadorFromToken
+  })
+
+  // Hook para obtener estudiantes del aula seleccionada
+  const { 
+    data: estudiantesData = [],
+    isLoading: loadingStudents,
+    error: errorStudents
+  } = useEstudiantesByAula(formData.idAula, {
+    enabled: !!formData.idAula
+  })
+
+  const aulasAsignadas = Array.isArray(aulasData?.aulas) ? aulasData.aulas : []
+
+  console.log('👨‍🏫 ID Trabajador desde token:', idTrabajadorFromToken)
+  console.log('🏫 Aulas asignadas:', aulasAsignadas)
+  console.log('👥 Datos de estudiantes por aula:', estudiantesData)
+  console.log('📚 Loading estudiantes:', loadingStudents)
+
+  if (errorAulas) {
+    console.error('❌ Error al cargar aulas:', errorAulas)
+  }
+
+  if (errorStudents) {
+    console.error('❌ Error al cargar estudiantes:', errorStudents)
+  }
 
   // Buscar el trabajador correcto basado en el usuario logueado
   useEffect(() => {
@@ -85,6 +102,7 @@ const ModalAgregarNota = ({ isOpen, onClose, onSuccess }) => {
     if (isOpen) {
       setFormData(prev => ({
         ...prev,
+        idAula: '',
         idEstudiante: '',
         titulo: '',
         observacion: '',
@@ -97,10 +115,18 @@ const ModalAgregarNota = ({ isOpen, onClose, onSuccess }) => {
   }, [isOpen])
 
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }))
+    if (field === 'idAula') {
+      setFormData(prev => ({
+        ...prev,
+        idAula: value,
+        idEstudiante: ''
+      }))
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [field]: value
+      }))
+    }
     
     // Limpiar error del campo cuando el usuario empiece a escribir
     if (errors[field]) {
@@ -113,6 +139,10 @@ const ModalAgregarNota = ({ isOpen, onClose, onSuccess }) => {
 
   const validateForm = () => {
     const newErrors = {}
+
+    if (!formData.idAula) {
+      newErrors.idAula = 'Debe seleccionar un aula'
+    }
 
     if (!formData.idEstudiante) {
       newErrors.idEstudiante = 'Debe seleccionar un estudiante'
@@ -146,8 +176,8 @@ const ModalAgregarNota = ({ isOpen, onClose, onSuccess }) => {
     }
 
     try {
-      // console.log('📋 Datos del formulario antes de enviar:', formData);
-      const result = await createAnotacion(formData)
+      const { idAula, ...payload } = formData
+      const result = await createAnotacion(payload)
       
       if (result.success) {
         onSuccess?.()
@@ -208,14 +238,68 @@ const ModalAgregarNota = ({ isOpen, onClose, onSuccess }) => {
             </div>
           </div>
 
+          {/* Selección de aula */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Aula *
+            </label>
+            {loadingAulas ? (
+              <div className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
+                <span className="text-gray-500">Cargando aulas asignadas...</span>
+              </div>
+            ) : errorAulas ? (
+              <div className="w-full px-3 py-2 border border-red-300 rounded-md bg-red-50">
+                <span className="text-red-600">Error al cargar aulas</span>
+              </div>
+            ) : (
+              <select
+                value={formData.idAula}
+                onChange={(e) => handleInputChange('idAula', e.target.value)}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  errors.idAula ? 'border-red-500' : 'border-gray-300'
+                }`}
+                disabled={creating}
+              >
+                <option value="">Seleccionar aula...</option>
+                {aulasAsignadas.map((aula) => {
+                  const idAula = aula.id_aula || aula.idAula || aula.id
+                  const etiqueta = `${aula.grado || 'Grado'} - Sección ${aula.seccion || ''}`
+
+                  return (
+                    <option key={idAula} value={idAula}>
+                      {etiqueta}
+                    </option>
+                  )
+                })}
+              </select>
+            )}
+
+            {aulasAsignadas.length === 0 && !loadingAulas && !errorAulas && (
+              <p className="mt-1 text-xs text-amber-600">
+                No tienes aulas asignadas
+              </p>
+            )}
+
+            {errors.idAula && (
+              <p className="mt-1 text-sm text-red-600 flex items-center">
+                <AlertCircle className="w-4 h-4 mr-1" />
+                {errors.idAula}
+              </p>
+            )}
+          </div>
+
           {/* Selección de estudiante */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Estudiante *
             </label>
-            {loadingStudents ? (
+            {!formData.idAula ? (
               <div className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
-                <span className="text-gray-500">Cargando estudiantes de tus aulas...</span>
+                <span className="text-gray-500">Primero selecciona un aula</span>
+              </div>
+            ) : loadingStudents ? (
+              <div className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
+                <span className="text-gray-500">Cargando estudiantes del aula...</span>
               </div>
             ) : errorStudents ? (
               <div className="w-full px-3 py-2 border border-red-300 rounded-md bg-red-50">
@@ -228,10 +312,10 @@ const ModalAgregarNota = ({ isOpen, onClose, onSuccess }) => {
                 className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                   errors.idEstudiante ? 'border-red-500' : 'border-gray-300'
                 }`}
-                disabled={creating}
+                disabled={creating || !formData.idAula}
               >
                 <option value="">Seleccionar estudiante...</option>
-                {estudiantesData?.estudiantes?.map((student) => (
+                {estudiantesData?.map((student) => (
                   <option key={student.idEstudiante} value={student.idEstudiante}>
                     {student.nombre} {student.apellido}
                     {student.infoApoderado?.aula?.seccion && ` - Sección ${student.infoApoderado.aula.seccion}`}
@@ -241,16 +325,16 @@ const ModalAgregarNota = ({ isOpen, onClose, onSuccess }) => {
             )}
             
             {/* Información adicional */}
-            {estudiantesData?.estudiantes && estudiantesData.estudiantes.length > 0 && (
+            {Array.isArray(estudiantesData) && estudiantesData.length > 0 && (
               <p className="mt-1 text-xs text-gray-500">
-                {estudiantesData.totalEstudiantes} estudiante(s) de {estudiantesData.totalAulas} aula(s) asignada(s)
+                {estudiantesData.length} estudiante(s) en el aula seleccionada
               </p>
             )}
             
             {/* Mensaje si no hay estudiantes */}
-            {estudiantesData?.estudiantes && estudiantesData.estudiantes.length === 0 && (
+            {formData.idAula && Array.isArray(estudiantesData) && estudiantesData.length === 0 && !loadingStudents && (
               <p className="mt-1 text-xs text-amber-600">
-                No tienes estudiantes asignados en tus aulas
+                No hay estudiantes asignados en el aula seleccionada
               </p>
             )}
             

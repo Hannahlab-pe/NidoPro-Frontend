@@ -27,6 +27,8 @@ import StatCard from '../../../components/common/StatCard';
 
 const Notas = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [filtroGrado, setFiltroGrado] = useState('');
+  const [filtroSeccion, setFiltroSeccion] = useState('');
   const [showModalAgregar, setShowModalAgregar] = useState(false);
   const [showModalEditar, setShowModalEditar] = useState(false);
   const [showModalEliminar, setShowModalEliminar] = useState(false);
@@ -45,12 +47,31 @@ const Notas = () => {
 
   const { deleteAnotacion, deleting } = useAnotaciones();
 
+  const gradosDisponibles = [...new Set(
+    anotaciones
+      .map((anotacion) => anotacion.grado?.grado)
+      .filter(Boolean)
+  )].sort((a, b) => a.localeCompare(b, 'es'));
+
+  const seccionesDisponibles = [...new Set(
+    anotaciones
+      .map((anotacion) => anotacion.aula?.seccion)
+      .filter(Boolean)
+  )].sort((a, b) => a.localeCompare(b, 'es'));
+
   const filteredAnotaciones = anotaciones.filter(anotacion => {
-    return searchTerm === '' ||
+    const coincideBusqueda = searchTerm === '' ||
       anotacion.titulo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       anotacion.observacion?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       `${anotacion.estudiante?.nombre} ${anotacion.estudiante?.apellido}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      anotacion.curso?.nombreCurso?.toLowerCase().includes(searchTerm.toLowerCase());
+      anotacion.curso?.nombreCurso?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      anotacion.grado?.grado?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      anotacion.aula?.seccion?.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const coincideGrado = filtroGrado === '' || anotacion.grado?.grado === filtroGrado;
+    const coincideSeccion = filtroSeccion === '' || anotacion.aula?.seccion === filtroSeccion;
+
+    return coincideBusqueda && coincideGrado && coincideSeccion;
   });
 
   const handleEditAnotacion = (anotacion) => { setAnotacionSeleccionada(anotacion); setShowModalEditar(true); };
@@ -104,6 +125,36 @@ const Notas = () => {
           </div>
         </div>
 
+        {/* Filtro por grado */}
+        <div className="min-w-44">
+          <label className="block text-sm font-medium text-gray-700 mb-2">Grado</label>
+          <select
+            value={filtroGrado}
+            onChange={(e) => setFiltroGrado(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-green-500 focus:border-transparent"
+          >
+            <option value="">Todos</option>
+            {gradosDisponibles.map((grado) => (
+              <option key={grado} value={grado}>{grado}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Filtro por sección */}
+        <div className="min-w-36">
+          <label className="block text-sm font-medium text-gray-700 mb-2">Sección</label>
+          <select
+            value={filtroSeccion}
+            onChange={(e) => setFiltroSeccion(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-green-500 focus:border-transparent"
+          >
+            <option value="">Todas</option>
+            {seccionesDisponibles.map((seccion) => (
+              <option key={seccion} value={seccion}>{seccion}</option>
+            ))}
+          </select>
+        </div>
+
         {/* Botón Nueva Anotación */}
         <button
           onClick={() => setShowModalAgregar(true)}
@@ -150,7 +201,7 @@ const Notas = () => {
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-5 items-stretch auto-rows-fr">
           {filteredAnotaciones.map((anotacion) => (
             <AnotacionCard
               key={anotacion.idAnotacionAlumno}
