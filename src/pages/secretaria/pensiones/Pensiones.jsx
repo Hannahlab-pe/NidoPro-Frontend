@@ -16,6 +16,25 @@ const getAulaUuid = (aula) => {
   return aula.idAula || aula.id_aula || (isValidUuid(aula.id) ? aula.id : "");
 };
 
+const getAulaDisplayLabel = (aula) => {
+  if (!aula) return "";
+
+  const seccion = aula.seccion || aula.section || "";
+  const grado =
+    aula.idGrado?.grado ||
+    aula.idGrado?.nombre ||
+    aula.grado ||
+    aula.nombreGrado ||
+    aula.gradoNombre ||
+    "";
+
+  if (grado && seccion) return `${grado} - Sección ${seccion}`;
+  if (grado) return grado;
+  if (seccion) return `Sección ${seccion}`;
+
+  return "Aula sin nombre";
+};
+
 const PensionesSecretaria = () => {
   const { aulas = [], loading: loadingAulas } = useAulasHook();
 
@@ -50,8 +69,7 @@ const PensionesSecretaria = () => {
       (aula) => getAulaUuid(aula) === selectedAula,
     );
     if (!found) return "";
-    const grado = found.idGrado?.grado || found.grado || "";
-    return `${found.seccion}${grado ? ` - ${grado}` : ""}`;
+    return getAulaDisplayLabel(found);
   }, [aulas, selectedAula]);
 
   const loadRegistros = async () => {
@@ -97,7 +115,7 @@ const PensionesSecretaria = () => {
                   key={getAulaUuid(aula) || aula.id || aula.seccion}
                   value={getAulaUuid(aula)}
                 >
-                  {aula.seccion} - {aula.idGrado?.grado || aula.grado || ""}
+                  {getAulaDisplayLabel(aula)}
                 </option>
               ))}
             </select>

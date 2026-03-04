@@ -291,7 +291,7 @@ const ParentLayout = () => {
 
       {/* Main */}
       <main className="flex-1 flex flex-col overflow-hidden lg:ml-0 pt-20">
-        <div className="p-4 lg:p-6 h-full overflow-y-auto">
+        <div className="p-3 sm:p-4 lg:p-6 h-full overflow-y-auto overflow-x-hidden">
           <Outlet context={{ isSidebarCollapsed, setIsSidebarCollapsed }} />
         </div>
       </main>

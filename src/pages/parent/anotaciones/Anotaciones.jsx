@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import { useAuthStore } from '../../../store/useAuthStore'
 import { useAnotacionesPadre } from '../../../hooks/useAnotacionesPadreNew'
+import PageHeader from '../../../components/common/PageHeader'
 
 const Anotaciones = () => {
   const { user } = useAuthStore()
@@ -58,6 +59,7 @@ const Anotaciones = () => {
   if (isLoading) {
     return (
       <div className="space-y-6">
+        <PageHeader title="Anotaciones y Avisos" theme="yellow" />
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
           <div className="flex items-center space-x-3 mb-4">
             <div className="p-2 bg-blue-100 rounded-lg">
@@ -83,6 +85,7 @@ const Anotaciones = () => {
   if (isError) {
     return (
       <div className="space-y-6">
+        <PageHeader title="Anotaciones y Avisos" theme="yellow" />
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
           <div className="flex items-center space-x-3 mb-4">
             <div className="p-2 bg-blue-100 rounded-lg">
@@ -156,20 +159,22 @@ const Anotaciones = () => {
 
   return (
     <div className="space-y-6">
+      <PageHeader title="Anotaciones y Avisos" theme="yellow" />
+
       {/* Header */}
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+      <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-100">
         <div className="flex items-center space-x-3 mb-4">
           <div className="p-2 bg-blue-100 rounded-lg">
             <Bell className="w-6 h-6 text-blue-600" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Anotaciones y Avisos</h1>
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Anotaciones y Avisos</h2>
             <p className="text-gray-600">Revisa las observaciones de los profesores sobre tu hijo/a</p>
           </div>
         </div>
 
         {/* Filtros */}
-        <div className="flex flex-col lg:flex-row gap-4 mt-6">
+        <div className="flex flex-col lg:flex-row gap-3 sm:gap-4 mt-6">
           {/* Búsqueda */}
           <div className="flex-1">
             <div className="relative">

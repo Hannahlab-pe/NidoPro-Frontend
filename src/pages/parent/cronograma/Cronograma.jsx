@@ -14,6 +14,7 @@ import {
 import CalendarioHorarios from '../../teacher/horarios/components/CalendarioHorarios';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useEstudianteConCronograma } from '../../../hooks/queries/useEstudianteQueries';
+import PageHeader from '../../../components/common/PageHeader';
 
 const Cronograma = () => {
   const [currentWeek, setCurrentWeek] = useState(new Date());
@@ -192,16 +193,35 @@ const Cronograma = () => {
 
   return (
     <div className={`${isMobile ? 'h-screen flex flex-col' : 'space-y-6'} ${isMobile ? '' : ''}`}>
+      {!isMobile && (
+        <PageHeader
+          title="Cronograma"
+          theme="yellow"
+          actions={(
+            <button
+              onClick={handleRefresh}
+              disabled={isLoading}
+              className="flex items-center space-x-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors disabled:opacity-50 px-4 py-2"
+            >
+              <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+              <span>Actualizar</span>
+            </button>
+          )}
+        />
+      )}
+
       {/* Header */}
-      <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0 ${isMobile ? 'px-4 py-3 bg-white border-b flex-shrink-0' : ''}`}>
+      <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0 ${isMobile ? 'px-4 py-3 bg-white border-b shrink-0' : ''}`}>
         
         {/* Información del estudiante y aula */}
         <div className="flex flex-col space-y-2">
           <div className="flex items-center space-x-3">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-                Cronograma
-              </h1>
+              {isMobile && (
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+                  Cronograma
+                </h1>
+              )}
               {aulaInfo?.grado && aulaInfo?.seccion && (
                 <p className="text-sm text-gray-600">
                   {aulaInfo.grado} - Sección {aulaInfo.seccion}

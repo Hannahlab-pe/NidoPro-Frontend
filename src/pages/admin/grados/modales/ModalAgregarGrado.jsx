@@ -33,15 +33,19 @@ const ModalAgregarGrado = ({ isOpen, onClose }) => {
       toast.error('El nombre del grado es requerido');
       return;
     }
-    
-    if (!form.idPension) {
-      toast.error('Debe seleccionar una pensión');
-      return;
-    }
 
     setLoading(true);
     try {
-      await crearGrado(form);
+      const payload = {
+        ...form,
+        ...(form.idPension ? { idPension: form.idPension } : {})
+      };
+
+      if (!form.idPension) {
+        delete payload.idPension;
+      }
+
+      await crearGrado(payload);
       toast.success('Grado creado correctamente');
       setForm({ grado: '', descripcion: '', estaActivo: true, idPension: '' });
       onClose();
@@ -105,7 +109,7 @@ const ModalAgregarGrado = ({ isOpen, onClose }) => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Pensión Asociada *
+                      Pensión Asociada
                     </label>
                     {loadingPensiones ? (
                       <div className="w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-50 flex items-center">
@@ -123,7 +127,6 @@ const ModalAgregarGrado = ({ isOpen, onClose }) => {
                           value={form.idPension}
                           onChange={handleChange}
                           className="w-full border border-gray-300 rounded-md px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-white"
-                          required
                         >
                           <option value="">Seleccione una pensión</option>
                           {pensionesOptions.map((option) => (
@@ -152,11 +155,11 @@ const ModalAgregarGrado = ({ isOpen, onClose }) => {
                     </button>
                     <button
                       type="submit"
-                      disabled={loading || !hasPensiones || loadingPensiones}
+                      disabled={loading || loadingPensiones}
                       className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
-                      <span>{!hasPensiones ? 'Sin pensiones' : 'Crear'}</span>
+                      <span>Crear</span>
                     </button>
                   </div>
                 </form>

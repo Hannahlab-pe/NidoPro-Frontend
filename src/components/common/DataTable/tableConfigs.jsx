@@ -227,21 +227,6 @@ export const gradosColumns = [
       </div>
     ),
   },
-  {
-    Header: "Monto",
-    accessor: "idPension",
-    sortable: true,
-    Cell: ({ value }) => {
-      if (!value || typeof value !== "object") {
-        return <span className="text-gray-400 italic">Sin pensión</span>;
-      }
-      return (
-        <span className="font-semibold text-green-600">
-          S/ {value.monto ? parseFloat(value.monto).toFixed(2) : "0.00"}
-        </span>
-      );
-    },
-  },
 ];
 
 // Filtros para grados
@@ -980,19 +965,6 @@ export const matriculaColumns = [
           {value?.grado || "Sin grado"}
         </div>
         <div className="text-sm text-gray-500">{value?.descripcion || ""}</div>
-      </div>
-    ),
-  },
-  {
-    Header: "Matrícula",
-    accessor: "costoMatricula",
-    sortable: true,
-    Cell: ({ value, row }) => (
-      <div>
-        <div className="font-medium text-gray-900">S/ {value || "0.00"}</div>
-        <div className="text-sm text-gray-500">
-          {row.metodoPago || "Sin método"}
-        </div>
       </div>
     ),
   },

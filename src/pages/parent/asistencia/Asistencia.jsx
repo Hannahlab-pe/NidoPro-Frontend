@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useHistorialAsistenciasEstudiante } from '../../../hooks/queries/useAsistenciaQueries';
 import { formatDatePeru } from '../../../utils/dateUtils';
+import PageHeader from '../../../components/common/PageHeader';
 
 const Asistencia = () => {
   const [selectedMonth, setSelectedMonth] = useState('');
@@ -231,7 +232,7 @@ const Asistencia = () => {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Historial de Asistencias</h1>
+        <PageHeader title="Historial de Asistencias" theme="yellow" />
         <p className="text-gray-600">Consulta el registro de asistencias de tu hijo/a</p>
       </div>
 
@@ -386,9 +387,9 @@ const Asistencia = () => {
                 return (
                   <div
                     key={asistencia.idAsistencia}
-                    className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
+                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
                   >
-                    <div className="flex items-center space-x-4">
+                    <div className="flex items-start sm:items-center space-x-4">
                       <div className={`p-2 rounded-full ${estadoInfo.color}`}>
                         {estadoInfo.icon}
                       </div>
@@ -412,7 +413,7 @@ const Asistencia = () => {
                       </div>
                     </div>
 
-                    <div className={`px-3 py-1 rounded-full text-sm font-medium ${estadoInfo.color}`}>
+                    <div className={`self-start sm:self-auto px-3 py-1 rounded-full text-sm font-medium ${estadoInfo.color}`}>
                       {estadoInfo.label}
                     </div>
                   </div>

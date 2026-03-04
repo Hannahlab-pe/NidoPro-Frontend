@@ -11,6 +11,10 @@ const themeStyles = {
     toggleHover: "hover:text-green-600 hover:bg-green-50",
     toggleText: "text-gray-500",
   },
+  yellow: {
+    toggleHover: "hover:text-yellow-600 hover:bg-yellow-50",
+    toggleText: "text-gray-500",
+  },
 };
 
 const PageHeader = ({ title, actions, theme = "blue" }) => {
@@ -35,7 +39,7 @@ const PageHeader = ({ title, actions, theme = "blue" }) => {
             )}
           </button>
         )}
-        <h1 className="text-4xl font-bold text-gray-700">{title}</h1>
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-700">{title}</h1>
       </div>
       {actions && <div className="flex items-center gap-2">{actions}</div>}
     </div>

@@ -20,7 +20,9 @@ import {
   const schema = yup.object({
   // Información de Matrícula
   costoMatricula: yup.number()
-    .required('El costo de matrícula es requerido')
+    .transform((value, originalValue) => (originalValue === '' ? undefined : value))
+    .nullable()
+    .notRequired()
     .positive('El costo debe ser mayor a 0'),
   fechaIngreso: yup.string()
     .required('La fecha de ingreso es requerida'),
@@ -379,7 +381,6 @@ const ModalAgregarMatricula = ({ isOpen, onClose, refetch }) => {
 
       const matriculaData = {
         // Datos básicos requeridos (PASO 1 - SIN AULA)
-        costoMatricula: data.costoMatricula.toString(),
         fechaIngreso: data.fechaIngreso,
         idGrado: data.idGrado,
         metodoPago: data.metodoPago,
@@ -406,6 +407,10 @@ const ModalAgregarMatricula = ({ isOpen, onClose, refetch }) => {
           observaciones: data.observaciones?.trim() || ''
         }
       };
+
+      if (data.costoMatricula !== undefined && data.costoMatricula !== null && data.costoMatricula !== '') {
+        matriculaData.costoMatricula = data.costoMatricula.toString();
+      }
 
       console.log('📋 Datos preparados para backend (PASO 1):', JSON.stringify(matriculaData, null, 2));
       
@@ -648,7 +653,6 @@ const ModalAgregarMatricula = ({ isOpen, onClose, refetch }) => {
                         <FormField
                           label="Costo de Matrícula (S/.)"
                           error={errors.costoMatricula?.message}
-                          required
                         >
                           <input
                             {...register('costoMatricula')}

@@ -12,6 +12,7 @@ import {
   Bot,
   CircleUser,
 } from "lucide-react";
+import PageHeader from "../../components/common/PageHeader";
 
 const ParentOverview = () => {
   const { user } = useAuthStore();
@@ -60,6 +61,8 @@ const ParentOverview = () => {
 
   return (
     <div className="space-y-6 lg:space-y-8">
+      <PageHeader title="Panel Familiar" theme="yellow" />
+
       {/* Información del hijo */}
       <div className="bg-gradient-to-r from-yellow-200 to-yellow-100 rounded-xl p-6 flex items-center gap-6">
         <div className="w-20 h-20 rounded-full border-4 border-yellow-600 shadow bg-yellow-100 flex items-center justify-center">

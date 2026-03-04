@@ -20,6 +20,7 @@ import {
   Minimize
 } from 'lucide-react';
 import openaiService from '../../../services/openaiService';
+import PageHeader from '../../../components/common/PageHeader';
 
 const ParentAIChat = () => {
 
@@ -161,12 +162,14 @@ const ParentAIChat = () => {
   };
 
   return (
-    <div className={`flex flex-col ${isFullscreen ? 'fixed inset-0 z-50 bg-white' : 'h-full'}`}>
+    <div className={`flex flex-col ${isFullscreen ? 'fixed inset-0 z-50 bg-white' : 'h-full'} space-y-3`}>
+      {!isFullscreen && <PageHeader title="Asistente Familiar IA" theme="yellow" />}
+
       {/* Header */}
       <div className="bg-white border-b border-gray-200 p-3 md:p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2 md:space-x-3 min-w-0 flex-1">
-            <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-r from-yellow-500 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+            <div className="w-8 h-8 md:w-10 md:h-10 bg-linear-to-r from-yellow-500 to-blue-600 rounded-full flex items-center justify-center shrink-0">
               <Sparkles className="w-5 h-5 md:w-6 md:h-6 text-white" />
             </div>
             <div className="min-w-0 flex-1">
@@ -229,7 +232,7 @@ const ParentAIChat = () => {
                   onClick={() => handleQuickPrompt(prompt.prompt)}
                   className="flex items-center space-x-2 p-3 text-left bg-white rounded-lg border border-gray-200 hover:border-green-300 hover:shadow-sm transition-all duration-200 text-sm"
                 >
-                  <IconComponent className="w-4 h-4 text-green-600 flex-shrink-0" />
+                  <IconComponent className="w-4 h-4 text-green-600 shrink-0" />
                   <span className="text-gray-700 truncate">{prompt.title}</span>
                 </button>
               );
@@ -247,10 +250,10 @@ const ParentAIChat = () => {
           >
             <div className={`flex space-x-3 max-w-3xl ${message.type === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}>
               {/* Avatar */}
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
                 message.type === 'user' 
                   ? 'bg-green-600 text-white' 
-                  : 'bg-gradient-to-r from-yellow-500 to-blue-600 text-white'
+                  : 'bg-linear-to-r from-yellow-500 to-blue-600 text-white'
               }`}>
                 {message.type === 'user' ? (
                   <User className="w-4 h-4" />
@@ -321,7 +324,7 @@ const ParentAIChat = () => {
         {isTyping && (
           <div className="flex justify-start">
             <div className="flex space-x-3 max-w-3xl">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-r from-yellow-500 to-blue-600 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-full bg-linear-to-r from-yellow-500 to-blue-600 flex items-center justify-center">
                 <Bot className="w-4 h-4 text-white" />
               </div>
               <div className="bg-white border border-gray-200 rounded-2xl p-4">
@@ -362,7 +365,7 @@ const ParentAIChat = () => {
           <button
             onClick={() => handleSendMessage()}
             disabled={!newMessage.trim() || isTyping}
-            className={`p-3 rounded-lg transition-colors flex-shrink-0 ${
+            className={`p-3 rounded-lg transition-colors shrink-0 ${
               newMessage.trim() && !isTyping
                 ? 'bg-green-600 text-white hover:bg-green-700'
                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'

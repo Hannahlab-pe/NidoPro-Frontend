@@ -7,6 +7,7 @@ const MESES = [
   "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
   "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
 ];
+const DEFAULT_ANIO = 2026;
 
 const formatMoney = (value) =>
   Number(value || 0).toLocaleString("es-PE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -24,12 +25,12 @@ const formatearFecha = (fechaStr) => {
 };
 
 const SecretaryOverview = () => {
-  const hoy = new Date();
-  const [mes, setMes] = useState(hoy.getMonth() + 1);
-  const [anio, setAnio] = useState(hoy.getFullYear());
+  const [mes, setMes] = useState("todos");
+  const [anio, setAnio] = useState(DEFAULT_ANIO);
   const [loading, setLoading] = useState(false);
   const [resumen, setResumen] = useState(null);
   const [error, setError] = useState(null);
+  const [showFiltroHint, setShowFiltroHint] = useState(true);
 
   // Estados para ingresos paginados
   const [ingresos, setIngresos] = useState([]);
@@ -110,21 +111,44 @@ const SecretaryOverview = () => {
     cargarEgresos();
   }, [egresosPage, mes, anio]);
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowFiltroHint(false);
+    }, 3800);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <div className="space-y-6">
       <PageHeader title="Panel Principal" />
 
       {/* Filtro de periodo */}
       <div className="bg-white rounded-lg border border-gray-200 p-4 flex flex-wrap items-end gap-4">
-        <div>
+        <div className="relative inline-block">
           <label className="block text-xs font-medium text-gray-600 mb-1">Mes</label>
+          {showFiltroHint && (
+            <div className="absolute bottom-full left-0 mb-2 z-20 w-max max-w-65 bg-blue-600 text-white text-xs rounded-lg px-3 py-2 shadow-lg">
+              <div className="pr-5 leading-4">En este selector puedes filtrar la caja por mes.</div>
+              <button
+                type="button"
+                onClick={() => setShowFiltroHint(false)}
+                className="absolute top-1 right-1 text-white/90 hover:text-white text-[10px]"
+                aria-label="Cerrar recordatorio"
+              >
+                ✕
+              </button>
+              <div className="absolute left-4 top-full -mt-1.5 w-3 h-3 bg-blue-600 rotate-45" />
+            </div>
+          )}
           <select
             value={mes}
-            onChange={(e) => setMes(Number(e.target.value))}
+            onChange={(e) => setMes(e.target.value)}
             className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
           >
+            <option value="todos">Todo el año</option>
             {MESES.map((label, index) => (
-              <option key={label} value={index + 1}>{label}</option>
+              <option key={label} value={String(index + 1)}>{label}</option>
             ))}
           </select>
         </div>
@@ -139,6 +163,12 @@ const SecretaryOverview = () => {
         </div>
         {loading && (
           <span className="text-sm text-gray-400 animate-pulse">Cargando...</span>
+        )}
+        {resumen?.periodo && (
+          <span className="text-xs text-gray-500">
+            Período: {formatearFecha(resumen.periodo.desde)} - {formatearFecha(resumen.periodo.hasta)}
+            {resumen.periodo.mes ? ` (${resumen.periodo.mes})` : ""}
+          </span>
         )}
       </div>
 

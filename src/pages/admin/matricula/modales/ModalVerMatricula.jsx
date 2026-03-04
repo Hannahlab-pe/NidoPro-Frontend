@@ -224,11 +224,6 @@ const ModalVerMatricula = ({ isOpen, onClose, matricula }) => {
                           icon={GraduationCap}
                         />
                         <InfoField
-                          label="Monto de Pensión"
-                          value={grado.idPension?.monto ? `S/ ${grado.idPension.monto}` : 'No especificado'}
-                          icon={DollarSign}
-                        />
-                        <InfoField
                           label="Observaciones"
                           value={estudiante.observaciones || 'Sin observaciones'}
                           icon={FileText}

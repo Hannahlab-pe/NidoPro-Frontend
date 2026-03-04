@@ -4,6 +4,7 @@ import { usePensionesPadre } from '../../../hooks/usePensionesPadre';
 import PensionesTable from './tablas/PensionesTable';
 import { DollarSign, RefreshCw, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import PageHeader from '../../../components/common/PageHeader';
 
 const Pensiones = () => {
   const {
@@ -76,7 +77,8 @@ const Pensiones = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6">
+      <div className="space-y-6">
+        <PageHeader title="Pensiones" theme="yellow" />
         <div className="max-w-7xl mx-auto">
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="text-center py-8">
@@ -102,36 +104,29 @@ const Pensiones = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="space-y-6">
+      <PageHeader
+        title="Pensiones"
+        theme="yellow"
+        actions={(
+          <button
+            onClick={handleRefresh}
+            disabled={loading}
+            className="inline-flex items-center px-3 sm:px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            Actualizar
+          </button>
+        )}
+      />
       <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 flex items-center">
-                <DollarSign className="w-8 h-8 text-green-600 mr-3" />
-                Pensiones
-              </h1>
-              <p className="text-gray-600 mt-1">
-                Gestiona las pensiones de tus hijos
-              </p>
-            </div>
-            <button
-              onClick={handleRefresh}
-              disabled={loading}
-              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-              Actualizar
-            </button>
-          </div>
-        </div>
+        <p className="text-gray-600 -mt-2">Gestiona las pensiones de tus hijos</p>
 
         {/* Estadísticas */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex items-center">
-              <div className="flex-shrink-0">
+              <div className="shrink-0">
                 <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
                   <DollarSign className="w-4 h-4 text-blue-600" />
                 </div>
@@ -145,7 +140,7 @@ const Pensiones = () => {
 
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex items-center">
-              <div className="flex-shrink-0">
+              <div className="shrink-0">
                 <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
                   <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -161,7 +156,7 @@ const Pensiones = () => {
 
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex items-center">
-              <div className="flex-shrink-0">
+              <div className="shrink-0">
                 <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
                   <svg className="w-4 h-4 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
@@ -177,7 +172,7 @@ const Pensiones = () => {
 
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex items-center">
-              <div className="flex-shrink-0">
+              <div className="shrink-0">
                 <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
                   <AlertCircle className="w-4 h-4 text-red-600" />
                 </div>
