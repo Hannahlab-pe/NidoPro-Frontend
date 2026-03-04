@@ -65,9 +65,7 @@ const PensionesSecretaria = () => {
   };
 
   const selectedAulaLabel = useMemo(() => {
-    const found = aulas.find(
-      (aula) => getAulaUuid(aula) === selectedAula,
-    );
+    const found = aulas.find((aula) => getAulaUuid(aula) === selectedAula);
     if (!found) return "";
     return getAulaDisplayLabel(found);
   }, [aulas, selectedAula]);

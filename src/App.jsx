@@ -70,6 +70,7 @@ import Anotaciones from "./pages/parent/anotaciones/Anotaciones";
 import Cronograma from "./pages/parent/cronograma/Cronograma";
 import ParentAIChat from "./pages/parent/iachat/ParentAIChat";
 import ParentPensiones from "./pages/parent/pensiones/Pensiones";
+import Observaciones from "./pages/common/observaciones/Observaciones";
 
 // Configuración del QueryClient con cache de 5-10 minutos
 const queryClient = new QueryClient({
@@ -231,6 +232,7 @@ function App() {
               <Route path="acciones-periodo" element={<Acciones />} />
               <Route path="grados" element={<Grados />} />
               <Route path="cursos" element={<Cursos />} />
+              <Route path="observaciones" element={<Observaciones />} />
             </Route>
 
             {/* ========== SECRETARIA ROUTES ========== */}
@@ -246,6 +248,7 @@ function App() {
               <Route path="reportes" element={<SecretaryReportes />} />
               <Route path="caja" element={<SecretaryCaja />} />
               <Route path="pensiones" element={<SecretaryPensiones />} />
+              <Route path="observaciones" element={<Observaciones />} />
             </Route>
 
             {/* ========== TEACHER ROUTES ========== */}
@@ -274,6 +277,7 @@ function App() {
               />
               <Route path="aulas" element={<MisAulas />} />
               <Route path="evaluaciones" element={<TeacherEvaluaciones />} />
+              <Route path="observaciones" element={<Observaciones />} />
             </Route>
 
             {/* ========== PARENT ROUTES ========== */}

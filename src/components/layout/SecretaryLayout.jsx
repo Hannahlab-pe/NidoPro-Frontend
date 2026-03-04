@@ -40,6 +40,11 @@ const SECTIONS = [
     label: "Otros",
     icon: FolderOpen,
     items: [
+      {
+        path: "/secretaria/observaciones",
+        label: "Observaciones",
+        icon: FileText,
+      },
       { path: "/secretaria/reportes", label: "Reportes", icon: FileText },
     ],
   },
@@ -110,7 +115,7 @@ const SecretaryLayout = () => {
                 </button>
               </div>
               <div className="flex-1 ml-4">
-                <h1 className="text-xl lg:text-2xl font-bold text-black">
+                <h1 className="text-xl lg:text-2xl font-bold text-blue-900">
                   Panel de Secretaría
                 </h1>
                 <p className="text-sm text-blue-900/70 mt-1 hidden sm:block">

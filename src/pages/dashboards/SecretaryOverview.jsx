@@ -1,21 +1,42 @@
 import React, { useEffect, useState } from "react";
-import { TrendingUp, TrendingDown, Wallet, ArrowUpCircle, ArrowDownCircle, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  TrendingUp,
+  TrendingDown,
+  Wallet,
+  ArrowUpCircle,
+  ArrowDownCircle,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import PageHeader from "../../components/common/PageHeader";
 import cajaService from "../../services/cajaService";
 
 const MESES = [
-  "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-  "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
+  "Enero",
+  "Febrero",
+  "Marzo",
+  "Abril",
+  "Mayo",
+  "Junio",
+  "Julio",
+  "Agosto",
+  "Septiembre",
+  "Octubre",
+  "Noviembre",
+  "Diciembre",
 ];
 const DEFAULT_ANIO = 2026;
 
 const formatMoney = (value) =>
-  Number(value || 0).toLocaleString("es-PE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  Number(value || 0).toLocaleString("es-PE", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 
 const formatearFecha = (fechaStr) => {
   if (!fechaStr) return "";
   if (typeof fechaStr === "string" && fechaStr.includes("/")) return fechaStr;
-  
+
   const partes = fechaStr.split("T")[0].split("-");
   if (partes.length === 3) {
     const [year, month, day] = partes;
@@ -31,6 +52,7 @@ const SecretaryOverview = () => {
   const [resumen, setResumen] = useState(null);
   const [error, setError] = useState(null);
   const [showFiltroHint, setShowFiltroHint] = useState(true);
+  const [hintVisible, setHintVisible] = useState(true);
 
   // Estados para ingresos paginados
   const [ingresos, setIngresos] = useState([]);
@@ -112,11 +134,20 @@ const SecretaryOverview = () => {
   }, [egresosPage, mes, anio]);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowFiltroHint(false);
-    }, 3800);
+    let toggles = 0;
+    const maxToggles = 10;
 
-    return () => clearTimeout(timer);
+    const interval = setInterval(() => {
+      setHintVisible((prev) => !prev);
+      toggles += 1;
+
+      if (toggles >= maxToggles) {
+        clearInterval(interval);
+        setShowFiltroHint(false);
+      }
+    }, 700);
+
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -126,10 +157,16 @@ const SecretaryOverview = () => {
       {/* Filtro de periodo */}
       <div className="bg-white rounded-lg border border-gray-200 p-4 flex flex-wrap items-end gap-4">
         <div className="relative inline-block">
-          <label className="block text-xs font-medium text-gray-600 mb-1">Mes</label>
+          <label className="block text-xs font-medium text-gray-600 mb-1">
+            Mes
+          </label>
           {showFiltroHint && (
-            <div className="absolute bottom-full left-0 mb-2 z-20 w-max max-w-65 bg-blue-600 text-white text-xs rounded-lg px-3 py-2 shadow-lg">
-              <div className="pr-5 leading-4">En este selector puedes filtrar la caja por mes.</div>
+            <div
+              className={`absolute bottom-full left-0 mb-2 z-20 w-max max-w-65 bg-blue-600 text-white text-xs rounded-lg px-3 py-2 shadow-lg transition-opacity duration-400 ${hintVisible ? "opacity-100" : "opacity-65"}`}
+            >
+              <div className="pr-5 leading-4">
+                En este selector puedes filtrar la caja por mes.
+              </div>
               <button
                 type="button"
                 onClick={() => setShowFiltroHint(false)}
@@ -148,12 +185,16 @@ const SecretaryOverview = () => {
           >
             <option value="todos">Todo el año</option>
             {MESES.map((label, index) => (
-              <option key={label} value={String(index + 1)}>{label}</option>
+              <option key={label} value={String(index + 1)}>
+                {label}
+              </option>
             ))}
           </select>
         </div>
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">Año</label>
+          <label className="block text-xs font-medium text-gray-600 mb-1">
+            Año
+          </label>
           <input
             type="number"
             value={anio}
@@ -162,11 +203,14 @@ const SecretaryOverview = () => {
           />
         </div>
         {loading && (
-          <span className="text-sm text-gray-400 animate-pulse">Cargando...</span>
+          <span className="text-sm text-gray-400 animate-pulse">
+            Cargando...
+          </span>
         )}
         {resumen?.periodo && (
           <span className="text-xs text-gray-500">
-            Período: {formatearFecha(resumen.periodo.desde)} - {formatearFecha(resumen.periodo.hasta)}
+            Período: {formatearFecha(resumen.periodo.desde)} -{" "}
+            {formatearFecha(resumen.periodo.hasta)}
             {resumen.periodo.mes ? ` (${resumen.periodo.mes})` : ""}
           </span>
         )}
@@ -186,7 +230,9 @@ const SecretaryOverview = () => {
           </div>
           <div>
             <p className="text-xs text-gray-500">Ingresos</p>
-            <p className="text-lg font-bold text-green-600">S/ {formatMoney(resumen?.ingresos)}</p>
+            <p className="text-lg font-bold text-green-600">
+              S/ {formatMoney(resumen?.ingresos)}
+            </p>
           </div>
         </div>
 
@@ -196,7 +242,9 @@ const SecretaryOverview = () => {
           </div>
           <div>
             <p className="text-xs text-gray-500">Egresos</p>
-            <p className="text-lg font-bold text-red-500">S/ {formatMoney(resumen?.egresos)}</p>
+            <p className="text-lg font-bold text-red-500">
+              S/ {formatMoney(resumen?.egresos)}
+            </p>
           </div>
         </div>
 
@@ -206,7 +254,9 @@ const SecretaryOverview = () => {
           </div>
           <div>
             <p className="text-xs text-gray-500">Saldo Neto</p>
-            <p className={`text-lg font-bold ${Number(resumen?.saldoNeto) >= 0 ? "text-blue-600" : "text-red-600"}`}>
+            <p
+              className={`text-lg font-bold ${Number(resumen?.saldoNeto) >= 0 ? "text-blue-600" : "text-red-600"}`}
+            >
               S/ {formatMoney(resumen?.saldoNeto)}
             </p>
           </div>
@@ -218,7 +268,9 @@ const SecretaryOverview = () => {
           </div>
           <div>
             <p className="text-xs text-gray-500">N° Ingresos</p>
-            <p className="text-lg font-bold text-emerald-600">{resumen?.cantidadIngresos ?? "-"}</p>
+            <p className="text-lg font-bold text-emerald-600">
+              {resumen?.cantidadIngresos ?? "-"}
+            </p>
           </div>
         </div>
 
@@ -228,7 +280,9 @@ const SecretaryOverview = () => {
           </div>
           <div>
             <p className="text-xs text-gray-500">N° Egresos</p>
-            <p className="text-lg font-bold text-orange-500">{resumen?.cantidadEgresos ?? "-"}</p>
+            <p className="text-lg font-bold text-orange-500">
+              {resumen?.cantidadEgresos ?? "-"}
+            </p>
           </div>
         </div>
       </div>
@@ -243,21 +297,31 @@ const SecretaryOverview = () => {
               <h3 className="font-semibold text-gray-900">Últimos Ingresos</h3>
             </div>
             <span className="text-xs text-gray-500">
-              {ingresos.length > 0 ? `${ingresos.length} registros` : "Sin registros"}
+              {ingresos.length > 0
+                ? `${ingresos.length} registros`
+                : "Sin registros"}
             </span>
           </div>
           <div className="overflow-x-auto">
             {loadingIngresos ? (
               <div className="p-8 text-center text-gray-400">Cargando...</div>
             ) : ingresos.length === 0 ? (
-              <div className="p-8 text-center text-gray-400">No hay ingresos registrados</div>
+              <div className="p-8 text-center text-gray-400">
+                No hay ingresos registrados
+              </div>
             ) : (
               <table className="w-full text-sm">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="text-left px-4 py-2 text-xs font-medium text-gray-600">Fecha</th>
-                    <th className="text-left px-4 py-2 text-xs font-medium text-gray-600">Concepto</th>
-                    <th className="text-right px-4 py-2 text-xs font-medium text-gray-600">Monto</th>
+                    <th className="text-left px-4 py-2 text-xs font-medium text-gray-600">
+                      Fecha
+                    </th>
+                    <th className="text-left px-4 py-2 text-xs font-medium text-gray-600">
+                      Concepto
+                    </th>
+                    <th className="text-right px-4 py-2 text-xs font-medium text-gray-600">
+                      Monto
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
@@ -270,7 +334,8 @@ const SecretaryOverview = () => {
                         <div className="text-gray-900">{ingreso.concepto}</div>
                         {ingreso.estudiante && (
                           <div className="text-xs text-gray-500">
-                            {ingreso.estudiante.persona?.nombre} {ingreso.estudiante.persona?.apellido}
+                            {ingreso.estudiante.persona?.nombre}{" "}
+                            {ingreso.estudiante.persona?.apellido}
                           </div>
                         )}
                       </td>
@@ -297,7 +362,9 @@ const SecretaryOverview = () => {
                 Página {ingresosPage} de {ingresosTotalPages}
               </span>
               <button
-                onClick={() => setIngresosPage((p) => Math.min(ingresosTotalPages, p + 1))}
+                onClick={() =>
+                  setIngresosPage((p) => Math.min(ingresosTotalPages, p + 1))
+                }
                 disabled={ingresosPage === ingresosTotalPages}
                 className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -315,21 +382,31 @@ const SecretaryOverview = () => {
               <h3 className="font-semibold text-gray-900">Últimos Egresos</h3>
             </div>
             <span className="text-xs text-gray-500">
-              {egresos.length > 0 ? `${egresos.length} registros` : "Sin registros"}
+              {egresos.length > 0
+                ? `${egresos.length} registros`
+                : "Sin registros"}
             </span>
           </div>
           <div className="overflow-x-auto">
             {loadingEgresos ? (
               <div className="p-8 text-center text-gray-400">Cargando...</div>
             ) : egresos.length === 0 ? (
-              <div className="p-8 text-center text-gray-400">No hay egresos registrados</div>
+              <div className="p-8 text-center text-gray-400">
+                No hay egresos registrados
+              </div>
             ) : (
               <table className="w-full text-sm">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="text-left px-4 py-2 text-xs font-medium text-gray-600">Fecha</th>
-                    <th className="text-left px-4 py-2 text-xs font-medium text-gray-600">Concepto</th>
-                    <th className="text-right px-4 py-2 text-xs font-medium text-gray-600">Monto</th>
+                    <th className="text-left px-4 py-2 text-xs font-medium text-gray-600">
+                      Fecha
+                    </th>
+                    <th className="text-left px-4 py-2 text-xs font-medium text-gray-600">
+                      Concepto
+                    </th>
+                    <th className="text-right px-4 py-2 text-xs font-medium text-gray-600">
+                      Monto
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
@@ -342,7 +419,8 @@ const SecretaryOverview = () => {
                         <div className="text-gray-900">{egreso.concepto}</div>
                         {egreso.estudiante && (
                           <div className="text-xs text-gray-500">
-                            {egreso.estudiante.persona?.nombre} {egreso.estudiante.persona?.apellido}
+                            {egreso.estudiante.persona?.nombre}{" "}
+                            {egreso.estudiante.persona?.apellido}
                           </div>
                         )}
                       </td>
@@ -369,7 +447,9 @@ const SecretaryOverview = () => {
                 Página {egresosPage} de {egresosTotalPages}
               </span>
               <button
-                onClick={() => setEgresosPage((p) => Math.min(egresosTotalPages, p + 1))}
+                onClick={() =>
+                  setEgresosPage((p) => Math.min(egresosTotalPages, p + 1))
+                }
                 disabled={egresosPage === egresosTotalPages}
                 className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -379,7 +459,6 @@ const SecretaryOverview = () => {
           )}
         </div>
       </div>
-
     </div>
   );
 };

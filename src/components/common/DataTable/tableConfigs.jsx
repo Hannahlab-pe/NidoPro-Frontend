@@ -442,7 +442,7 @@ export const trabajadoresColumns = [
         <div>
           <span
             className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getRolBadgeColor(
-              value?.nombre
+              value?.nombre,
             )}`}
           >
             {value?.nombre || "Sin rol"}
@@ -669,8 +669,8 @@ export const parentsColumns = [
           value === "Padre"
             ? "bg-blue-100 text-blue-800"
             : value === "Madre"
-            ? "bg-pink-100 text-pink-800"
-            : "bg-gray-100 text-gray-800"
+              ? "bg-pink-100 text-pink-800"
+              : "bg-gray-100 text-gray-800"
         }`}
       >
         {value || "Sin tipo"}
@@ -732,7 +732,7 @@ export const parentsColumns = [
                   <div className="text-xs text-gray-500">
                     {matricula.fechaIngreso
                       ? new Date(matricula.fechaIngreso).toLocaleDateString(
-                          "es-ES"
+                          "es-ES",
                         )
                       : "Sin fecha"}
                   </div>
@@ -849,19 +849,19 @@ export const usersColumns = [
           value === "administracion"
             ? "bg-purple-100 text-purple-800"
             : value === "docente"
-            ? "bg-blue-100 text-blue-800"
-            : value === "padre"
-            ? "bg-green-100 text-green-800"
-            : "bg-gray-100 text-gray-800"
+              ? "bg-blue-100 text-blue-800"
+              : value === "padre"
+                ? "bg-green-100 text-green-800"
+                : "bg-gray-100 text-gray-800"
         }`}
       >
         {value === "administracion"
           ? "Admin"
           : value === "docente"
-          ? "Docente"
-          : value === "padre"
-          ? "Padre"
-          : value}
+            ? "Docente"
+            : value === "padre"
+              ? "Padre"
+              : value}
       </span>
     ),
   },
@@ -1008,9 +1008,7 @@ export const aulasColumns = [
     Header: "Grado",
     accessor: "idGrado",
     sortable: true,
-    Cell: ({ value }) => (
-      <span>{value?.grado || "Sin grado"}</span>
-    ),
+    Cell: ({ value }) => <span>{value?.grado || "Sin grado"}</span>,
   },
   {
     Header: "Sección",
@@ -1021,9 +1019,7 @@ export const aulasColumns = [
     Header: "Cantidad de Estudiantes",
     accessor: "cantidadEstudiantes",
     sortable: true,
-    Cell: ({ value }) => (
-      <span>{value || 0} estudiantes</span>
-    ),
+    Cell: ({ value }) => <span>{value || 0} estudiantes</span>,
   },
   {
     Header: "Descripción",
@@ -1031,7 +1027,9 @@ export const aulasColumns = [
     sortable: false,
     Cell: ({ row }) => (
       <span className="text-gray-600">
-        {row.idGrado?.descripcion || <span className="text-gray-400 italic">Sin descripción</span>}
+        {row.idGrado?.descripcion || (
+          <span className="text-gray-400 italic">Sin descripción</span>
+        )}
       </span>
     ),
   },
@@ -1045,7 +1043,11 @@ export const aulasColumns = [
         return <span className="text-gray-400 italic">Sin tutor</span>;
       }
       const { nombre, apellido } = asignacionActiva.idTrabajador;
-      return <span>{nombre} {apellido}</span>;
+      return (
+        <span>
+          {nombre} {apellido}
+        </span>
+      );
     },
   },
 ];
@@ -1475,7 +1477,7 @@ export const cursosColumns = [
       return (
         <span
           className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getEstadoColor(
-            value
+            value,
           )}`}
         >
           {value ? "Activo" : "Inactivo"}
@@ -1610,6 +1612,3 @@ export const evaluacionesFilters = {
     type: "text",
   },
 };
-
-
-

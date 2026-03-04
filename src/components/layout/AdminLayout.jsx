@@ -86,6 +86,7 @@ const SECTIONS = [
     icon: MessageCircle,
     items: [
       { path: "/admin/ai-chat", label: "Asistente IA", icon: MessageCircle },
+      { path: "/admin/observaciones", label: "Observaciones", icon: FileText },
     ],
   },
 ];
@@ -245,7 +246,10 @@ const AdminLayout = () => {
               return (
                 <div key={section.id} className="mt-3">
                   {/* Encabezado de sección */}
-                  <div className="relative group/tip" data-tour={`${section.id}-section`}>
+                  <div
+                    className="relative group/tip"
+                    data-tour={`${section.id}-section`}
+                  >
                     <button
                       onClick={() => toggleSection(section.id)}
                       className={`w-full flex items-center ${
@@ -294,7 +298,13 @@ const AdminLayout = () => {
                         const ItemIcon = item.icon;
                         const isActive = isItemActive(item.path);
                         return (
-                          <div key={item.path} className="relative group/tip" data-tour={item.label.toLowerCase().replace(/ /g, '-')}>
+                          <div
+                            key={item.path}
+                            className="relative group/tip"
+                            data-tour={item.label
+                              .toLowerCase()
+                              .replace(/ /g, "-")}
+                          >
                             <Link
                               to={item.path}
                               onClick={() => setIsMobileMenuOpen(false)}
