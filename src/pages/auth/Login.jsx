@@ -492,10 +492,10 @@ const Login = () => {
 
         {/* Main Content */}
         <div className="relative z-10 min-h-screen flex items-center justify-center p-6">
-          <div className="w-full max-w-6xl flex items-center justify-center">
+          <div className="w-full max-w-6xl flex items-center justify-center lg:flex-row-reverse">
             {/* Left Side - Login Form */}
             <div
-              className={`w-full lg:w-1/2 flex items-center justify-start pl-6 pr-3 transition-all duration-1000 transform ${
+              className={`w-full lg:w-1/2 flex items-center justify-end pl-3 pr-6 lg:-mt-4 transition-all duration-1000 transform ${
                 isVisible
                   ? "translate-x-0 opacity-100"
                   : "-translate-x-10 opacity-0"
@@ -526,12 +526,7 @@ const Login = () => {
                     }`}
                     style={{ transitionDelay: "0.3s" }}
                   >
-                    <h3 className="text-2xl font-bold text-gray-800 mb-2">
-                      EDA
-                    </h3>
-                    <p className="text-gray-600">
-                      Accede a tu cuenta para continuar
-                    </p>
+                    <h3 className="text-4xl font-bold text-gray-800">Login</h3>
                   </div>
 
                   {/* Form */}
@@ -679,60 +674,29 @@ const Login = () => {
 
             {/* Right Side - Welcome Panel */}
             <div
-              className={`hidden lg:flex lg:w-1/2 flex-col justify-center items-start p-12 relative transition-all duration-1000 transform ${
+              className={`hidden lg:flex lg:w-1/2 flex-col justify-start items-start pt-16 pb-8 pl-4 pr-10 relative transition-all duration-1000 transform ${
                 isVisible
                   ? "translate-x-0 opacity-100"
                   : "translate-x-10 opacity-0"
               }`}
             >
               <div className="relative z-10">
-                {/* Logo y Brand */}
-                <div className="flex items-center mb-8">
-                  <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center mr-4 shadow-lg">
-                    <GraduationCap className="w-7 h-7 text-white" />
-                  </div>
-                  <div>
-                    <h1 className="text-2xl font-bold bg-blue-600 bg-clip-text text-transparent">
-                      EDA
-                    </h1>
-                    <p className="text-sm text-gray-600">Sistema Educativo</p>
-                  </div>
-                </div>
-
-                {/* Welcome Message */}
-                <div className="mb-8">
-                  <h2 className="text-4xl font-bold text-gray-800 mb-4 leading-tight">
-                    Bienvenido a<br />
+                {/* Mensaje principal */}
+                <div className="mb-10 max-w-xl">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold tracking-wide uppercase bg-blue-600 text-white mb-4">
+                    Sistema EDA
+                  </span>
+                  <h2 className="text-6xl font-bold text-gray-800 mb-5 leading-[1.05]">
+                    Conecta, enseña y<br />
+                    transforma{" "}
                     <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-                      EDA
+                      en cada aula
                     </span>
                   </h2>
                   <p className="text-lg text-gray-600 leading-relaxed">
-                    Plataforma educativa completa para la gestión integral de
-                    centros educativos
+                    EDA centraliza la gestión académica, administrativa y de
+                    comunicación para impulsar tu institución en un solo lugar.
                   </p>
-                </div>
-
-                {/* Features */}
-                <div className="space-y-3">
-                  <div className="flex items-center">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
-                    <span className="text-gray-700">
-                      Gestión de estudiantes y padres
-                    </span>
-                  </div>
-                  <div className="flex items-center">
-                    <div className="w-2 h-2 bg-purple-500 rounded-full mr-3"></div>
-                    <span className="text-gray-700">
-                      Sistema de matrículas integrado
-                    </span>
-                  </div>
-                  <div className="flex items-center">
-                    <div className="w-2 h-2 bg-pink-500 rounded-full mr-3"></div>
-                    <span className="text-gray-700">
-                      Reportes y análisis en tiempo real
-                    </span>
-                  </div>
                 </div>
               </div>
 
