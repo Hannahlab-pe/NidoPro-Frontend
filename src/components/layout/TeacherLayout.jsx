@@ -123,54 +123,29 @@ const TeacherLayout = () => {
     <div className="flex h-screen bg-gray-50 border-r">
       {/* Header */}
       <header className="fixed inset-x-0 top-0 z-50">
-        <div className="flex w-full">
-          <div className="w-full bg-green-600 px-4 lg:px-6 py-4">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center">
-                <button
-                  className="lg:hidden p-2 text-white hover:text-gray-300"
-                  onClick={() => setIsMobileMenuOpen(true)}
-                >
-                  <Menu className="w-6 h-6" />
-                </button>
-                <button
-                  className="hidden lg:flex p-2 text-white hover:text-green-200 transition-colors rounded-md hover:bg-green-700"
-                  onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-                  title={isSidebarCollapsed ? "Expandir menu" : "Colapsar menu"}
-                >
-                  {isSidebarCollapsed ? (
-                    <PanelLeftOpen className="w-5 h-5" />
-                  ) : (
-                    <PanelLeftClose className="w-5 h-5" />
-                  )}
-                </button>
-              </div>
-              <div className="flex-1 ml-4">
-                <h1 className="text-xl lg:text-2xl font-bold text-white">
-                  Panel de Docente
-                </h1>
-                <p className="text-sm text-white mt-1 hidden sm:block">
-                  {new Date().toLocaleDateString("es-ES", {
-                    weekday: "long",
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                </p>
-              </div>
-              <div className="hidden sm:flex items-center gap-3">
-                <div className="flex flex-col leading-tight text-right">
-                  <span className="text-white font-semibold text-sm truncate max-w-45">
-                    {user?.nombre || ""} {user?.apellido || ""}
-                  </span>
-                  <span className="text-xs text-white/80 truncate max-w-45">
-                    {user?.email || "correo@ejemplo.com"}
-                  </span>
-                </div>
-                <div className="w-10 h-10 rounded-full border-2 border-white/70 bg-white/10 flex items-center justify-center">
-                  <CircleUser className="w-5 h-5 text-white" />
-                </div>
-              </div>
+        <div className="w-full bg-green-600 px-4 lg:px-6 py-2.5 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <button
+              className="lg:hidden p-1.5 text-white/80 hover:text-white"
+              onClick={() => setIsMobileMenuOpen(true)}
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+            <span className="text-base font-semibold text-white tracking-tight">
+              Panel de Docente
+            </span>
+          </div>
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-full bg-white/10 border border-white/30 flex items-center justify-center shrink-0">
+              <CircleUser className="w-4 h-4 text-white" />
+            </div>
+            <div className="hidden sm:flex flex-col leading-tight">
+              <span className="text-white font-medium text-sm truncate max-w-40">
+                {user?.nombre || ""} {user?.apellido || ""}
+              </span>
+              <span className="text-xs text-white/60 truncate max-w-40">
+                {user?.email || ""}
+              </span>
             </div>
           </div>
         </div>
@@ -185,7 +160,7 @@ const TeacherLayout = () => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 bg-white shadow-lg transform transition-all duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 flex flex-col pt-20 ${
+        className={`fixed inset-y-0 left-0 z-40 bg-white shadow-lg transform transition-all duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 flex flex-col pt-14 ${
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         } ${isSidebarCollapsed ? "lg:w-20" : "lg:w-64"} w-64`}
       >
@@ -381,7 +356,7 @@ const TeacherLayout = () => {
       </aside>
 
       {/* Main */}
-      <main className="flex-1 flex flex-col overflow-hidden lg:ml-0 pt-20">
+      <main className="flex-1 flex flex-col overflow-hidden lg:ml-0 pt-14">
         <div className="p-4 lg:p-6 h-full overflow-y-auto">
           <Outlet context={{ isSidebarCollapsed, setIsSidebarCollapsed }} />
         </div>

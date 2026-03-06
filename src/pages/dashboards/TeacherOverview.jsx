@@ -1,53 +1,72 @@
 import React, { useMemo } from "react";
-import { Link } from "react-router-dom";
+import { useOutletContext } from "react-router-dom";
 import { useAuthStore } from "../../store";
 import { useTeacherDashboard } from "../../hooks/useTeacherDashboard";
 import {
   StudentsByClassroomChart,
   GradesDistributionChart,
 } from "../../components/charts/TeacherCharts";
-import SplitText from "../../components/common/SplitText";
 import {
-  BarChart3,
   Users,
   School,
   GraduationCap,
-  TrendingUp,
+  BarChart3,
   RefreshCw,
-  AlertCircle,
   Bot,
+  Sparkles,
+  ArrowUpRight,
+  AlertCircle,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
+
+const SidebarToggle = () => {
+  const { isSidebarCollapsed, setIsSidebarCollapsed } = useOutletContext() || {};
+  if (typeof setIsSidebarCollapsed !== "function") return null;
+  return (
+    <button
+      className="hidden lg:flex p-2 text-gray-400 hover:text-green-600 transition-colors rounded-lg hover:bg-green-50"
+      onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+      title={isSidebarCollapsed ? "Expandir menu" : "Colapsar menu"}
+    >
+      {isSidebarCollapsed ? <PanelLeftOpen className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
+    </button>
+  );
+};
 
 const TeacherOverview = () => {
   const { user } = useAuthStore();
   const { chartData, dashboardData, loading, error, refreshData } =
     useTeacherDashboard();
 
-  // Calcular estadísticas dinámicas basadas en datos reales
+  const today = new Date().toLocaleDateString("es-PE", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
   const dynamicStats = useMemo(() => {
     const estudiantesData = dashboardData?.estudiantes?.porAula || {};
     const aulasData = dashboardData?.aulas?.data || [];
-
     const totalEstudiantes = Object.values(estudiantesData).reduce(
-      (total, estudiantes) => {
-        return total + (Array.isArray(estudiantes) ? estudiantes.length : 0);
-      },
+      (total, estudiantes) =>
+        total + (Array.isArray(estudiantes) ? estudiantes.length : 0),
       0
     );
     const totalAulas = aulasData.length;
-
     return [
       {
         title: "Mis Estudiantes",
         value: totalEstudiantes.toString(),
-        change: `${totalAulas} aulas`,
+        sub: `${totalAulas} aulas`,
         icon: Users,
         color: "#3B82F6",
       },
       {
         title: "Mis Aulas",
         value: totalAulas.toString(),
-        change: "Asignadas",
+        sub: "Asignadas",
         icon: School,
         color: "#10B981",
       },
@@ -57,14 +76,14 @@ const TeacherOverview = () => {
           totalAulas > 0
             ? Math.round(totalEstudiantes / totalAulas).toString()
             : "0",
-        change: "estudiantes",
+        sub: "estudiantes",
         icon: GraduationCap,
         color: "#F59E0B",
       },
       {
-        title: "Total de Datos",
+        title: "Total Registros",
         value: (totalEstudiantes + totalAulas).toString(),
-        change: "activos",
+        sub: "activos",
         icon: BarChart3,
         color: "#8B5CF6",
       },
@@ -73,107 +92,102 @@ const TeacherOverview = () => {
 
   return (
     <div className="space-y-6 lg:space-y-8">
-      <SplitText
-        text={`Bienvenido,\n${user?.nombre || ""}`}
-        className="text-6xl font-bold mb-6 text-gray-700 whitespace-pre-line"
-        delay={50}
-        duration={0.6}
-        ease="power3.out"
-        splitType="chars"
-        from={{ opacity: 0, y: 40 }}
-        to={{ opacity: 1, y: 0 }}
-        threshold={0.1}
-        rootMargin="-100px"
-        textAlign="left"
-        tag="p"
-      />
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+      {/* ── HEADER ── */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <SidebarToggle />
+          <div>
+            <h1 className="text-3xl lg:text-4xl font-bold text-gray-800 leading-tight">
+              Bienvenido, {user?.nombre || ""}
+            </h1>
+            <p className="text-sm text-gray-400 mt-0.5 capitalize">{today}</p>
+          </div>
+        </div>
+        {loading && (
+          <div className="flex items-center gap-2 text-green-500 bg-green-50 px-3 py-1.5 rounded-full self-start sm:self-auto">
+            <RefreshCw className="w-4 h-4 animate-spin" />
+            <span className="text-xs font-medium">Actualizando...</span>
+          </div>
+        )}
+      </div>
+
+      {/* ── ERROR ── */}
+      {error && (
+        <div className="bg-red-50 border-l-4 border-red-400 rounded-lg p-4 flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 text-red-500 shrink-0" />
+          <span className="text-red-700 text-sm">{error}</span>
+        </div>
+      )}
+
+      {/* ── STAT CARDS ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {dynamicStats.map((stat, index) => {
           const IconComponent = stat.icon;
           return (
             <div
               key={index}
-              className="bg-white p-4 lg:p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow"
+              className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center gap-5 hover:shadow-md transition-shadow"
             >
-              <div className="flex items-center justify-between mb-4">
-                <div
-                  className="p-3 rounded-lg"
-                  style={{
-                    backgroundColor: `${stat.color}15`,
-                    color: stat.color,
-                  }}
-                >
-                  <IconComponent className="w-6 h-6" />
-                </div>
-                <TrendingUp className="w-4 h-4 text-green-500" />
+              <div
+                className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0"
+                style={{ backgroundColor: `${stat.color}18`, color: stat.color }}
+              >
+                <IconComponent className="w-7 h-7" />
               </div>
-              <div>
-                <h3 className="text-xl lg:text-2xl font-bold text-gray-900 mb-1">
-                  {stat.value}
-                </h3>
-                <p className="text-sm text-gray-600 mb-2">{stat.title}</p>
-                <span className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full">
-                  {stat.change}
-                </span>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">
+                  {stat.title}
+                </p>
+                {loading ? (
+                  <div className="animate-pulse bg-gray-200 h-7 w-16 rounded-lg"></div>
+                ) : (
+                  <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                )}
+              </div>
+              <div
+                className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center"
+                style={{ backgroundColor: `${stat.color}12` }}
+              >
+                <ArrowUpRight className="w-4 h-4" style={{ color: stat.color }} />
               </div>
             </div>
           );
         })}
       </div>
 
-      {/* Asistente IA Quick Access */}
-      <div className="bg-gradient-to-r from-green-700 to-green-600 rounded-xl shadow-sm p-4 lg:p-6 text-white">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="p-3 bg-green-700 bg-opacity-20 rounded-lg">
-              <Bot className="w-8 h-8" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold">Asistente IA Educativo</h3>
-              <p className="text-green-100">
-                ¿Necesitas ideas para tu próxima clase?
-              </p>
-            </div>
-          </div>
-          <Link
-            to="/teacher/ai-chat"
-            className="bg-white text-green-600 hover:bg-green-50 px-4 py-2 rounded-lg transition-all duration-200 font-medium"
-          >
-            DIsponible pronto...
-          </Link>
+      {/* ── BANNER IA ── */}
+      <div className="bg-green-50 border border-green-100 rounded-2xl px-5 py-3 flex items-center gap-3">
+        <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center shrink-0">
+          <Bot className="w-4 h-4 text-green-600" />
         </div>
+        <p className="text-sm text-green-700 font-medium flex-1">Asistente IA Educativo</p>
+        <span className="flex items-center gap-1 text-xs font-medium text-green-500 bg-white border border-green-200 px-3 py-1 rounded-full shrink-0">
+          <Sparkles className="w-3 h-3" /> Próximamente
+        </span>
       </div>
 
-      {/* Gráficos de Datos del Profesor */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-        <div className="flex items-center justify-between p-4 lg:p-6 border-b border-gray-100">
-          <h3 className="flex items-center space-x-2 text-lg font-semibold text-gray-900">
-            <BarChart3 className="w-5 h-5 text-gray-600" />
-            <span>Estadísticas de Mis Aulas</span>
-          </h3>
+      {/* ── GRÁFICOS ── */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+          <div>
+            <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-0.5">Estadísticas</p>
+            <h3 className="text-base font-semibold text-gray-800">Mis Aulas</h3>
+          </div>
           <button
             onClick={refreshData}
             disabled={loading}
-            className="flex items-center space-x-2 text-sm text-green-600 hover:text-green-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-1.5 text-xs text-green-600 hover:text-green-700 font-medium disabled:opacity-40 bg-green-50 hover:bg-green-100 px-3 py-1.5 rounded-lg transition-colors"
           >
-            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
-            <span>Actualizar</span>
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
+            Actualizar
           </button>
         </div>
-        <div className="p-4 lg:p-6">
+        <div className="p-5">
           {loading ? (
-            <div className="flex items-center justify-center py-8">
-              <RefreshCw className="w-8 h-8 animate-spin text-green-600" />
-              <span className="ml-2 text-gray-600">Cargando datos...</span>
-            </div>
-          ) : error ? (
-            <div className="flex items-center justify-center py-8">
-              <AlertCircle className="w-8 h-8 text-red-600" />
-              <span className="ml-2 text-red-600">
-                Error al cargar datos: {error}
-              </span>
+            <div className="flex items-center justify-center py-12">
+              <RefreshCw className="w-6 h-6 animate-spin text-green-500" />
+              <span className="ml-2 text-sm text-gray-500">Cargando datos...</span>
             </div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -183,6 +197,7 @@ const TeacherOverview = () => {
           )}
         </div>
       </div>
+
     </div>
   );
 };

@@ -92,54 +92,29 @@ const SecretaryLayout = () => {
     <div className="flex h-screen bg-gray-50 border-r">
       {/* Header */}
       <header className="fixed inset-x-0 top-0 z-50">
-        <div className="flex w-full">
-          <div className="w-full bg-blue-300 border-gray-200 px-4 lg:px-6 py-4">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center">
-                <button
-                  className="lg:hidden p-2 text-blue-900 hover:text-blue-700"
-                  onClick={() => setIsMobileMenuOpen(true)}
-                >
-                  <Menu className="w-6 h-6" />
-                </button>
-                <button
-                  className="hidden lg:flex p-2 text-blue-900 hover:text-blue-700 transition-colors rounded-md hover:bg-blue-100"
-                  onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-                  title={isSidebarCollapsed ? "Expandir menu" : "Colapsar menu"}
-                >
-                  {isSidebarCollapsed ? (
-                    <PanelLeftOpen className="w-5 h-5" />
-                  ) : (
-                    <PanelLeftClose className="w-5 h-5" />
-                  )}
-                </button>
-              </div>
-              <div className="flex-1 ml-4">
-                <h1 className="text-xl lg:text-2xl font-bold text-blue-900">
-                  Panel de Secretaría
-                </h1>
-                <p className="text-sm text-blue-900/70 mt-1 hidden sm:block">
-                  {new Date().toLocaleDateString("es-ES", {
-                    weekday: "long",
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                </p>
-              </div>
-              <div className="hidden sm:flex items-center gap-3">
-                <div className="flex flex-col leading-tight text-right">
-                  <span className="text-blue-900 font-semibold text-sm truncate max-w-45">
-                    {user?.nombre || ""} {user?.apellido || ""}
-                  </span>
-                  <span className="text-xs text-blue-900/70 truncate max-w-45">
-                    {user?.email || "correo@ejemplo.com"}
-                  </span>
-                </div>
-                <div className="w-10 h-10 rounded-full border-2 border-blue-900/30 bg-white/40 flex items-center justify-center">
-                  <CircleUser className="w-5 h-5 text-blue-900" />
-                </div>
-              </div>
+        <div className="w-full bg-blue-300 px-4 lg:px-6 py-2.5 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <button
+              className="lg:hidden p-1.5 text-blue-900/70 hover:text-blue-900"
+              onClick={() => setIsMobileMenuOpen(true)}
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+            <span className="text-base font-semibold text-blue-900 tracking-tight">
+              Panel de Secretaría
+            </span>
+          </div>
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-full bg-blue-900/10 border border-blue-900/20 flex items-center justify-center shrink-0">
+              <CircleUser className="w-4 h-4 text-blue-900" />
+            </div>
+            <div className="hidden sm:flex flex-col leading-tight">
+              <span className="text-blue-900 font-medium text-sm truncate max-w-40">
+                {user?.nombre || ""} {user?.apellido || ""}
+              </span>
+              <span className="text-xs text-blue-900/50 truncate max-w-40">
+                {user?.email || ""}
+              </span>
             </div>
           </div>
         </div>
@@ -154,7 +129,7 @@ const SecretaryLayout = () => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 bg-blue-50 shadow-lg transform transition-all duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 flex flex-col pt-20 ${
+        className={`fixed inset-y-0 left-0 z-40 bg-blue-50 shadow-lg transform transition-all duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 flex flex-col pt-14 ${
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         } ${isSidebarCollapsed ? "lg:w-20" : "lg:w-64"} w-64`}
       >
@@ -332,7 +307,7 @@ const SecretaryLayout = () => {
         </div>
       </aside>
 
-      <main className="flex-1 flex flex-col overflow-hidden lg:ml-0 pt-20">
+      <main className="flex-1 flex flex-col overflow-hidden lg:ml-0 pt-14">
         <div className="p-4 lg:p-6 h-full overflow-y-auto">
           <Outlet context={{ isSidebarCollapsed, setIsSidebarCollapsed }} />
         </div>
