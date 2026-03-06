@@ -111,6 +111,7 @@ const AdminLayout = () => {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [collapsedSections, setCollapsedSections] = useState({
     configuracion: true,
+    herramientas: true,
   });
   const location = useLocation();
   const navigate = useNavigate();
