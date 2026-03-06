@@ -1,13 +1,22 @@
 import React from "react";
-import { Link, useOutletContext } from "react-router-dom";
+import { useOutletContext } from "react-router-dom";
 import { useAdminDashboard } from "../../hooks/useAdminDashboard";
 import { useAuthStore } from "../../store";
 import {
   DashboardBarChart,
-  FinancialTrendChart,
   CategoryPieChart,
 } from "../../components/charts";
-import { TrendingUp, DollarSign, RefreshCw, Bot, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import {
+  TrendingUp,
+  TrendingDown,
+  DollarSign,
+  RefreshCw,
+  Bot,
+  PanelLeftClose,
+  PanelLeftOpen,
+  ArrowUpRight,
+  Sparkles,
+} from "lucide-react";
 
 // Componente aislado: solo él re-renderiza cuando cambia el estado del sidebar
 const SidebarToggle = () => {
@@ -15,7 +24,7 @@ const SidebarToggle = () => {
   if (typeof setIsSidebarCollapsed !== "function") return null;
   return (
     <button
-      className="hidden lg:flex p-2 text-gray-500 hover:text-blue-600 transition-colors rounded-md hover:bg-blue-50"
+      className="hidden lg:flex p-2 text-gray-400 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50"
       onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
       title={isSidebarCollapsed ? "Expandir menu" : "Colapsar menu"}
     >
@@ -34,268 +43,220 @@ const AdminOverview = () => {
     financialStats,
   } = useAdminDashboard();
 
+  const today = new Date().toLocaleDateString("es-PE", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
   return (
     <div className="space-y-6 lg:space-y-8">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
+
+      {/* ── HEADER ── */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="flex items-center gap-3">
           <SidebarToggle />
-          <h1 className="text-5xl font-bold text-gray-700">
-            Bienvenido, {user?.nombre || ""}
-          </h1>
+          <div>
+            <h1 className="text-3xl lg:text-4xl font-bold text-gray-800 leading-tight">
+              Bienvenido, {user?.nombre || ""}
+            </h1>
+            <p className="text-sm text-gray-400 mt-0.5 capitalize">{today}</p>
+          </div>
         </div>
         {dashboardLoading && (
-          <div className="flex items-center space-x-2 text-blue-600">
-            <RefreshCw className="w-5 h-5 animate-spin" />
-            <span className="text-sm">Actualizando datos...</span>
+          <div className="flex items-center gap-2 text-blue-500 bg-blue-50 px-3 py-1.5 rounded-full self-start sm:self-auto">
+            <RefreshCw className="w-4 h-4 animate-spin" />
+            <span className="text-xs font-medium">Actualizando...</span>
           </div>
         )}
       </div>
 
-      {/* Mostrar errores si existen */}
+      {/* ── ERROR ── */}
       {dashboardError && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <div className="flex items-center space-x-2">
-            <span className="text-red-800 text-sm">{dashboardError}</span>
-          </div>
+        <div className="bg-red-50 border-l-4 border-red-400 rounded-lg p-4">
+          <span className="text-red-700 text-sm">{dashboardError}</span>
         </div>
       )}
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+      {/* ── STAT CARDS ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {stats.map((stat, index) => {
           const IconComponent = stat.icon;
           return (
             <div
               key={index}
-              className="bg-white p-4 lg:p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow"
+              className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center gap-5 hover:shadow-md transition-shadow"
             >
-              <div className="flex items-center justify-between mb-4">
-                <div
-                  className="p-3 rounded-lg"
-                  style={{
-                    backgroundColor: `${stat.color}15`,
-                    color: stat.color,
-                  }}
-                >
-                  <IconComponent className="w-6 h-6" />
-                </div>
-                <TrendingUp className="w-4 h-4 text-green-500" />
+              <div
+                className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0"
+                style={{ backgroundColor: `${stat.color}18`, color: stat.color }}
+              >
+                <IconComponent className="w-7 h-7" />
               </div>
-              <div>
-                <h3 className="text-xl lg:text-2xl font-bold text-gray-900 mb-1">
-                  {stat.loading ? (
-                    <div className="animate-pulse bg-gray-200 h-8 rounded"></div>
-                  ) : (
-                    stat.value
-                  )}
-                </h3>
-                <p className="text-sm text-gray-600 mb-2">{stat.title}</p>
-                <span className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full">
-                  {stat.loading ? "..." : stat.change}
-                </span>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">
+                  {stat.title}
+                </p>
+                {stat.loading ? (
+                  <div className="animate-pulse bg-gray-200 h-7 w-20 rounded-lg"></div>
+                ) : (
+                  <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                )}
+              </div>
+              <div
+                className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center"
+                style={{ backgroundColor: `${stat.color}12` }}
+              >
+                <ArrowUpRight className="w-4 h-4" style={{ color: stat.color }} />
               </div>
             </div>
           );
         })}
       </div>
 
-      {/* Estadísticas Financieras Detalladas */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">
-              Ingresos del Mes
-            </h3>
-            <div className="p-2 bg-green-100 rounded-lg">
+      {/* ── RESUMEN FINANCIERO ── */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-50">
+          <h2 className="text-base font-semibold text-gray-800">Resumen Financiero del Mes</h2>
+          <p className="text-xs text-gray-400 mt-0.5">Movimientos registrados en caja</p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-gray-100">
+
+          {/* Ingresos */}
+          <div className="p-6 flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center shrink-0">
               <TrendingUp className="w-5 h-5 text-green-600" />
             </div>
-          </div>
-          <div className="text-2xl font-bold text-green-600 mb-2">
-            {dashboardLoading ? (
-              <div className="animate-pulse bg-gray-200 h-8 rounded w-24"></div>
-            ) : (
-              `S/ ${financialStats.ingresosMes?.toLocaleString() || 0}`
-            )}
-          </div>
-          <p className="text-sm text-gray-600">Movimientos positivos</p>
-        </div>
-
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">
-              Egresos del Mes
-            </h3>
-            <div className="p-2 bg-red-100 rounded-lg">
-              <TrendingUp className="w-5 h-5 text-red-600 transform rotate-180" />
+            <div>
+              <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">
+                Ingresos
+              </p>
+              {dashboardLoading ? (
+                <div className="animate-pulse bg-gray-200 h-6 w-24 rounded-lg"></div>
+              ) : (
+                <p className="text-xl font-bold text-green-600">
+                  S/ {financialStats.ingresosMes?.toLocaleString() || 0}
+                </p>
+              )}
+              <p className="text-xs text-gray-400 mt-0.5">Movimientos positivos</p>
             </div>
           </div>
-          <div className="text-2xl font-bold text-red-600 mb-2">
-            {dashboardLoading ? (
-              <div className="animate-pulse bg-gray-200 h-8 rounded w-24"></div>
-            ) : (
-              `S/ ${financialStats.egresosMes?.toLocaleString() || 0}`
-            )}
-          </div>
-          <p className="text-sm text-gray-600">Movimientos negativos</p>
-        </div>
 
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">
-              Utilidad del Mes
-            </h3>
+          {/* Egresos */}
+          <div className="p-6 flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center shrink-0">
+              <TrendingDown className="w-5 h-5 text-red-500" />
+            </div>
+            <div>
+              <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">
+                Egresos
+              </p>
+              {dashboardLoading ? (
+                <div className="animate-pulse bg-gray-200 h-6 w-24 rounded-lg"></div>
+              ) : (
+                <p className="text-xl font-bold text-red-500">
+                  S/ {financialStats.egresosMes?.toLocaleString() || 0}
+                </p>
+              )}
+              <p className="text-xs text-gray-400 mt-0.5">Movimientos negativos</p>
+            </div>
+          </div>
+
+          {/* Utilidad */}
+          <div className="p-6 flex items-center gap-4">
             <div
-              className={`p-2 rounded-lg ${
-                financialStats.utilidadMes >= 0 ? "bg-green-100" : "bg-red-100"
+              className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${
+                financialStats.utilidadMes >= 0 ? "bg-green-50" : "bg-red-50"
               }`}
             >
               <DollarSign
                 className={`w-5 h-5 ${
-                  financialStats.utilidadMes >= 0
-                    ? "text-green-600"
-                    : "text-red-600"
+                  financialStats.utilidadMes >= 0 ? "text-green-600" : "text-red-500"
                 }`}
               />
             </div>
-          </div>
-          <div
-            className={`text-2xl font-bold mb-2 ${
-              financialStats.utilidadMes >= 0
-                ? "text-green-600"
-                : "text-red-600"
-            }`}
-          >
-            {dashboardLoading ? (
-              <div className="animate-pulse bg-gray-200 h-8 rounded w-24"></div>
-            ) : (
-              `S/ ${financialStats.utilidadMes?.toLocaleString() || 0}`
-            )}
-          </div>
-          <p className="text-sm text-gray-600">
-            {financialStats.utilidadMes >= 0
-              ? "Resultado positivo"
-              : "Resultado negativo"}
-          </p>
-        </div>
-      </div>
-
-      {/* Asistente IA Quick Access */}
-      <div className="bg-gradient-to-r from-blue-900 to-blue-700 rounded-xl shadow-sm p-4 lg:p-6 text-white">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="p-3 bg-blue-900 bg-opacity-20 rounded-lg">
-              <Bot className="w-8 h-8" />
-            </div>
             <div>
-              <h3 className="text-lg font-semibold">
-                Asistente IA Administrativo
-              </h3>
-              <p className="text-blue-100">
-                ¿Necesitas ayuda con análisis financiero o gestión
-                institucional?
+              <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">
+                Utilidad
+              </p>
+              {dashboardLoading ? (
+                <div className="animate-pulse bg-gray-200 h-6 w-24 rounded-lg"></div>
+              ) : (
+                <p
+                  className={`text-xl font-bold ${
+                    financialStats.utilidadMes >= 0 ? "text-green-600" : "text-red-500"
+                  }`}
+                >
+                  S/ {financialStats.utilidadMes?.toLocaleString() || 0}
+                </p>
+              )}
+              <p className="text-xs text-gray-400 mt-0.5">
+                {financialStats.utilidadMes >= 0 ? "Resultado positivo" : "Resultado negativo"}
               </p>
             </div>
           </div>
-          <Link
-            to="/admin/ai-chat"
-            className="bg-white text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg transition-all duration-200 font-medium"
-          >
-            DIsponible pronto...
-          </Link>
+
         </div>
       </div>
 
-      {/* Gráficos y Visualizaciones */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <DashboardBarChart
-          data={[
-            {
-              name: "Estudiantes",
-              total: dashboardData.estudiantes.total,
-              activos: dashboardData.estudiantes.activos,
-              inactivos: dashboardData.estudiantes.inactivos,
-            },
-            {
-              name: "Trabajadores",
-              total: dashboardData.trabajadores.total,
-              activos: dashboardData.trabajadores.activos,
-              inactivos: dashboardData.trabajadores.inactivos,
-            },
-          ]}
-          title="Estadísticas de Personal"
-          height={350}
-        />
-
-        <CategoryPieChart
-          data={[
-            {
-              name: "Docentes",
-              value: Math.round(dashboardData.trabajadores.activos * 0.7),
-              color: "#3b82f6",
-            },
-            {
-              name: "Administrativos",
-              value: Math.round(dashboardData.trabajadores.activos * 0.2),
-              color: "#10b981",
-            },
-            {
-              name: "Auxiliares",
-              value: Math.round(dashboardData.trabajadores.activos * 0.1),
-              color: "#f59e0b",
-            },
-          ]}
-          title="Distribución de Trabajadores"
-          height={350}
-        />
+      {/* ── BANNER IA ── */}
+      <div className="bg-blue-50 border border-blue-100 rounded-2xl px-5 py-3 flex items-center gap-3">
+        <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center shrink-0">
+          <Bot className="w-4 h-4 text-blue-600" />
+        </div>
+        <p className="text-sm text-blue-700 font-medium flex-1">Asistente IA Administrativo</p>
+        <span className="flex items-center gap-1 text-xs font-medium text-blue-500 bg-white border border-blue-200 px-3 py-1 rounded-full shrink-0">
+          <Sparkles className="w-3 h-3" /> Próximamente
+        </span>
       </div>
 
-      {/* Gráfico de tendencias financieras - Ancho completo */}
-      <div className="mb-6">
-        <FinancialTrendChart
-          data={[
-            {
-              mes: "Ago",
-              ingresos: financialStats.ingresosMes * 0.8,
-              egresos: financialStats.egresosMes * 0.9,
-              utilidad:
-                financialStats.ingresosMes * 0.8 -
-                financialStats.egresosMes * 0.9,
-            },
-            {
-              mes: "Sep",
-              ingresos: financialStats.ingresosMes * 0.9,
-              egresos: financialStats.egresosMes * 0.85,
-              utilidad:
-                financialStats.ingresosMes * 0.9 -
-                financialStats.egresosMes * 0.85,
-            },
-            {
-              mes: "Oct",
-              ingresos: financialStats.ingresosMes * 1.1,
-              egresos: financialStats.egresosMes * 0.95,
-              utilidad:
-                financialStats.ingresosMes * 1.1 -
-                financialStats.egresosMes * 0.95,
-            },
-            {
-              mes: "Nov",
-              ingresos: financialStats.ingresosMes * 1.2,
-              egresos: financialStats.egresosMes * 1.0,
-              utilidad:
-                financialStats.ingresosMes * 1.2 -
-                financialStats.egresosMes * 1.0,
-            },
-            {
-              mes: "Dic",
-              ingresos: financialStats.ingresosMes,
-              egresos: financialStats.egresosMes,
-              utilidad: financialStats.utilidadMes,
-            },
-          ]}
-          title="Tendencias Financieras Mensuales"
-          height={400}
-        />
+      {/* ── GRÁFICOS ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 pb-4">
+          <DashboardBarChart
+            data={[
+              {
+                name: "Estudiantes",
+                activos: dashboardData.estudiantes.activos,
+                inactivos: dashboardData.estudiantes.inactivos,
+              },
+              {
+                name: "Trabajadores",
+                activos: dashboardData.trabajadores.activos,
+                inactivos: dashboardData.trabajadores.inactivos,
+              },
+            ]}
+            title="Estadísticas de Personal"
+            height={280}
+          />
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+          <CategoryPieChart
+            data={[
+              {
+                name: "Docentes",
+                value: Math.round(dashboardData.trabajadores.activos * 0.7),
+                color: "#3b82f6",
+              },
+              {
+                name: "Administrativos",
+                value: Math.round(dashboardData.trabajadores.activos * 0.2),
+                color: "#10b981",
+              },
+              {
+                name: "Auxiliares",
+                value: Math.round(dashboardData.trabajadores.activos * 0.1),
+                color: "#f59e0b",
+              },
+            ]}
+            title="Distribución de Trabajadores"
+            height={280}
+          />
+        </div>
       </div>
+
     </div>
   );
 };
