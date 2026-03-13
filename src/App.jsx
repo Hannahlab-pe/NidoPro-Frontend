@@ -19,6 +19,7 @@ import AdminLayout from "./components/layout/AdminLayout";
 import TeacherLayout from "./components/layout/TeacherLayout";
 import ParentLayout from "./components/layout/ParentLayout";
 import SecretaryLayout from "./components/layout/SecretaryLayout";
+import SpecialistLayout from "./components/layout/SpecialistLayout";
 
 // Admin Pages
 import AdminOverview from "./pages/dashboards/AdminOverview";
@@ -58,6 +59,14 @@ import { Tareas as TeacherTareas } from "./pages/teacher/tareas";
 import TeacherEvaluaciones from "./pages/teacher/evaluaciones/Evaluaciones";
 import { EvaluacionesEstudiantes } from "./pages/teacher/evaluaciones";
 import Notas from "./pages/teacher/notas/Notas";
+
+// Specialist Pages
+import SpecialistOverview from "./pages/dashboards/SpecialistOverview";
+import SpecialistEvaluaciones from "./pages/specialist/evaluaciones/Evaluaciones";
+import SpecialistEstudiantes from "./pages/specialist/estudiantes/Estudiantes";
+import SpecialistAnotaciones from "./pages/specialist/anotaciones/Anotaciones";
+import SpecialistInformes from "./pages/specialist/informes/Informes";
+import SpecialistCronograma from "./pages/specialist/cronograma/Cronograma";
 
 // Parent Pages
 import ParentOverview from "./pages/dashboards/ParentOverview";
@@ -124,11 +133,31 @@ function App() {
 
   // Función helper para redirigir según el rol
   const getDefaultRouteByRole = (user) => {
-    if (!user || !user.role) return "/login";
+    if (!user) return "/login";
 
-    const roleName = user.role.nombre?.toLowerCase();
+    // user.rol viene del JWT (ej: "ESPECIALISTA", "DOCENTE")
+    // user.role.nombre es el rol genérico del backend (ej: "trabajador")
+    const rolJWT = user.rol?.toLowerCase();
+    const roleName = user.role?.nombre?.toLowerCase();
 
+    // Revisar primero el rol específico del JWT
     if (
+      rolJWT === "especialista" ||
+      rolJWT === "psicologo" ||
+      rolJWT === "psicopedagogo"
+    ) {
+      return "/specialist";
+    }
+    if (
+      rolJWT === "secretaria" ||
+      roleName === "secretaria"
+    ) {
+      return "/secretaria";
+    }
+    if (
+      rolJWT === "admin" ||
+      rolJWT === "administrador" ||
+      rolJWT === "directora" ||
       roleName === "admin" ||
       roleName === "administrador" ||
       roleName === "directora"
@@ -136,21 +165,23 @@ function App() {
       return "/admin";
     }
     if (
-      roleName === "trabajador" ||
-      roleName === "docente" ||
-      roleName === "profesor"
-    ) {
-      return "/teacher";
-    }
-    if (
+      rolJWT === "padre" ||
+      rolJWT === "parent" ||
+      rolJWT === "estudiante" ||
       roleName === "padre" ||
       roleName === "parent" ||
       roleName === "estudiante"
     ) {
       return "/parent";
     }
-    if (roleName === "secretaria") {
-      return "/secretaria";
+    // Trabajador/docente/profesor como fallback
+    if (
+      roleName === "trabajador" ||
+      rolJWT === "trabajador" ||
+      rolJWT === "docente" ||
+      rolJWT === "profesor"
+    ) {
+      return "/teacher";
     }
 
     return "/login";
@@ -277,6 +308,24 @@ function App() {
               />
               <Route path="aulas" element={<MisAulas />} />
               <Route path="evaluaciones" element={<TeacherEvaluaciones />} />
+              <Route path="observaciones" element={<Observaciones />} />
+            </Route>
+
+            {/* ========== SPECIALIST ROUTES ========== */}
+            <Route
+              path="/specialist"
+              element={
+                <ProtectedRoute>
+                  <SpecialistLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route index element={<SpecialistOverview />} />
+              <Route path="evaluaciones" element={<SpecialistEvaluaciones />} />
+              <Route path="estudiantes" element={<SpecialistEstudiantes />} />
+              <Route path="anotaciones" element={<SpecialistAnotaciones />} />
+              <Route path="informes" element={<SpecialistInformes />} />
+              <Route path="cronograma" element={<SpecialistCronograma />} />
               <Route path="observaciones" element={<Observaciones />} />
             </Route>
 

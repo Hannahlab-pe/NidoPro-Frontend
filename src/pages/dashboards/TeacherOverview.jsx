@@ -25,7 +25,7 @@ const SidebarToggle = () => {
   if (typeof setIsSidebarCollapsed !== "function") return null;
   return (
     <button
-      className="hidden lg:flex p-2 text-gray-400 hover:text-green-600 transition-colors rounded-lg hover:bg-green-50"
+      className="hidden lg:flex p-2 text-gray-400 hover:text-emerald-600 transition-colors rounded-lg hover:bg-emerald-50"
       onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
       title={isSidebarCollapsed ? "Expandir menu" : "Colapsar menu"}
     >
@@ -105,7 +105,7 @@ const TeacherOverview = () => {
           </div>
         </div>
         {loading && (
-          <div className="flex items-center gap-2 text-green-500 bg-green-50 px-3 py-1.5 rounded-full self-start sm:self-auto">
+          <div className="flex items-center gap-2 text-emerald-500 bg-emerald-50 px-3 py-1.5 rounded-full self-start sm:self-auto">
             <RefreshCw className="w-4 h-4 animate-spin" />
             <span className="text-xs font-medium">Actualizando...</span>
           </div>
@@ -157,12 +157,12 @@ const TeacherOverview = () => {
       </div>
 
       {/* ── BANNER IA ── */}
-      <div className="bg-green-50 border border-green-100 rounded-2xl px-5 py-3 flex items-center gap-3">
-        <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center shrink-0">
-          <Bot className="w-4 h-4 text-green-600" />
+      <div className="bg-emerald-50 border border-emerald-100 rounded-2xl px-5 py-3 flex items-center gap-3">
+        <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center shrink-0">
+          <Bot className="w-4 h-4 text-emerald-600" />
         </div>
-        <p className="text-sm text-green-700 font-medium flex-1">Asistente IA Educativo</p>
-        <span className="flex items-center gap-1 text-xs font-medium text-green-500 bg-white border border-green-200 px-3 py-1 rounded-full shrink-0">
+        <p className="text-sm text-emerald-700 font-medium flex-1">Asistente IA Educativo</p>
+        <span className="flex items-center gap-1 text-xs font-medium text-emerald-500 bg-white border border-emerald-200 px-3 py-1 rounded-full shrink-0">
           <Sparkles className="w-3 h-3" /> Próximamente
         </span>
       </div>
@@ -177,7 +177,7 @@ const TeacherOverview = () => {
           <button
             onClick={refreshData}
             disabled={loading}
-            className="flex items-center gap-1.5 text-xs text-green-600 hover:text-green-700 font-medium disabled:opacity-40 bg-green-50 hover:bg-green-100 px-3 py-1.5 rounded-lg transition-colors"
+            className="flex items-center gap-1.5 text-xs text-emerald-600 hover:text-emerald-700 font-medium disabled:opacity-40 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-lg transition-colors"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
             Actualizar
@@ -186,7 +186,7 @@ const TeacherOverview = () => {
         <div className="p-5">
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <RefreshCw className="w-6 h-6 animate-spin text-green-500" />
+              <RefreshCw className="w-6 h-6 animate-spin text-emerald-500" />
               <span className="ml-2 text-sm text-gray-500">Cargando datos...</span>
             </div>
           ) : (

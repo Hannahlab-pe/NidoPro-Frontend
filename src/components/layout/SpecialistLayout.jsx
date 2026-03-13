@@ -5,47 +5,81 @@ import { Fragment } from "react";
 import { useAuthStore } from "../../store";
 import {
   BarChart3,
+  ClipboardList,
+  Users,
   FileText,
+  StickyNote,
+  Brain,
   LogOut,
   ChevronDown,
   Menu,
   X,
   CircleUser,
-  DollarSign,
-  Banknote,
   PanelLeftClose,
   PanelLeftOpen,
-  GraduationCap,
-  Settings,
-  FolderOpen,
+  HeartPulse,
+  BookOpen,
+  CalendarDays,
+  MessageSquare,
 } from "lucide-react";
 
 const SECTIONS = [
   {
-    id: "academico",
-    label: "Académico",
-    icon: GraduationCap,
+    id: "evaluaciones",
+    label: "Evaluaciones",
+    icon: ClipboardList,
     items: [
-      { path: "/secretaria/pensiones", label: "Pensiones", icon: Banknote },
+      {
+        path: "/specialist/evaluaciones",
+        label: "Evaluaciones Psicopedagógicas",
+        icon: Brain,
+      },
     ],
   },
   {
-    id: "configuracion",
-    label: "Configuración",
-    icon: Settings,
-    items: [{ path: "/secretaria/caja", label: "Caja", icon: DollarSign }],
-  },
-  {
-    id: "otros",
-    label: "Otros",
-    icon: FolderOpen,
+    id: "estudiantes",
+    label: "Estudiantes",
+    icon: Users,
     items: [
       {
-        path: "/secretaria/observaciones",
-        label: "Observaciones",
+        path: "/specialist/estudiantes",
+        label: "Mis Estudiantes",
+        icon: Users,
+      },
+      {
+        path: "/specialist/anotaciones",
+        label: "Anotaciones",
+        icon: StickyNote,
+      },
+    ],
+  },
+  {
+    id: "seguimiento",
+    label: "Seguimiento",
+    icon: HeartPulse,
+    items: [
+      {
+        path: "/specialist/informes",
+        label: "Informes",
         icon: FileText,
       },
-      { path: "/secretaria/reportes", label: "Reportes", icon: FileText },
+      {
+        path: "/specialist/cronograma",
+        label: "Cronograma",
+        icon: CalendarDays,
+      },
+    ],
+  },
+  {
+    id: "comunicacion",
+    label: "Comunicación",
+    icon: MessageSquare,
+    items: [
+      {
+        path: "/specialist/observaciones",
+        label: "Observaciones",
+        icon: BookOpen,
+      },
     ],
   },
 ];
@@ -64,7 +98,7 @@ const SidebarTooltip = ({ label }) => (
   </span>
 );
 
-const SecretaryLayout = () => {
+const SpecialistLayout = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
@@ -92,7 +126,7 @@ const SecretaryLayout = () => {
     <div className="flex h-screen bg-gray-50 border-r">
       {/* Header */}
       <header className="fixed inset-x-0 top-0 z-50">
-        <div className="w-full bg-sky-600 px-4 lg:px-6 py-2.5 flex items-center justify-between gap-4">
+        <div className="w-full bg-teal-600 px-4 lg:px-6 py-2.5 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <button
               className="lg:hidden p-1.5 text-white/80 hover:text-white"
@@ -101,7 +135,7 @@ const SecretaryLayout = () => {
               <Menu className="w-5 h-5" />
             </button>
             <span className="text-base font-semibold text-white tracking-tight">
-              Panel de Secretaría
+              Panel de Especialista
             </span>
           </div>
           <div className="flex items-center gap-2.5">
@@ -129,12 +163,12 @@ const SecretaryLayout = () => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 bg-sky-50 shadow-lg transform transition-all duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 flex flex-col pt-14 ${
+        className={`fixed inset-y-0 left-0 z-40 bg-white shadow-lg transform transition-all duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 flex flex-col pt-14 ${
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         } ${isSidebarCollapsed ? "lg:w-20" : "lg:w-64"} w-64`}
       >
         <button
-          className="lg:hidden absolute right-4 top-4 p-2 text-sky-700 hover:text-sky-600"
+          className="lg:hidden absolute right-4 top-4 p-2 text-teal-600 hover:text-teal-500"
           onClick={() => setIsMobileMenuOpen(false)}
         >
           <X className="w-6 h-6" />
@@ -147,21 +181,21 @@ const SecretaryLayout = () => {
             {/* Panel Principal */}
             <div className="relative group/tip">
               <Link
-                to="/secretaria"
+                to="/specialist"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className={`w-full flex items-center ${
                   isSidebarCollapsed
                     ? "lg:justify-center lg:px-2"
                     : "justify-between px-4"
-                } py-3 mb-1 rounded-lg text-left transition-all duration-200 group hover:translate-x-2 cursor-pointer ${
-                  isItemActive("/secretaria")
-                    ? "bg-sky-100 text-sky-900"
-                    : "text-sky-900/70 hover:bg-sky-100 hover:text-sky-900"
+                } py-3 mb-1 rounded-lg transition-all duration-200 group hover:translate-x-1 cursor-pointer ${
+                  isItemActive("/specialist")
+                    ? "bg-teal-600 text-white"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-800"
                 }`}
               >
                 <div className="flex items-center">
                   <BarChart3
-                    className={`w-5 h-5 ${isItemActive("/secretaria") ? "text-sky-900" : "text-sky-400 group-hover:text-sky-700"}`}
+                    className={`w-5 h-5 ${isItemActive("/specialist") ? "text-white" : "text-gray-400 group-hover:text-gray-600"}`}
                   />
                   <span
                     className={`font-medium whitespace-nowrap transition-all duration-200 ${
@@ -187,7 +221,6 @@ const SecretaryLayout = () => {
 
               return (
                 <div key={section.id} className="mt-3">
-                  {/* Encabezado de sección */}
                   <div className="relative group/tip">
                     <button
                       onClick={() => toggleSection(section.id)}
@@ -197,11 +230,11 @@ const SecretaryLayout = () => {
                           : "px-3"
                       } py-1.5 rounded-lg transition-all duration-200 group cursor-pointer ${
                         hasActiveItem
-                          ? "bg-sky-600 text-white"
-                          : "bg-sky-500 text-white hover:bg-sky-600"
+                          ? "bg-teal-200 text-teal-900"
+                          : "bg-teal-100 text-teal-600 hover:bg-teal-200 hover:text-teal-900"
                       }`}
                     >
-                      <SectionIcon className="w-4 h-4 shrink-0 text-sky-100 group-hover:text-white" />
+                      <SectionIcon className="w-4 h-4 shrink-0 text-teal-500 group-hover:text-teal-700" />
                       <span
                         className={`text-xs font-bold uppercase tracking-wider transition-all duration-200 ${
                           isSidebarCollapsed
@@ -212,7 +245,7 @@ const SecretaryLayout = () => {
                         {section.label}
                       </span>
                       <ChevronDown
-                        className={`ml-auto w-4 h-4 shrink-0 transition-transform duration-300 text-sky-100 ${
+                        className={`ml-auto w-4 h-4 shrink-0 transition-transform duration-300 text-teal-400 ${
                           isSidebarCollapsed ? "lg:hidden" : ""
                         } ${isCollapsed ? "-rotate-90" : "rotate-0"}`}
                       />
@@ -222,7 +255,6 @@ const SecretaryLayout = () => {
                     )}
                   </div>
 
-                  {/* Items con animación */}
                   <div
                     className={`transition-all duration-300 ease-in-out ${
                       isCollapsed
@@ -231,7 +263,7 @@ const SecretaryLayout = () => {
                     }`}
                   >
                     <div
-                      className={`mt-1 space-y-1 ${isSidebarCollapsed ? "" : "pl-2"}`}
+                      className={`mt-1 space-y-0.5 ${isSidebarCollapsed ? "" : "pl-2"}`}
                     >
                       {section.items.map((item) => {
                         const ItemIcon = item.icon;
@@ -245,15 +277,15 @@ const SecretaryLayout = () => {
                                 isSidebarCollapsed
                                   ? "lg:justify-center lg:px-2"
                                   : "justify-between px-4"
-                              } py-2.5 rounded-lg text-left transition-all duration-200 group hover:translate-x-1 cursor-pointer ${
+                              } py-2.5 rounded-lg transition-all duration-200 group hover:translate-x-1 cursor-pointer ${
                                 isActive
-                                  ? "bg-sky-100 text-sky-900"
-                                  : "text-sky-900/70 hover:bg-sky-100 hover:text-sky-900"
+                                  ? "bg-teal-600 text-white"
+                                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-800"
                               }`}
                             >
                               <div className="flex items-center">
                                 <ItemIcon
-                                  className={`w-4 h-4 ${isActive ? "text-sky-900" : "text-sky-400 group-hover:text-sky-700"}`}
+                                  className={`w-4 h-4 ${isActive ? "text-white" : "text-gray-400 group-hover:text-gray-600"}`}
                                 />
                                 <span
                                   className={`text-sm font-medium whitespace-nowrap transition-all duration-200 ${
@@ -280,8 +312,23 @@ const SecretaryLayout = () => {
           </div>
         </nav>
 
+        {/* Colapsar sidebar (desktop) */}
+        <div className="hidden lg:flex justify-end px-3 pb-2">
+          <button
+            className="p-2 text-gray-400 hover:text-teal-600 transition-colors rounded-lg hover:bg-teal-50"
+            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+            title={isSidebarCollapsed ? "Expandir menú" : "Colapsar menú"}
+          >
+            {isSidebarCollapsed ? (
+              <PanelLeftOpen className="w-5 h-5" />
+            ) : (
+              <PanelLeftClose className="w-5 h-5" />
+            )}
+          </button>
+        </div>
+
         {/* Logout */}
-        <div className="mt-auto border-t border-sky-200 p-3">
+        <div className="mt-auto border-t border-gray-200 p-3">
           <div className="relative group/tip">
             <button
               className={`w-full flex items-center bg-red-50 text-red-600 hover:bg-red-100 cursor-pointer rounded-lg transition-colors duration-200 ${
@@ -313,6 +360,7 @@ const SecretaryLayout = () => {
         </div>
       </main>
 
+      {/* Modal Cerrar Sesión */}
       <Transition appear show={isLogoutModalOpen} as={Fragment}>
         <Dialog as="div" className="relative z-50" onClose={handleCancelLogout}>
           <Transition.Child
@@ -348,23 +396,22 @@ const SecretaryLayout = () => {
                     ¿Cerrar sesión?
                   </Dialog.Title>
                   <p className="text-sm text-gray-500 text-center mt-2">
-                    ¿Estás seguro de que quieres cerrar sesión? Perderás el
-                    acceso a tu cuenta administrativa.
+                    Tu sesión actual será cerrada. Tendrás que iniciar sesión nuevamente para acceder al sistema.
                   </p>
-                  <div className="mt-6 flex space-x-3">
+                  <div className="mt-6 flex gap-3">
                     <button
                       type="button"
-                      className="flex-1 inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none transition-colors duration-200"
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
                       onClick={handleCancelLogout}
                     >
                       Cancelar
                     </button>
                     <button
                       type="button"
-                      className="flex-1 inline-flex justify-center rounded-md bg-red-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none transition-colors duration-200"
+                      className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
                       onClick={handleConfirmLogout}
                     >
-                      Cerrar sesión
+                      Cerrar Sesión
                     </button>
                   </div>
                 </Dialog.Panel>
@@ -377,4 +424,4 @@ const SecretaryLayout = () => {
   );
 };
 
-export default SecretaryLayout;
+export default SpecialistLayout;

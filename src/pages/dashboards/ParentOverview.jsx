@@ -64,9 +64,9 @@ const ParentOverview = () => {
       <PageHeader title="Panel Familiar" theme="yellow" />
 
       {/* Información del hijo */}
-      <div className="bg-gradient-to-r from-yellow-200 to-yellow-100 rounded-xl p-6 flex items-center gap-6">
-        <div className="w-20 h-20 rounded-full border-4 border-yellow-600 shadow bg-yellow-100 flex items-center justify-center">
-          <CircleUser className="w-12 h-12 text-yellow-600" />
+      <div className="bg-gradient-to-r from-amber-200 to-amber-100 rounded-xl p-6 flex items-center gap-6">
+        <div className="w-20 h-20 rounded-full border-4 border-amber-600 shadow bg-amber-100 flex items-center justify-center">
+          <CircleUser className="w-12 h-12 text-amber-600" />
         </div>
         <div className="flex-1">
           <h3 className="text-xl font-bold text-gray-900">
@@ -103,7 +103,7 @@ const ParentOverview = () => {
               key={index}
               to={isTaskCard ? "/parent/tareas" : "#"}
               className={`bg-white p-4 lg:p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow ${
-                isTaskCard ? "cursor-pointer hover:bg-yellow-50" : ""
+                isTaskCard ? "cursor-pointer hover:bg-amber-50" : ""
               }`}
             >
               <div className="flex items-center justify-between mb-4">
@@ -138,15 +138,15 @@ const ParentOverview = () => {
       </div>
 
       {/* Asistente IA Quick Access */}
-      <div className="bg-gradient-to-r from-yellow-600 to-yellow-500 rounded-xl shadow-sm p-4 lg:p-6 text-white">
+      <div className="bg-gradient-to-r from-amber-600 to-amber-500 rounded-xl shadow-sm p-4 lg:p-6 text-white">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <div className="p-3 bg-yellow-600 bg-opacity-20 rounded-lg">
+            <div className="p-3 bg-amber-600 bg-opacity-20 rounded-lg">
               <Bot className="w-8 h-8" />
             </div>
             <div>
               <h3 className="text-lg font-semibold">Asistente IA Educativo</h3>
-              <p className="text-yellow-100">
+              <p className="text-amber-100">
                 ¿Necesitas ayuda con el aprendizaje de tu hijo o consejos
                 educativos?
               </p>
@@ -154,7 +154,7 @@ const ParentOverview = () => {
           </div>
           <Link
             to="/parent/iachat"
-            className="bg-white text-yellow-600 hover:bg-yellow-50 px-4 py-2 rounded-lg transition-all duration-200 font-medium"
+            className="bg-white text-amber-600 hover:bg-amber-50 px-4 py-2 rounded-lg transition-all duration-200 font-medium"
           >
             DIsponible pronto...
           </Link>
@@ -168,13 +168,13 @@ const ParentOverview = () => {
             to="/parent/tareas"
             className="flex items-center space-x-2 text-lg font-semibold text-gray-900 cursor-pointer hover:text-blue-600 transition-colors"
           >
-            <BookOpen className="w-5 h-5 text-yellow-500" />
+            <BookOpen className="w-5 h-5 text-amber-500" />
             <span>Tareas Recientes</span>
           </Link>
           <button
             onClick={refreshData}
             disabled={loading}
-            className="flex items-center space-x-2 text-sm text-yellow-600 hover:text-yellow-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center space-x-2 text-sm text-amber-600 hover:text-amber-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
             <span>Actualizar</span>
@@ -183,7 +183,7 @@ const ParentOverview = () => {
         <div className="p-4 lg:p-6">
           {loading ? (
             <div className="flex items-center justify-center py-8">
-              <RefreshCw className="w-8 h-8 animate-spin text-yellow-600" />
+              <RefreshCw className="w-8 h-8 animate-spin text-amber-600" />
               <span className="ml-2 text-gray-600">Cargando tareas...</span>
             </div>
           ) : error ? (
@@ -218,7 +218,7 @@ const ParentOverview = () => {
                         ? "bg-green-100 text-green-800"
                         : tarea.isOverdue
                         ? "bg-red-100 text-red-800"
-                        : "bg-yellow-100 text-yellow-800"
+                        : "bg-amber-100 text-amber-800"
                     }`}
                   >
                     {tarea.status === "completed" || tarea.realizoTarea

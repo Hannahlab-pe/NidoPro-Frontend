@@ -123,7 +123,7 @@ const TeacherLayout = () => {
     <div className="flex h-screen bg-gray-50 border-r">
       {/* Header */}
       <header className="fixed inset-x-0 top-0 z-50">
-        <div className="w-full bg-green-600 px-4 lg:px-6 py-2.5 flex items-center justify-between gap-4">
+        <div className="w-full bg-emerald-600 px-4 lg:px-6 py-2.5 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <button
               className="lg:hidden p-1.5 text-white/80 hover:text-white"
@@ -165,7 +165,7 @@ const TeacherLayout = () => {
         } ${isSidebarCollapsed ? "lg:w-20" : "lg:w-64"} w-64`}
       >
         <button
-          className="lg:hidden absolute right-4 top-4 p-2 text-green-600 hover:text-green-500"
+          className="lg:hidden absolute right-4 top-4 p-2 text-emerald-600 hover:text-emerald-500"
           onClick={() => setIsMobileMenuOpen(false)}
         >
           <X className="w-6 h-6" />
@@ -186,7 +186,7 @@ const TeacherLayout = () => {
                     : "justify-between px-4"
                 } py-3 mb-1 rounded-lg transition-all duration-200 group hover:translate-x-1 cursor-pointer ${
                   isItemActive("/teacher")
-                    ? "bg-green-600 text-white"
+                    ? "bg-emerald-600 text-white"
                     : "text-gray-600 hover:bg-gray-50 hover:text-gray-800"
                 }`}
               >
@@ -228,11 +228,11 @@ const TeacherLayout = () => {
                           : "px-3"
                       } py-1.5 rounded-lg transition-all duration-200 group cursor-pointer ${
                         hasActiveItem
-                          ? "bg-green-200 text-green-900"
-                          : "bg-green-100 text-green-700 hover:bg-green-200 hover:text-green-900"
+                          ? "bg-emerald-200 text-emerald-900"
+                          : "bg-emerald-100 text-emerald-700 hover:bg-emerald-200 hover:text-emerald-900"
                       }`}
                     >
-                      <SectionIcon className="w-4 h-4 shrink-0 text-green-500 group-hover:text-green-700" />
+                      <SectionIcon className="w-4 h-4 shrink-0 text-emerald-500 group-hover:text-emerald-700" />
                       <span
                         className={`text-xs font-bold uppercase tracking-wider transition-all duration-200 ${
                           isSidebarCollapsed
@@ -243,7 +243,7 @@ const TeacherLayout = () => {
                         {section.label}
                       </span>
                       <ChevronDown
-                        className={`ml-auto w-4 h-4 shrink-0 transition-transform duration-300 text-green-400 ${
+                        className={`ml-auto w-4 h-4 shrink-0 transition-transform duration-300 text-emerald-400 ${
                           isSidebarCollapsed ? "lg:hidden" : ""
                         } ${isCollapsed ? "-rotate-90" : "rotate-0"}`}
                       />
@@ -278,7 +278,7 @@ const TeacherLayout = () => {
                                   : "justify-between px-4"
                               } py-2.5 rounded-lg transition-all duration-200 group hover:translate-x-1 cursor-pointer ${
                                 isActive
-                                  ? "bg-green-600 text-white"
+                                  ? "bg-emerald-600 text-white"
                                   : "text-gray-600 hover:bg-gray-50 hover:text-gray-800"
                               }`}
                             >
@@ -316,9 +316,9 @@ const TeacherLayout = () => {
           className={`mt-auto border-t border-gray-200 ${isSidebarCollapsed ? "lg:p-2" : "p-3"}`}
         >
           {!isSidebarCollapsed && (
-            <div className="flex flex-row items-center bg-gray-200 rounded-xl px-3 py-2 mb-3 w-full shadow gap-3 hover:-translate-y-1 transition-all hover:bg-green-100 cursor-pointer">
-              <div className="w-11 h-11 rounded-full border-2 border-green-500 shadow bg-green-100 flex items-center justify-center">
-                <CircleUser className="w-6 h-6 text-green-600" />
+            <div className="flex flex-row items-center bg-gray-200 rounded-xl px-3 py-2 mb-3 w-full shadow gap-3 hover:-translate-y-1 transition-all hover:bg-emerald-100 cursor-pointer">
+              <div className="w-11 h-11 rounded-full border-2 border-emerald-500 shadow bg-emerald-100 flex items-center justify-center">
+                <CircleUser className="w-6 h-6 text-emerald-600" />
               </div>
               <div className="flex flex-col min-w-0">
                 <span className="font-semibold text-gray-900 text-sm truncate">
@@ -399,7 +399,7 @@ const TeacherLayout = () => {
                   </Dialog.Title>
                   <p className="text-sm text-gray-500 text-center mt-2">
                     Estás a punto de cerrar sesión en{" "}
-                    <span className="font-semibold text-green-600">EDA</span>.
+                    <span className="font-semibold text-emerald-600">EDA</span>.
                     ¿Estás seguro de que quieres continuar?
                   </p>
                   <div className="mt-6 flex space-x-3">

@@ -85,7 +85,7 @@ const ParentLayout = () => {
     <div className="flex h-screen bg-gray-50">
       {/* Header fijo */}
       <header className="fixed inset-x-0 top-0 z-50">
-        <div className="w-full bg-yellow-600 px-4 lg:px-6 py-2.5 flex items-center justify-between gap-4">
+        <div className="w-full bg-amber-600 px-4 lg:px-6 py-2.5 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <button
               className="lg:hidden p-1.5 text-white/80 hover:text-white"
@@ -123,7 +123,7 @@ const ParentLayout = () => {
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         } ${isSidebarCollapsed ? "lg:w-20" : "lg:w-64"} w-64`}
       >
-        <button className="lg:hidden absolute right-4 top-4 p-2 text-yellow-600 hover:text-yellow-500" onClick={() => setIsMobileMenuOpen(false)}>
+        <button className="lg:hidden absolute right-4 top-4 p-2 text-amber-600 hover:text-amber-500" onClick={() => setIsMobileMenuOpen(false)}>
           <X className="w-6 h-6" />
         </button>
 
@@ -139,7 +139,7 @@ const ParentLayout = () => {
                   isSidebarCollapsed ? "lg:justify-center lg:px-2" : "justify-between px-4"
                 } py-3 mb-1 rounded-lg transition-all duration-200 group hover:translate-x-1 cursor-pointer ${
                   isItemActive("/parent")
-                    ? "bg-yellow-600 text-white"
+                    ? "bg-amber-600 text-white"
                     : "text-gray-600 hover:bg-gray-50 hover:text-gray-800"
                 }`}
               >
@@ -173,11 +173,11 @@ const ParentLayout = () => {
                         isSidebarCollapsed ? "lg:justify-center lg:px-2" : "px-3"
                       } py-1.5 rounded-lg transition-all duration-200 group cursor-pointer ${
                         hasActiveItem
-                          ? "bg-yellow-200 text-yellow-900"
-                          : "bg-yellow-100 text-yellow-700 hover:bg-yellow-200 hover:text-yellow-900"
+                          ? "bg-amber-200 text-amber-900"
+                          : "bg-amber-100 text-amber-700 hover:bg-amber-200 hover:text-amber-900"
                       }`}
                     >
-                      <SectionIcon className="w-4 h-4 shrink-0 text-yellow-500 group-hover:text-yellow-700" />
+                      <SectionIcon className="w-4 h-4 shrink-0 text-amber-500 group-hover:text-amber-700" />
                       <span className={`text-xs font-bold uppercase tracking-wider transition-all duration-200 ${
                         isSidebarCollapsed
                           ? "lg:w-0 lg:opacity-0 lg:overflow-hidden lg:pointer-events-none"
@@ -185,7 +185,7 @@ const ParentLayout = () => {
                       }`}>
                         {section.label}
                       </span>
-                      <ChevronDown className={`ml-auto w-4 h-4 shrink-0 transition-transform duration-300 text-yellow-400 ${
+                      <ChevronDown className={`ml-auto w-4 h-4 shrink-0 transition-transform duration-300 text-amber-400 ${
                         isSidebarCollapsed ? "lg:hidden" : ""
                       } ${isCollapsed ? "-rotate-90" : "rotate-0"}`} />
                     </button>
@@ -211,7 +211,7 @@ const ParentLayout = () => {
                                 isSidebarCollapsed ? "lg:justify-center lg:px-2" : "justify-between px-4"
                               } py-2.5 rounded-lg transition-all duration-200 group hover:translate-x-1 cursor-pointer ${
                                 isActive
-                                  ? "bg-yellow-600 text-white"
+                                  ? "bg-amber-600 text-white"
                                   : "text-gray-600 hover:bg-gray-50 hover:text-gray-800"
                               }`}
                             >
@@ -241,9 +241,9 @@ const ParentLayout = () => {
         {/* Footer: card usuario con rol + logout */}
         <div className={`mt-auto border-t border-gray-200 ${isSidebarCollapsed ? "lg:p-2" : "p-3"}`}>
           {!isSidebarCollapsed && (
-            <div className="flex flex-row items-center bg-gray-200 rounded-xl px-3 py-2 mb-3 w-full shadow gap-3 hover:-translate-y-1 transition-all hover:bg-yellow-100 cursor-pointer">
-              <div className="w-11 h-11 rounded-full border-2 border-yellow-500 shadow bg-yellow-100 flex items-center justify-center">
-                <CircleUser className="w-6 h-6 text-yellow-600" />
+            <div className="flex flex-row items-center bg-gray-200 rounded-xl px-3 py-2 mb-3 w-full shadow gap-3 hover:-translate-y-1 transition-all hover:bg-amber-100 cursor-pointer">
+              <div className="w-11 h-11 rounded-full border-2 border-amber-500 shadow bg-amber-100 flex items-center justify-center">
+                <CircleUser className="w-6 h-6 text-amber-600" />
               </div>
               <div className="flex flex-col min-w-0">
                 <span className="font-semibold text-gray-900 text-sm truncate">
@@ -253,7 +253,7 @@ const ParentLayout = () => {
                   {user?.email || "correo@ejemplo.com"}
                 </span>
                 {user?.role?.nombre && (
-                  <span className="text-[10px] text-white bg-yellow-500 rounded px-2 py-0.5 mt-1 w-fit font-semibold tracking-wide uppercase">
+                  <span className="text-[10px] text-white bg-amber-500 rounded px-2 py-0.5 mt-1 w-fit font-semibold tracking-wide uppercase">
                     {user.role.nombre}
                   </span>
                 )}

@@ -162,7 +162,7 @@ const SecretaryOverview = () => {
           </label>
           {showFiltroHint && (
             <div
-              className={`absolute bottom-full left-0 mb-2 z-20 w-max max-w-65 bg-blue-600 text-white text-xs rounded-lg px-3 py-2 shadow-lg transition-opacity duration-400 ${hintVisible ? "opacity-100" : "opacity-65"}`}
+              className={`absolute bottom-full left-0 mb-2 z-20 w-max max-w-65 bg-sky-600 text-white text-xs rounded-lg px-3 py-2 shadow-lg transition-opacity duration-400 ${hintVisible ? "opacity-100" : "opacity-65"}`}
             >
               <div className="pr-5 leading-4">
                 En este selector puedes filtrar la caja por mes.
@@ -175,7 +175,7 @@ const SecretaryOverview = () => {
               >
                 ✕
               </button>
-              <div className="absolute left-4 top-full -mt-1.5 w-3 h-3 bg-blue-600 rotate-45" />
+              <div className="absolute left-4 top-full -mt-1.5 w-3 h-3 bg-sky-600 rotate-45" />
             </div>
           )}
           <select
@@ -249,13 +249,13 @@ const SecretaryOverview = () => {
         </div>
 
         <div className="bg-white rounded-lg border border-gray-200 p-4 flex items-center gap-3 lg:col-span-1 col-span-2">
-          <div className="p-2 bg-blue-100 rounded-lg">
-            <Wallet className="w-5 h-5 text-blue-600" />
+          <div className="p-2 bg-sky-100 rounded-lg">
+            <Wallet className="w-5 h-5 text-sky-600" />
           </div>
           <div>
             <p className="text-xs text-gray-500">Saldo Neto</p>
             <p
-              className={`text-lg font-bold ${Number(resumen?.saldoNeto) >= 0 ? "text-blue-600" : "text-red-600"}`}
+              className={`text-lg font-bold ${Number(resumen?.saldoNeto) >= 0 ? "text-sky-600" : "text-red-600"}`}
             >
               S/ {formatMoney(resumen?.saldoNeto)}
             </p>
