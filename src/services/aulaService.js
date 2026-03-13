@@ -168,6 +168,7 @@ export const aulaService = {
           ? parseInt(aulaData.cantidadEstudiantes)
           : undefined,
         idTutor: aulaData.idTutor || undefined,
+        idGrado: aulaData.idGrado || undefined,
         descripcion: aulaData.descripcion,
         capacidadMaxima: aulaData.capacidadMaxima
           ? parseInt(aulaData.capacidadMaxima)

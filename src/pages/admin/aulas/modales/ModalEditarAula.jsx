@@ -4,15 +4,18 @@ import { Dialog, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
 import { useUpdateAula } from '../../../../hooks/queries/useAulasQueries';
 import { trabajadorService } from '../../../../services/trabajadorService';
+import { useGradosOptions } from '../../../../hooks/useGrados';
 
 const ModalEditarAula = ({ isOpen, onClose, aula }) => {
   const [form, setForm] = useState({
     seccion: '',
     cantidadEstudiantes: '',
-    idTutor: ''
+    idTutor: '',
+    idGrado: ''
   });
 
   const updateAulaMutation = useUpdateAula();
+  const { options: gradosOptions, isLoading: loadingGrados } = useGradosOptions();
 
   // Estado para buscador de tutores
   const [docentes, setDocentes] = useState([]);
@@ -28,7 +31,8 @@ const ModalEditarAula = ({ isOpen, onClose, aula }) => {
       setForm({
         seccion: aula.seccion || '',
         cantidadEstudiantes: aula.cantidadEstudiantes || '',
-        idTutor: ''
+        idTutor: '',
+        idGrado: aula.idGrado?.idGrado || aula.idGrado || ''
       });
 
       // Precargar tutor actual
@@ -102,6 +106,7 @@ const ModalEditarAula = ({ isOpen, onClose, aula }) => {
     if (form.seccion.trim()) payload.seccion = form.seccion.trim();
     if (form.cantidadEstudiantes !== '') payload.cantidadEstudiantes = Number(form.cantidadEstudiantes);
     if (form.idTutor) payload.idTutor = form.idTutor;
+    if (form.idGrado) payload.idGrado = form.idGrado;
 
     await updateAulaMutation.mutateAsync({ id: aula.idAula, ...payload });
     handleClose();
@@ -109,7 +114,7 @@ const ModalEditarAula = ({ isOpen, onClose, aula }) => {
 
   const handleClose = () => {
     if (!updateAulaMutation.isPending) {
-      setForm({ seccion: '', cantidadEstudiantes: '', idTutor: '' });
+      setForm({ seccion: '', cantidadEstudiantes: '', idTutor: '', idGrado: '' });
       setSearchTutor('');
       setTutorSeleccionado(null);
       setShowDropdown(false);
@@ -158,6 +163,27 @@ const ModalEditarAula = ({ isOpen, onClose, aula }) => {
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
+                  {/* Grado */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Grado
+                    </label>
+                    <select
+                      name="idGrado"
+                      value={form.idGrado}
+                      onChange={handleChange}
+                      disabled={updateAulaMutation.isPending || loadingGrados}
+                      className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
+                    >
+                      <option value="">Seleccionar grado...</option>
+                      {gradosOptions.map((g) => (
+                        <option key={g.value} value={g.value}>
+                          {g.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
                   {/* Sección y Cantidad */}
                   <div className="grid grid-cols-2 gap-4">
                     <div>

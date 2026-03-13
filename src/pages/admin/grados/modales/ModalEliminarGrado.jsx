@@ -2,26 +2,33 @@ import React from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 import { X, AlertTriangle } from "lucide-react";
-import { useGrados } from "../../../../hooks/useGrados";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { gradoService } from "../../../../services/gradoService";
 import { toast } from "sonner";
 
 const ModalEliminarGrado = ({ isOpen, onClose, grado }) => {
-  const { deleteGrado, isDeleting } = useGrados();
+  const queryClient = useQueryClient();
+
+  const deleteMutation = useMutation({
+    mutationFn: (id) => gradoService.deleteGrado(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["grados"] });
+      toast.success("Grado eliminado exitosamente");
+      onClose();
+    },
+    onError: (error) => {
+      toast.error("Error al eliminar grado", {
+        description: error.message,
+      });
+    },
+  });
 
   const handleDelete = () => {
     const id = grado?.idGrado || grado?.id;
-    deleteGrado(id, {
-      onSuccess: () => {
-        toast.success("Grado eliminado exitosamente");
-        onClose();
-      },
-      onError: (error) => {
-        toast.error("Error al eliminar grado", {
-          description: error.message,
-        });
-      },
-    });
+    deleteMutation.mutate(id);
   };
+
+  const isDeleting = deleteMutation.isPending;
 
   if (!grado) return null;
 
