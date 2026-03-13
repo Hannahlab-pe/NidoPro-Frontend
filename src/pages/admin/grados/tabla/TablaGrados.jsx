@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { DataTable, gradosColumns } from '../../../../components/common/DataTable';
 import ModalAgregarGrado from '../modales/ModalAgregarGrado';
 import ModalEditarGrado from '../modales/ModalEditarGrado';
+import ModalEliminarGrado from '../modales/ModalEliminarGrado';
 
 const TablaGrados = ({
   grados = [],
@@ -9,11 +10,17 @@ const TablaGrados = ({
 }) => {
   const [showModalCrear, setShowModalCrear] = useState(false);
   const [showModalEditar, setShowModalEditar] = useState(false);
+  const [showModalEliminar, setShowModalEliminar] = useState(false);
   const [gradoSeleccionado, setGradoSeleccionado] = useState(null);
 
   const handleEdit = (grado) => {
     setGradoSeleccionado(grado);
     setShowModalEditar(true);
+  };
+
+  const handleDelete = (grado) => {
+    setGradoSeleccionado(grado);
+    setShowModalEliminar(true);
   };
 
   return (
@@ -26,13 +33,14 @@ const TablaGrados = ({
         actions={{
           add: true,
           edit: true,
-          delete: false,
+          delete: true,
           view: false,
           import: false,
           export: false,
         }}
         onAdd={() => setShowModalCrear(true)}
         onEdit={handleEdit}
+        onDelete={handleDelete}
         addButtonText="Agregar Grado"
         loadingMessage="Cargando grados..."
         emptyMessage="No hay grados registrados"
@@ -51,6 +59,15 @@ const TablaGrados = ({
         isOpen={showModalEditar}
         onClose={() => {
           setShowModalEditar(false);
+          setGradoSeleccionado(null);
+        }}
+        grado={gradoSeleccionado}
+      />
+
+      <ModalEliminarGrado
+        isOpen={showModalEliminar}
+        onClose={() => {
+          setShowModalEliminar(false);
           setGradoSeleccionado(null);
         }}
         grado={gradoSeleccionado}
