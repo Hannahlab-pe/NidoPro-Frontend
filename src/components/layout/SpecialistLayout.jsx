@@ -80,6 +80,11 @@ const SECTIONS = [
         label: "Observaciones",
         icon: BookOpen,
       },
+      {
+        path: "/specialist/ai-chat",
+        label: "Asistente IA",
+        icon: MessageSquare,
+      },
     ],
   },
 ];

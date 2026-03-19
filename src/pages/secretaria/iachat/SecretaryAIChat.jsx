@@ -1,17 +1,17 @@
 import React from 'react';
 import RagChat from '../../../components/common/RagChat';
 
-const AIChat = () => (
+const SecretaryAIChat = () => (
   <RagChat
-    title="Asistente Educativo EDA"
+    title="Asistente Administrativo EDA"
     subtitle="Consulta estudiantes, pensiones, docentes y más"
     placeholder="Pregúntame sobre estudiantes, notas, asistencia..."
     resetMessage={'**Conversación reiniciada.** ¿En qué puedo ayudarte?'}
-    colorScheme="blue"
+    colorScheme="sky"
     pageHeaderTitle="Asistente IA"
-    pageHeaderTheme="blue"
-    showPageHeader={false}
+    pageHeaderTheme="sky"
+    showPageHeader={true}
   />
 );
 
-export default AIChat;
+export default SecretaryAIChat;

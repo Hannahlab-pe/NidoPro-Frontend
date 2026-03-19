@@ -18,6 +18,7 @@ import {
   GraduationCap,
   Settings,
   FolderOpen,
+  MessageSquare,
 } from "lucide-react";
 
 const SECTIONS = [
@@ -46,6 +47,18 @@ const SECTIONS = [
         icon: FileText,
       },
       { path: "/secretaria/reportes", label: "Reportes", icon: FileText },
+    ],
+  },
+  {
+    id: "herramientas",
+    label: "Herramientas",
+    icon: MessageSquare,
+    items: [
+      {
+        path: "/secretaria/ai-chat",
+        label: "Asistente IA",
+        icon: MessageSquare,
+      },
     ],
   },
 ];

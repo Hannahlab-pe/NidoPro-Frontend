@@ -67,6 +67,7 @@ import SpecialistEstudiantes from "./pages/specialist/estudiantes/Estudiantes";
 import SpecialistAnotaciones from "./pages/specialist/anotaciones/Anotaciones";
 import SpecialistInformes from "./pages/specialist/informes/Informes";
 import SpecialistCronograma from "./pages/specialist/cronograma/Cronograma";
+import SpecialistAIChat from "./pages/specialist/iachat/SpecialistAIChat";
 
 // Parent Pages
 import ParentOverview from "./pages/dashboards/ParentOverview";
@@ -79,6 +80,7 @@ import Anotaciones from "./pages/parent/anotaciones/Anotaciones";
 import Cronograma from "./pages/parent/cronograma/Cronograma";
 import ParentAIChat from "./pages/parent/iachat/ParentAIChat";
 import ParentPensiones from "./pages/parent/pensiones/Pensiones";
+import SecretaryAIChat from "./pages/secretaria/iachat/SecretaryAIChat";
 import Observaciones from "./pages/common/observaciones/Observaciones";
 
 // Configuración del QueryClient con cache de 5-10 minutos
@@ -280,6 +282,7 @@ function App() {
               <Route path="caja" element={<SecretaryCaja />} />
               <Route path="pensiones" element={<SecretaryPensiones />} />
               <Route path="observaciones" element={<Observaciones />} />
+              <Route path="ai-chat" element={<SecretaryAIChat />} />
             </Route>
 
             {/* ========== TEACHER ROUTES ========== */}
@@ -327,6 +330,7 @@ function App() {
               <Route path="informes" element={<SpecialistInformes />} />
               <Route path="cronograma" element={<SpecialistCronograma />} />
               <Route path="observaciones" element={<Observaciones />} />
+              <Route path="ai-chat" element={<SpecialistAIChat />} />
             </Route>
 
             {/* ========== PARENT ROUTES ========== */}

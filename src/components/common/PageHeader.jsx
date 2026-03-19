@@ -15,6 +15,14 @@ const themeStyles = {
     toggleHover: "hover:text-yellow-600 hover:bg-yellow-50",
     toggleText: "text-gray-500",
   },
+  teal: {
+    toggleHover: "hover:text-teal-600 hover:bg-teal-50",
+    toggleText: "text-gray-500",
+  },
+  sky: {
+    toggleHover: "hover:text-sky-600 hover:bg-sky-50",
+    toggleText: "text-gray-500",
+  },
 };
 
 const PageHeader = ({ title, actions, theme = "blue" }) => {
