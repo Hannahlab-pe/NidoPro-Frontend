@@ -140,7 +140,7 @@ export const studentsColumns = [
     Cell: ({ value }) => (
       <div className="text-sm text-gray-600">
         {value
-          ? new Date(value).toLocaleDateString("es-ES", {
+          ? new Date(value + "T00:00:00").toLocaleDateString("es-ES", {
               day: "2-digit",
               month: "2-digit",
               year: "numeric",
@@ -280,7 +280,7 @@ export const informesColumns = [
     sortable: true,
     Cell: ({ value }) => (
       <span className="text-sm text-gray-900">
-        {value ? new Date(value).toLocaleDateString("es-PE") : "Sin fecha"}
+        {value ? new Date(value + "T00:00:00").toLocaleDateString("es-PE") : "Sin fecha"}
       </span>
     ),
   },
@@ -422,7 +422,7 @@ export const trabajadoresColumns = [
     Header: "Rol",
     accessor: "idRol",
     sortable: true,
-    Cell: ({ value }) => {
+    Cell: ({ value, row }) => {
       const getRolBadgeColor = (rol) => {
         switch (rol?.toUpperCase()) {
           case "ADMINISTRADOR":
@@ -438,19 +438,31 @@ export const trabajadoresColumns = [
         }
       };
 
+      // Usar el array roles si tiene contenido, sino fallback a idRol
+      const rolesList =
+        row.roles && row.roles.length > 0
+          ? row.roles
+          : value
+            ? [value]
+            : [];
+
       return (
-        <div>
-          <span
-            className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getRolBadgeColor(
-              value?.nombre,
-            )}`}
-          >
-            {value?.nombre || "Sin rol"}
-          </span>
-          {value?.descripcion && (
-            <div className="text-xs text-gray-500 mt-1">
-              {value.descripcion}
-            </div>
+        <div className="flex flex-wrap gap-1">
+          {rolesList.length > 0 ? (
+            rolesList.map((rol) => (
+              <span
+                key={rol.idRol}
+                className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getRolBadgeColor(
+                  rol.nombre,
+                )}`}
+              >
+                {rol.nombre}
+              </span>
+            ))
+          ) : (
+            <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+              Sin rol
+            </span>
           )}
         </div>
       );
@@ -731,7 +743,7 @@ export const parentsColumns = [
                   </div>
                   <div className="text-xs text-gray-500">
                     {matricula.fechaIngreso
-                      ? new Date(matricula.fechaIngreso).toLocaleDateString(
+                      ? new Date(matricula.fechaIngreso + "T00:00:00").toLocaleDateString(
                           "es-ES",
                         )
                       : "Sin fecha"}
@@ -774,7 +786,7 @@ export const parentsColumns = [
     Cell: ({ value }) => (
       <div className="text-sm text-gray-900">
         {value
-          ? new Date(value).toLocaleDateString("es-PE", {
+          ? new Date(value + "T00:00:00").toLocaleDateString("es-PE", {
               year: "numeric",
               month: "short",
               day: "numeric",
@@ -975,7 +987,7 @@ export const matriculaColumns = [
     sortable: true,
     Cell: ({ value }) => (
       <div className="text-sm text-gray-900">
-        {value ? new Date(value).toLocaleDateString("es-PE") : "Sin fecha"}
+        {value ? new Date(value + "T00:00:00").toLocaleDateString("es-PE") : "Sin fecha"}
       </div>
     ),
   },
@@ -1196,7 +1208,7 @@ export const usuariosColumns = [
     Cell: ({ value }) => (
       <div className="text-sm text-gray-900">
         {value
-          ? new Date(value).toLocaleDateString("es-PE", {
+          ? new Date(value + "T00:00:00").toLocaleDateString("es-PE", {
               year: "numeric",
               month: "short",
               day: "numeric",
@@ -1310,7 +1322,7 @@ export const rolesColumns = [
     Cell: ({ value }) => (
       <div className="text-sm text-gray-600">
         {value
-          ? new Date(value).toLocaleDateString("es-ES", {
+          ? new Date(value + "T00:00:00").toLocaleDateString("es-ES", {
               day: "2-digit",
               month: "2-digit",
               year: "numeric",
@@ -1327,7 +1339,7 @@ export const rolesColumns = [
     Cell: ({ value }) => (
       <div className="text-sm text-gray-600">
         {value
-          ? new Date(value).toLocaleDateString("es-ES", {
+          ? new Date(value + "T00:00:00").toLocaleDateString("es-ES", {
               day: "2-digit",
               month: "2-digit",
               year: "numeric",
@@ -1402,7 +1414,7 @@ export const asignacionCursosColumns = [
     Cell: ({ value }) => (
       <div className="text-sm text-gray-900">
         {value
-          ? new Date(value).toLocaleDateString("es-ES", {
+          ? new Date(value + "T00:00:00").toLocaleDateString("es-ES", {
               year: "numeric",
               month: "short",
               day: "numeric",

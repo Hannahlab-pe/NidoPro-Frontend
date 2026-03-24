@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -34,6 +34,8 @@ const ModalAgregarTrabajador = ({ isOpen, onClose, onSuccess }) => {
   const { data: cursos = [], isLoading: loadingCursos } = useCursos();
   const asignarCursoMutation = useCreateAsignacionCurso();
   const { roles = [], loading: loadingRoles } = useRoles();
+
+  const [selectedExtraRoles, setSelectedExtraRoles] = useState([]);
 
   const visibleRoles = roles.filter((rol) =>
     ROLE_WHITELIST.includes(rol.nombre?.toUpperCase())
@@ -80,6 +82,9 @@ const ModalAgregarTrabajador = ({ isOpen, onClose, onSuccess }) => {
         return;
       }
       trabajadorData.estaActivo = true;
+      if (selectedExtraRoles.length > 0) {
+        trabajadorData.rolesIds = [data.idRol, ...selectedExtraRoles];
+      }
       const response = await createMutation.mutateAsync(trabajadorData);
 
       const createdId =
@@ -113,6 +118,7 @@ const ModalAgregarTrabajador = ({ isOpen, onClose, onSuccess }) => {
   const handleClose = () => {
     if (!createMutation.isPending) {
       reset();
+      setSelectedExtraRoles([]);
       onClose();
     }
   };
@@ -251,6 +257,50 @@ const ModalAgregarTrabajador = ({ isOpen, onClose, onSuccess }) => {
                         <p className="text-red-500 text-sm mt-1">{errors.idRol.message}</p>
                       )}
                     </div>
+
+                    {selectedRol && visibleRoles.length > 1 && (
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Roles adicionales (opcional)
+                        </label>
+                        <div className="flex flex-wrap gap-2 p-3 border border-gray-200 rounded-lg bg-gray-50">
+                          {visibleRoles
+                            .filter((rol) => (rol.idRol || rol.id) !== selectedRol)
+                            .map((rol) => {
+                              const rolId = rol.idRol || rol.id;
+                              const isChecked = selectedExtraRoles.includes(rolId);
+                              return (
+                                <label
+                                  key={rolId}
+                                  className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border cursor-pointer transition-colors ${
+                                    isChecked
+                                      ? "bg-blue-50 border-blue-300 text-blue-700"
+                                      : "bg-white border-gray-200 text-gray-600 hover:border-gray-300"
+                                  }`}
+                                >
+                                  <input
+                                    type="checkbox"
+                                    checked={isChecked}
+                                    onChange={() => {
+                                      setSelectedExtraRoles((prev) =>
+                                        isChecked
+                                          ? prev.filter((id) => id !== rolId)
+                                          : [...prev, rolId]
+                                      );
+                                    }}
+                                    className="sr-only"
+                                    disabled={creating}
+                                  />
+                                  <span className="text-sm font-medium">{rol.nombre}</span>
+                                </label>
+                              );
+                            })}
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1">
+                          El trabajador podrá acceder al sistema con cualquiera de estos roles
+                        </p>
+                      </div>
+                    )}
 
                     {selectedRol === docenteRoleId && (
                       <div>

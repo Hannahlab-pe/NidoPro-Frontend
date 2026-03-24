@@ -20,10 +20,18 @@ export const authService = {
         usuario: credentials.email,
         contrasena: credentials.password,
       };
+      if (credentials.idRol) {
+        payload.idRol = credentials.idRol;
+      }
 
       const response = await authApi.post("/auth/login", payload);
 
       const { data } = response;
+
+      // Si el backend indica selección de rol, retornar sin procesar token
+      if (data.requiresRoleSelection) {
+        return { requiresRoleSelection: true, roles: data.roles };
+      }
 
       // Estructura del backend real con mapeo de roles (ajustado para SECRETARIA)
       const getRoleMappingForUser = (backendRole) => {

@@ -5,11 +5,15 @@ import { useAuthStore } from "../../store";
 import { authService } from "../../services/authService";
 import {
   User,
+  Users,
   Lock,
   Eye,
   EyeOff,
   GraduationCap,
   Sparkles,
+  ChevronLeft,
+  ChevronRight,
+  Briefcase,
   PenTool,
   Book,
   Apple,
@@ -46,6 +50,8 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const [roleSelection, setRoleSelection] = useState(null);
+  const [pendingCredentials, setPendingCredentials] = useState(null);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -130,6 +136,14 @@ const Login = () => {
         userData = await authService.loginDev(formData);
       }
 
+      // Si requiere selección de rol, mostrar pantalla de selección
+      if (userData.requiresRoleSelection) {
+        setPendingCredentials({ email: formData.usuario, password: formData.password });
+        setRoleSelection({ roles: userData.roles });
+        setIsLoading(false);
+        return;
+      }
+
       // Actualizar store de Zustand
       login(userData);
 
@@ -145,6 +159,31 @@ const Login = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleRoleSelect = async (idRol) => {
+    setIsLoading(true);
+    try {
+      const userData = await authService.login({
+        email: pendingCredentials.email,
+        password: pendingCredentials.password,
+        idRol,
+      });
+      login(userData);
+      localStorage.setItem("token", userData.token);
+      navigate(from, { replace: true });
+    } catch (error) {
+      toast.error(error.message || "Error al seleccionar rol");
+      setRoleSelection(null);
+      setPendingCredentials(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleBackToLogin = () => {
+    setRoleSelection(null);
+    setPendingCredentials(null);
   };
 
   return (
@@ -502,173 +541,227 @@ const Login = () => {
               }`}
             >
               <div className="w-full max-w-md">
-                {/* Form Container */}
-                <div
-                  className={`bg-transparent rounded-3xl border border-white/30 p-8 relative transition-all duration-1200 transform ${
-                    isVisible
-                      ? "translate-y-0 opacity-100 scale-100"
-                      : "translate-y-8 opacity-0 scale-95"
-                  }`}
-                >
-                  {/* Mobile logo */}
-                  <div className="lg:hidden flex items-center justify-center mb-6">
-                    <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center">
-                      <GraduationCap className="w-8 h-8 text-white" />
-                    </div>
-                  </div>
-
-                  {/* Form Header */}
-                  <div
-                    className={`text-center mb-8 transition-all duration-700 transform ${
-                      isVisible
-                        ? "translate-y-0 opacity-100"
-                        : "translate-y-4 opacity-0"
-                    }`}
-                    style={{ transitionDelay: "0.3s" }}
-                  >
-                    <h3 className="text-4xl font-bold text-gray-800">Login</h3>
-                  </div>
-
-                  {/* Form */}
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* DNI Field */}
-                    <div
-                      className={`transition-all duration-700 transform ${
-                        isVisible
-                          ? "translate-y-0 opacity-100"
-                          : "translate-y-4 opacity-0"
-                      }`}
-                      style={{ transitionDelay: "0.5s" }}
+                {roleSelection ? (
+                  <div className={`bg-transparent rounded-3xl border border-white/30 p-8 relative transition-all duration-1200 transform ${
+                    isVisible ? "translate-y-0 opacity-100 scale-100" : "translate-y-8 opacity-0 scale-95"
+                  }`}>
+                    {/* Back button */}
+                    <button
+                      onClick={handleBackToLogin}
+                      className="flex items-center text-sm text-gray-500 hover:text-gray-700 transition-colors mb-6"
                     >
-                      <label
-                        htmlFor="usuario"
-                        className="block text-sm font-semibold text-gray-700 mb-2"
-                      >
-                        DNI / Documento
-                      </label>
-                      <div className="relative">
-                        <User className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                        <input
-                          id="usuario"
-                          type="text"
-                          name="usuario"
-                          value={formData.usuario}
-                          onChange={handleInputChange}
-                          placeholder="12345678"
-                          className={`w-full pl-4 pr-4 py-4 border-2 rounded-2xl focus:outline-none focus:ring-4 transition-all duration-300 bg-white/70 backdrop-blur-sm ${
-                            formErrors.usuario
-                              ? "border-red-300 focus:ring-red-200 focus:border-red-500"
-                              : "border-gray-200 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-300"
-                          }`}
-                          required
-                        />
+                      <ChevronLeft className="w-4 h-4 mr-1" />
+                      Volver al login
+                    </button>
+
+                    {/* Header */}
+                    <div className="text-center mb-8">
+                      <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <Users className="w-7 h-7 text-white" />
                       </div>
-                      {formErrors.usuario && (
-                        <p className="mt-2 text-sm text-red-600 flex items-center">
-                          <span className="w-1.5 h-1.5 bg-red-500 rounded-full mr-2"></span>
-                          {formErrors.usuario}
-                        </p>
-                      )}
+                      <h3 className="text-2xl font-bold text-gray-800 mb-1">Selecciona tu rol</h3>
+                      <p className="text-sm text-gray-500">Tienes acceso a múltiples roles</p>
                     </div>
 
-                    {/* Password Field */}
+                    {/* Role cards */}
+                    <div className="space-y-3">
+                      {roleSelection.roles.map((role) => (
+                        <button
+                          key={role.idRol}
+                          onClick={() => handleRoleSelect(role.idRol)}
+                          disabled={isLoading}
+                          className="w-full text-left p-4 rounded-2xl border-2 border-gray-200 hover:border-blue-500 hover:bg-blue-50/50 transition-all duration-200 group disabled:opacity-50"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                              <Briefcase className="w-5 h-5 text-blue-600" />
+                            </div>
+                            <div className="flex-1">
+                              <p className="font-semibold text-gray-800">{role.nombre}</p>
+                              <p className="text-sm text-gray-500">{role.descripcion}</p>
+                            </div>
+                            <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-blue-600 transition-colors" />
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+
+                    {isLoading && (
+                      <div className="flex items-center justify-center mt-4">
+                        <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mr-2"></div>
+                        <span className="text-sm text-gray-600">Ingresando...</span>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  // Login Form Container
+                  <div
+                    className={`bg-transparent rounded-3xl border border-white/30 p-8 relative transition-all duration-1200 transform ${
+                      isVisible
+                        ? "translate-y-0 opacity-100 scale-100"
+                        : "translate-y-8 opacity-0 scale-95"
+                    }`}
+                  >
+                    {/* Mobile logo */}
+                    <div className="lg:hidden flex items-center justify-center mb-6">
+                      <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center">
+                        <GraduationCap className="w-8 h-8 text-white" />
+                      </div>
+                    </div>
+
+                    {/* Form Header */}
                     <div
-                      className={`transition-all duration-700 transform ${
+                      className={`text-center mb-8 transition-all duration-700 transform ${
                         isVisible
                           ? "translate-y-0 opacity-100"
                           : "translate-y-4 opacity-0"
                       }`}
-                      style={{ transitionDelay: "0.7s" }}
+                      style={{ transitionDelay: "0.3s" }}
                     >
-                      <label
-                        htmlFor="password"
-                        className="block text-sm font-semibold text-gray-700 mb-2"
+                      <h3 className="text-4xl font-bold text-gray-800">Login</h3>
+                    </div>
+
+                    {/* Form */}
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                      {/* DNI Field */}
+                      <div
+                        className={`transition-all duration-700 transform ${
+                          isVisible
+                            ? "translate-y-0 opacity-100"
+                            : "translate-y-4 opacity-0"
+                        }`}
+                        style={{ transitionDelay: "0.5s" }}
                       >
-                        Contraseña
-                      </label>
-                      <div className="relative">
-                        <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                        <input
-                          id="password"
-                          type={showPassword ? "text" : "password"}
-                          name="password"
-                          value={formData.password}
-                          onChange={handleInputChange}
-                          placeholder="••••••••"
-                          className={`w-full pl-4 pr-14 py-4 border-2 rounded-2xl focus:outline-none focus:ring-4 transition-all duration-300 bg-white/70 backdrop-blur-sm ${
-                            formErrors.password
-                              ? "border-red-300 focus:ring-red-200 focus:border-red-500"
-                              : "border-gray-200 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-300"
-                          }`}
-                          required
-                        />
-                        <button
-                          type="button"
-                          className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-lg hover:bg-gray-100"
-                          onClick={() => setShowPassword(!showPassword)}
+                        <label
+                          htmlFor="usuario"
+                          className="block text-sm font-semibold text-gray-700 mb-2"
                         >
-                          {showPassword ? (
-                            <EyeOff className="w-5 h-5" />
+                          DNI / Documento
+                        </label>
+                        <div className="relative">
+                          <User className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                          <input
+                            id="usuario"
+                            type="text"
+                            name="usuario"
+                            value={formData.usuario}
+                            onChange={handleInputChange}
+                            placeholder="12345678"
+                            className={`w-full pl-4 pr-4 py-4 border-2 rounded-2xl focus:outline-none focus:ring-4 transition-all duration-300 bg-white/70 backdrop-blur-sm ${
+                              formErrors.usuario
+                                ? "border-red-300 focus:ring-red-200 focus:border-red-500"
+                                : "border-gray-200 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-300"
+                            }`}
+                            required
+                          />
+                        </div>
+                        {formErrors.usuario && (
+                          <p className="mt-2 text-sm text-red-600 flex items-center">
+                            <span className="w-1.5 h-1.5 bg-red-500 rounded-full mr-2"></span>
+                            {formErrors.usuario}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Password Field */}
+                      <div
+                        className={`transition-all duration-700 transform ${
+                          isVisible
+                            ? "translate-y-0 opacity-100"
+                            : "translate-y-4 opacity-0"
+                        }`}
+                        style={{ transitionDelay: "0.7s" }}
+                      >
+                        <label
+                          htmlFor="password"
+                          className="block text-sm font-semibold text-gray-700 mb-2"
+                        >
+                          Contraseña
+                        </label>
+                        <div className="relative">
+                          <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                          <input
+                            id="password"
+                            type={showPassword ? "text" : "password"}
+                            name="password"
+                            value={formData.password}
+                            onChange={handleInputChange}
+                            placeholder="••••••••"
+                            className={`w-full pl-4 pr-14 py-4 border-2 rounded-2xl focus:outline-none focus:ring-4 transition-all duration-300 bg-white/70 backdrop-blur-sm ${
+                              formErrors.password
+                                ? "border-red-300 focus:ring-red-200 focus:border-red-500"
+                                : "border-gray-200 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-300"
+                            }`}
+                            required
+                          />
+                          <button
+                            type="button"
+                            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-lg hover:bg-gray-100"
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            {showPassword ? (
+                              <EyeOff className="w-5 h-5" />
+                            ) : (
+                              <Eye className="w-5 h-5" />
+                            )}
+                          </button>
+                        </div>
+                        {formErrors.password && (
+                          <p className="mt-2 text-sm text-red-600 flex items-center">
+                            <span className="w-1.5 h-1.5 bg-red-500 rounded-full mr-2"></span>
+                            {formErrors.password}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Global Error */}
+                      {formErrors.general && (
+                        <div className="p-4 bg-red-50 border-2 border-red-200 rounded-2xl">
+                          <p className="text-sm text-red-600 flex items-center">
+                            <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+                            {formErrors.general}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Submit Button */}
+                      <div
+                        className={`transition-all duration-700 transform ${
+                          isVisible
+                            ? "translate-y-0 opacity-100"
+                            : "translate-y-4 opacity-0"
+                        }`}
+                        style={{ transitionDelay: "0.9s" }}
+                      >
+                        <button
+                          type="submit"
+                          disabled={isLoading}
+                          className={`w-full py-4 px-6 rounded-2xl font-semibold text-white transition-all duration-300 transform hover:scale-[1.02] hover:shadow-xl ${
+                            isLoading
+                              ? "bg-gray-400 cursor-not-allowed scale-100"
+                              : "bg-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-200 hover:bg-blue-700"
+                          }`}
+                        >
+                          {isLoading ? (
+                            <div className="flex items-center justify-center">
+                              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-3"></div>
+                              Verificando...
+                            </div>
                           ) : (
-                            <Eye className="w-5 h-5" />
+                            <div className="flex items-center justify-center">
+                              <Sparkles className="w-5 h-5 mr-2" />
+                              Ingresar al Sistema
+                            </div>
                           )}
                         </button>
                       </div>
-                      {formErrors.password && (
-                        <p className="mt-2 text-sm text-red-600 flex items-center">
-                          <span className="w-1.5 h-1.5 bg-red-500 rounded-full mr-2"></span>
-                          {formErrors.password}
-                        </p>
-                      )}
-                    </div>
+                    </form>
 
-                    {/* Global Error */}
-                    {formErrors.general && (
-                      <div className="p-4 bg-red-50 border-2 border-red-200 rounded-2xl">
-                        <p className="text-sm text-red-600 flex items-center">
-                          <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
-                          {formErrors.general}
-                        </p>
-                      </div>
-                    )}
-
-                    {/* Submit Button */}
-                    <div
-                      className={`transition-all duration-700 transform ${
-                        isVisible
-                          ? "translate-y-0 opacity-100"
-                          : "translate-y-4 opacity-0"
-                      }`}
-                      style={{ transitionDelay: "0.9s" }}
-                    >
-                      <button
-                        type="submit"
-                        disabled={isLoading}
-                        className={`w-full py-4 px-6 rounded-2xl font-semibold text-white transition-all duration-300 transform hover:scale-[1.02] hover:shadow-xl ${
-                          isLoading
-                            ? "bg-gray-400 cursor-not-allowed scale-100"
-                            : "bg-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-200 hover:bg-blue-700"
-                        }`}
-                      >
-                        {isLoading ? (
-                          <div className="flex items-center justify-center">
-                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-3"></div>
-                            Verificando...
-                          </div>
-                        ) : (
-                          <div className="flex items-center justify-center">
-                            <Sparkles className="w-5 h-5 mr-2" />
-                            Ingresar al Sistema
-                          </div>
-                        )}
-                      </button>
-                    </div>
-                  </form>
-
-                  {/* Decorative elements for form */}
-                  <div className="absolute -top-4 -right-4 w-8 h-8 bg-gradient-to-br from-blue-400 to-purple-500 rounded-lg rotate-45 opacity-20"></div>
-                  <div className="absolute -bottom-4 -left-4 w-6 h-6 bg-gradient-to-br from-pink-400 to-red-500 rounded-full opacity-30"></div>
-                </div>
+                    {/* Decorative elements for form */}
+                    <div className="absolute -top-4 -right-4 w-8 h-8 bg-gradient-to-br from-blue-400 to-purple-500 rounded-lg rotate-45 opacity-20"></div>
+                    <div className="absolute -bottom-4 -left-4 w-6 h-6 bg-gradient-to-br from-pink-400 to-red-500 rounded-full opacity-30"></div>
+                  </div>
+                )}
               </div>
             </div>
 

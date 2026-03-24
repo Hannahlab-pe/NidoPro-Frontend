@@ -1,14 +1,15 @@
-import React, { Fragment, useEffect } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { Dialog, Transition } from '@headlessui/react';
-import { 
-  X, 
-  User, 
-  Phone, 
-  Mail, 
-  MapPin, 
+import { toast } from 'sonner';
+import {
+  X,
+  User,
+  Phone,
+  Mail,
+  MapPin,
   GraduationCap,
   BookOpen,
   Clock,
@@ -17,11 +18,15 @@ import {
   Edit3,
   Loader2,
   Star,
-  Briefcase
+  Briefcase,
+  Plus,
+  Trash2,
+  Shield
 } from 'lucide-react';
 import ImageUploader from '../../../../components/common/ImageUploader';
 import { useTrabajadores, useUpdateTrabajador } from 'src/hooks/queries/useTrabajadoresQueries';
 import { useRoles } from '../../../../hooks/useRoles';
+import trabajadorService from '../../../../services/trabajadorService';
 
 // Esquema de validación con Yup (solo campos reales del backend)
 const validationSchema = yup.object({
@@ -70,6 +75,62 @@ const ModalEditarTrabajador = ({ isOpen, onClose, trabajador }) => {
   
   // Hook para obtener los roles disponibles
   const { roles, isLoading: loadingRoles } = useRoles();
+
+  const [trabajadorRoles, setTrabajadorRoles] = useState([]);
+  const [loadingTrabajadorRoles, setLoadingTrabajadorRoles] = useState(false);
+  const [addingRole, setAddingRole] = useState(false);
+  const [removingRoleId, setRemovingRoleId] = useState(null);
+  const [showRoleSelect, setShowRoleSelect] = useState(false);
+
+  useEffect(() => {
+    if (isOpen && trabajador?.idTrabajador) {
+      setLoadingTrabajadorRoles(true);
+      trabajadorService.getTrabajadorRoles(trabajador.idTrabajador)
+        .then(data => {
+          setTrabajadorRoles(data.roles || []);
+        })
+        .catch(() => {
+          if (trabajador.idRol) {
+            const rolData = typeof trabajador.idRol === 'object'
+              ? trabajador.idRol
+              : { idRol: trabajador.idRol, nombre: 'Rol actual' };
+            setTrabajadorRoles([rolData]);
+          }
+        })
+        .finally(() => setLoadingTrabajadorRoles(false));
+    }
+  }, [isOpen, trabajador]);
+
+  const availableRoles = (roles || []).filter(
+    r => !trabajadorRoles.some(tr => tr.idRol === r.idRol)
+  );
+
+  const handleAddRole = async (idRol) => {
+    setAddingRole(true);
+    try {
+      const data = await trabajadorService.addRoleToTrabajador(trabajador.idTrabajador, idRol);
+      setTrabajadorRoles(data.roles || []);
+      setShowRoleSelect(false);
+      toast.success("Rol asignado correctamente");
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setAddingRole(false);
+    }
+  };
+
+  const handleRemoveRole = async (idRol) => {
+    setRemovingRoleId(idRol);
+    try {
+      const data = await trabajadorService.removeRoleFromTrabajador(trabajador.idTrabajador, idRol);
+      setTrabajadorRoles(data.roles || []);
+      toast.success("Rol removido correctamente");
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setRemovingRoleId(null);
+    }
+  };
 
   const {
     register,
@@ -280,31 +341,80 @@ const ModalEditarTrabajador = ({ isOpen, onClose, trabajador }) => {
                     </div>
                   </FormSection>
 
-                  {/* Sección de Rol */}
-                  <FormSection title="Información del Rol" icon={Briefcase} iconColor="text-purple-600">
-                    <div className="grid grid-cols-1 gap-4">
-                      <FormField label="Rol" required error={errors.idRol?.message}>
-                        <select
-                          {...register('idRol')}
-                          className={`${inputClassName(errors.idRol)} bg-gray-100 cursor-not-allowed`}
-                          disabled={true}
-                        >
-                          <option value="">
-                            {loadingRoles ? 'Cargando roles...' : 'Seleccione un rol'}
-                          </option>
-                          {Array.isArray(roles) && roles
-                            .filter(rol => rol.nombre?.toLowerCase() !== 'secretaria' && rol.nombre?.toLowerCase() !== 'estudiante')
-                            .map((rol) => (
-                              <option key={rol.idRol} value={rol.idRol}>
-                                {rol.nombre}
-                              </option>
-                            ))}
-                        </select>
-                        <p className="text-xs text-gray-500 mt-1">
-                          ℹ️ El rol no se puede modificar una vez creado el trabajador
-                        </p>
-                      </FormField>
-                    </div>
+                  {/* Sección de Roles */}
+                  <FormSection title="Roles del Trabajador" icon={Shield} iconColor="text-purple-600">
+                    {loadingTrabajadorRoles ? (
+                      <div className="flex items-center py-3">
+                        <Loader2 className="w-4 h-4 animate-spin text-gray-400 mr-2" />
+                        <span className="text-sm text-gray-500">Cargando roles...</span>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        <div className="flex flex-wrap gap-2">
+                          {trabajadorRoles.map((rol) => (
+                            <div
+                              key={rol.idRol}
+                              className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-purple-50 border border-purple-200"
+                            >
+                              <Shield className="w-4 h-4 text-purple-600" />
+                              <span className="text-sm font-medium text-purple-800">{rol.nombre}</span>
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveRole(rol.idRol)}
+                                disabled={trabajadorRoles.length <= 1 || removingRoleId === rol.idRol}
+                                className="ml-1 p-1 rounded hover:bg-red-100 text-gray-400 hover:text-red-600 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                                title={trabajadorRoles.length <= 1 ? "No se puede quitar el único rol" : "Quitar rol"}
+                              >
+                                {removingRoleId === rol.idRol ? (
+                                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                ) : (
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                )}
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+
+                        {availableRoles.length > 0 && (
+                          <div>
+                            {showRoleSelect ? (
+                              <div className="flex items-center gap-2">
+                                <select
+                                  onChange={(e) => { if (e.target.value) handleAddRole(e.target.value); }}
+                                  disabled={addingRole}
+                                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                  defaultValue=""
+                                >
+                                  <option value="" disabled>Seleccionar rol...</option>
+                                  {availableRoles.map((rol) => (
+                                    <option key={rol.idRol} value={rol.idRol}>
+                                      {rol.nombre}
+                                    </option>
+                                  ))}
+                                </select>
+                                <button
+                                  type="button"
+                                  onClick={() => setShowRoleSelect(false)}
+                                  className="px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-md"
+                                >
+                                  Cancelar
+                                </button>
+                                {addingRole && <Loader2 className="w-4 h-4 animate-spin text-purple-600" />}
+                              </div>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => setShowRoleSelect(true)}
+                                className="flex items-center gap-1.5 text-sm text-purple-600 hover:text-purple-700 font-medium"
+                              >
+                                <Plus className="w-4 h-4" />
+                                Agregar rol
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </FormSection>
                 </form>
 

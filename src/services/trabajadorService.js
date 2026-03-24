@@ -205,6 +205,7 @@ export const trabajadorService = {
             ? trabajadorData.estaActivo
             : true,
         imagenUrl: trabajadorData.imagenUrl || null,
+        rolesIds: trabajadorData.rolesIds || undefined,
       };
 
       console.log("📤 Payload para endpoint /trabajador:", payload);
@@ -335,6 +336,7 @@ export const trabajadorService = {
             : true,
         imagenUrl: null,
         idRol: trabajadorData.idRol, // Usar el rol seleccionado en el formulario
+        rolesIds: trabajadorData.rolesIds || undefined,
 
         // Objeto contrato anidado con URLs de archivos
         contrato: trabajadorData.idTipoContrato
@@ -885,6 +887,51 @@ export const trabajadorService = {
       throw new Error(
         error.response?.data?.message ||
           "Error al cambiar estado del trabajador"
+      );
+    }
+  },
+
+  /**
+   * Obtener roles de un trabajador
+   */
+  async getTrabajadorRoles(idTrabajador) {
+    try {
+      const response = await api.get(`/trabajador/${idTrabajador}/roles`);
+      return response.data;
+    } catch (error) {
+      console.error("Error al obtener roles del trabajador:", error);
+      throw new Error(
+        error.response?.data?.message || "Error al obtener roles del trabajador"
+      );
+    }
+  },
+
+  /**
+   * Asignar un rol adicional a un trabajador
+   */
+  async addRoleToTrabajador(idTrabajador, idRol) {
+    try {
+      const response = await api.post(`/trabajador/${idTrabajador}/roles/${idRol}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error al asignar rol:", error);
+      throw new Error(
+        error.response?.data?.message || "Error al asignar rol al trabajador"
+      );
+    }
+  },
+
+  /**
+   * Remover un rol de un trabajador
+   */
+  async removeRoleFromTrabajador(idTrabajador, idRol) {
+    try {
+      const response = await api.delete(`/trabajador/${idTrabajador}/roles/${idRol}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error al remover rol:", error);
+      throw new Error(
+        error.response?.data?.message || "Error al remover rol del trabajador"
       );
     }
   },

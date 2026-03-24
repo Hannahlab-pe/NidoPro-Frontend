@@ -16,6 +16,8 @@ import {
   Loader2,
   Search,
   UserCheck,
+  FileText,
+  CheckCircle2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useMatricula } from "../../../../hooks/useMatricula";
@@ -900,45 +902,71 @@ const ModalAgregarMatricula = ({ isOpen, onClose, refetch }) => {
                         >
                           <div className="relative w-full">
                             <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-gray-400 transition-colors hover:cursor-pointer h-84 flex flex-col items-center justify-center">
-                              {voucherImage ? (
-                                <div className="relative">
-                                  <img
-                                    src={voucherImage}
-                                    alt="Voucher"
-                                    className="max-h-32 mx-auto rounded-lg object-contain"
-                                  />
+                              {voucherFile ? (
+                                <div className="relative flex flex-col items-center gap-3 w-full">
+                                  {/* Preview: imagen o indicador de PDF */}
+                                  {voucherImage && voucherFile.type?.startsWith("image/") ? (
+                                    <img
+                                      src={voucherImage}
+                                      alt="Voucher"
+                                      className="max-h-28 mx-auto rounded-lg object-contain"
+                                    />
+                                  ) : (
+                                    <div className="w-14 h-14 rounded-xl bg-red-50 flex items-center justify-center">
+                                      <FileText className="w-7 h-7 text-red-500" />
+                                    </div>
+                                  )}
+                                  {/* Nombre del archivo + confirmación */}
+                                  <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-lg px-3 py-2 w-full max-w-xs">
+                                    <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0" />
+                                    <span className="text-sm text-green-800 font-medium truncate">
+                                      {voucherFile.name}
+                                    </span>
+                                  </div>
+                                  <p className="text-xs text-gray-400">
+                                    {(voucherFile.size / 1024).toFixed(0)} KB
+                                  </p>
+                                  {/* Botón quitar */}
                                   <button
                                     type="button"
                                     onClick={() => {
                                       setVoucherImage(null);
                                       setVoucherFile(null);
+                                      setValue("voucherFile", null);
                                     }}
-                                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                                    className="text-xs text-red-500 hover:text-red-700 font-medium transition-colors"
                                   >
-                                    <X className="w-4 h-4" />
+                                    Quitar archivo
                                   </button>
                                 </div>
                               ) : (
                                 <>
                                   <Upload className="w-8 h-8 mx-auto text-gray-400 mb-2" />
-                                  <p className="text-sm text-gray-600 mb-2">
+                                  <p className="text-sm text-gray-600 mb-1">
                                     Subir voucher de pago
+                                  </p>
+                                  <p className="text-xs text-gray-400 mb-3">
+                                    Imagen o PDF
                                   </p>
                                   <input
                                     type="file"
-                                    accept="image/*"
+                                    accept="image/*,.pdf"
                                     onChange={(e) => {
                                       const file = e.target.files[0];
                                       if (file) {
                                         setVoucherFile(file);
-                                        setValue("voucherFile", file); // Registrar en el formulario
-                                        const reader = new FileReader();
-                                        reader.onload = (e) =>
-                                          setVoucherImage(e.target.result);
-                                        reader.readAsDataURL(file);
+                                        setValue("voucherFile", file);
+                                        if (file.type?.startsWith("image/")) {
+                                          const reader = new FileReader();
+                                          reader.onload = (ev) =>
+                                            setVoucherImage(ev.target.result);
+                                          reader.readAsDataURL(file);
+                                        } else {
+                                          setVoucherImage(null);
+                                        }
                                       } else {
                                         setVoucherFile(null);
-                                        setValue("voucherFile", null); // Limpiar del formulario
+                                        setValue("voucherFile", null);
                                         setVoucherImage(null);
                                       }
                                     }}

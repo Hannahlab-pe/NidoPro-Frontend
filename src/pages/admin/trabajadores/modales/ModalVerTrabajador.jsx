@@ -1,11 +1,12 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useState, useEffect } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
-import { 
-  X, 
-  User, 
-  Phone, 
-  Mail, 
-  MapPin, 
+import { toast } from 'sonner';
+import {
+  X,
+  User,
+  Phone,
+  Mail,
+  MapPin,
   GraduationCap,
   BookOpen,
   Clock,
@@ -19,8 +20,15 @@ import {
   Briefcase,
   FileText,
   CreditCard,
-  DollarSign
+  DollarSign,
+  Plus,
+  Trash2,
+  Shield,
+  Loader2,
+  ChevronDown
 } from 'lucide-react';
+import trabajadorService from '../../../../services/trabajadorService';
+import { useRoles } from '../../../../hooks/useRoles';
 
 const InfoField = ({ label, value, icon: Icon, className = "" }) => (
   <div className={`bg-gray-50 p-3 rounded-lg ${className}`}>
@@ -33,6 +41,68 @@ const InfoField = ({ label, value, icon: Icon, className = "" }) => (
 );
 
 const ModalVerTrabajador = ({ isOpen, onClose, trabajador }) => {
+  const { roles: allRoles = [], loading: loadingAllRoles } = useRoles();
+  const [trabajadorRoles, setTrabajadorRoles] = useState([]);
+  const [loadingRoles, setLoadingRoles] = useState(false);
+  const [addingRole, setAddingRole] = useState(false);
+  const [removingRoleId, setRemovingRoleId] = useState(null);
+  const [showRoleSelect, setShowRoleSelect] = useState(false);
+
+  // Fetch roles on open
+  useEffect(() => {
+    if (isOpen && trabajador?.idTrabajador) {
+      setLoadingRoles(true);
+      trabajadorService.getTrabajadorRoles(trabajador.idTrabajador)
+        .then(data => {
+          setTrabajadorRoles(data.roles || []);
+        })
+        .catch(() => {
+          // Fallback: use the single role from trabajador data
+          if (trabajador.idRol) {
+            setTrabajadorRoles([{
+              idRol: trabajador.idRol.idRol,
+              nombre: trabajador.idRol.nombre,
+              descripcion: trabajador.idRol.descripcion,
+              estaActivo: trabajador.idRol.estaActivo
+            }]);
+          }
+        })
+        .finally(() => setLoadingRoles(false));
+    }
+  }, [isOpen, trabajador]);
+
+  // Available roles (not yet assigned)
+  const availableRoles = allRoles.filter(
+    r => !trabajadorRoles.some(tr => tr.idRol === r.idRol)
+  );
+
+  const handleAddRole = async (idRol) => {
+    setAddingRole(true);
+    try {
+      const data = await trabajadorService.addRoleToTrabajador(trabajador.idTrabajador, idRol);
+      setTrabajadorRoles(data.roles || []);
+      setShowRoleSelect(false);
+      toast.success("Rol asignado correctamente");
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setAddingRole(false);
+    }
+  };
+
+  const handleRemoveRole = async (idRol) => {
+    setRemovingRoleId(idRol);
+    try {
+      const data = await trabajadorService.removeRoleFromTrabajador(trabajador.idTrabajador, idRol);
+      setTrabajadorRoles(data.roles || []);
+      toast.success("Rol removido correctamente");
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setRemovingRoleId(null);
+    }
+  };
+
   if (!trabajador) return null;
 
   // Console log para debuggear la estructura de datos
@@ -289,45 +359,92 @@ const ModalVerTrabajador = ({ isOpen, onClose, trabajador }) => {
                     </div>
                   </div>
 
-                  {/* Información del Rol - Solo si existe */}
-                  {trabajador.idRol && (
-                    <div className="bg-white rounded-lg p-4">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                        <Briefcase className="w-5 h-5 mr-2 text-green-600" />
-                        Información del Rol
-                      </h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {trabajador.idRol?.nombre && (
-                          <InfoField
-                            label="Rol"
-                            value={trabajador.idRol.nombre}
-                            icon={Briefcase}
-                          />
-                        )}
-                        {trabajador.idRol?.descripcion && (
-                          <InfoField
-                            label="Descripción del Rol"
-                            value={trabajador.idRol.descripcion}
-                            icon={FileText}
-                          />
-                        )}
-                        {trabajador.idRol?.idRol && (
-                          <InfoField
-                            label="ID del Rol"
-                            value={trabajador.idRol.idRol}
-                            icon={FileText}
-                          />
-                        )}
-                        {typeof trabajador.idRol?.estaActivo !== 'undefined' && (
-                          <InfoField
-                            label="Estado del Rol"
-                            value={trabajador.idRol.estaActivo ? 'Activo' : 'Inactivo'}
-                            icon={UserCheck}
-                          />
+                  {/* Roles del Trabajador */}
+                  <div className="bg-white rounded-lg p-4">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                      <Shield className="w-5 h-5 mr-2 text-green-600" />
+                      Roles del Trabajador
+                    </h3>
+
+                    {loadingRoles ? (
+                      <div className="flex items-center justify-center py-4">
+                        <Loader2 className="w-5 h-5 animate-spin text-gray-400 mr-2" />
+                        <span className="text-sm text-gray-500">Cargando roles...</span>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {/* Lista de roles actuales */}
+                        <div className="flex flex-wrap gap-2">
+                          {trabajadorRoles.map((rol) => (
+                            <div
+                              key={rol.idRol}
+                              className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-50 border border-blue-200"
+                            >
+                              <Shield className="w-4 h-4 text-blue-600" />
+                              <div>
+                                <span className="text-sm font-medium text-blue-800">{rol.nombre}</span>
+                                {rol.descripcion && (
+                                  <p className="text-xs text-blue-600">{rol.descripcion}</p>
+                                )}
+                              </div>
+                              <button
+                                onClick={() => handleRemoveRole(rol.idRol)}
+                                disabled={trabajadorRoles.length <= 1 || removingRoleId === rol.idRol}
+                                className="ml-1 p-1 rounded hover:bg-red-100 text-gray-400 hover:text-red-600 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                                title={trabajadorRoles.length <= 1 ? "No se puede quitar el único rol" : "Quitar rol"}
+                              >
+                                {removingRoleId === rol.idRol ? (
+                                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                ) : (
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                )}
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Agregar rol */}
+                        {availableRoles.length > 0 && (
+                          <div className="pt-2">
+                            {showRoleSelect ? (
+                              <div className="flex items-center gap-2">
+                                <select
+                                  onChange={(e) => {
+                                    if (e.target.value) handleAddRole(e.target.value);
+                                  }}
+                                  disabled={addingRole}
+                                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                  defaultValue=""
+                                >
+                                  <option value="" disabled>Seleccionar rol...</option>
+                                  {availableRoles.map((rol) => (
+                                    <option key={rol.idRol} value={rol.idRol}>
+                                      {rol.nombre} {rol.descripcion ? `- ${rol.descripcion}` : ''}
+                                    </option>
+                                  ))}
+                                </select>
+                                <button
+                                  onClick={() => setShowRoleSelect(false)}
+                                  className="px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                                >
+                                  Cancelar
+                                </button>
+                                {addingRole && <Loader2 className="w-4 h-4 animate-spin text-blue-600" />}
+                              </div>
+                            ) : (
+                              <button
+                                onClick={() => setShowRoleSelect(true)}
+                                className="flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                              >
+                                <Plus className="w-4 h-4" />
+                                Agregar rol
+                              </button>
+                            )}
+                          </div>
                         )}
                       </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
 
                   {/* Información del Usuario - Solo si existe */}
                   {trabajador.idUsuario && (
