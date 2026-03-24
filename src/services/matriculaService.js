@@ -649,6 +649,44 @@ export const matriculaService = {
       console.error('❌ Error al registrar pago en caja:', error);
       throw new Error(error.response?.data?.message || 'Error al registrar pago en caja');
     }
+  },
+
+  /**
+   * Subir o cambiar voucher de una matrícula
+   * POST /matricula/:idMatricula/upload-voucher (multipart/form-data)
+   */
+  async uploadVoucher(idMatricula, file) {
+    try {
+      const formData = new FormData();
+      formData.append('voucher', file);
+
+      const response = await api.post(
+        `/matricula/${idMatricula}/upload-voucher`,
+        formData,
+        { headers: { 'Content-Type': 'multipart/form-data' } }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error al subir voucher:', error);
+      throw new Error(error.response?.data?.message || 'Error al subir voucher');
+    }
+  },
+
+  /**
+   * Eliminar voucher de una matrícula (pone voucherImg en null)
+   * PATCH /matricula/actualizar-contactos/:idMatricula
+   */
+  async removeVoucher(idMatricula) {
+    try {
+      const response = await api.patch(
+        `/matricula/actualizar-contactos/${idMatricula}`,
+        { voucherImg: null }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error al eliminar voucher:', error);
+      throw new Error(error.response?.data?.message || 'Error al eliminar voucher');
+    }
   }
 };
 

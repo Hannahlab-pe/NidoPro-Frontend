@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useState, useRef } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import {
   X,
@@ -23,8 +23,14 @@ import {
   ZoomIn,
   Download,
   ExternalLink,
+  Upload,
+  Trash2,
+  Loader2,
+  RefreshCw,
 } from "lucide-react";
+import { toast } from "sonner";
 import DefaultAvatar from "../../../../components/common/DefaultAvatar";
+import matriculaService from "../../../../services/matriculaService";
 
 const InfoField = ({ label, value, icon: Icon, className = "" }) => (
   <div className={`bg-gray-50 p-3 rounded-lg ${className}`}>
@@ -36,12 +42,53 @@ const InfoField = ({ label, value, icon: Icon, className = "" }) => (
   </div>
 );
 
-const ModalVerMatricula = ({ isOpen, onClose, matricula }) => {
+const ModalVerMatricula = ({ isOpen, onClose, matricula, onVoucherUpdated }) => {
   const [showVoucherModal, setShowVoucherModal] = useState(false);
   const [voucherLoading, setVoucherLoading] = useState(false);
   const [voucherError, setVoucherError] = useState(false);
+  const [uploadingVoucher, setUploadingVoucher] = useState(false);
+  const [removingVoucher, setRemovingVoucher] = useState(false);
+  const [currentVoucherUrl, setCurrentVoucherUrl] = useState(null);
+  const voucherInputRef = useRef(null);
 
-  // Debug: Verificar datos de matrícula
+  // URL del voucher: usar la local si se actualizó, sino la original
+  const voucherUrl = currentVoucherUrl ?? matricula?.voucherImg;
+
+  const handleUploadVoucher = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingVoucher(true);
+    try {
+      const result = await matriculaService.uploadVoucher(matricula.idMatricula, file);
+      const newUrl = result.data?.voucherUrl || result.voucherUrl;
+      if (newUrl) {
+        setCurrentVoucherUrl(newUrl);
+        setVoucherError(false);
+      }
+      toast.success("Voucher actualizado correctamente");
+      if (onVoucherUpdated) onVoucherUpdated();
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setUploadingVoucher(false);
+      if (voucherInputRef.current) voucherInputRef.current.value = "";
+    }
+  };
+
+  const handleRemoveVoucher = async () => {
+    setRemovingVoucher(true);
+    try {
+      await matriculaService.removeVoucher(matricula.idMatricula);
+      setCurrentVoucherUrl("");
+      toast.success("Voucher eliminado correctamente");
+      if (onVoucherUpdated) onVoucherUpdated();
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setRemovingVoucher(false);
+    }
+  };
 
   if (!matricula) return null;
 
@@ -79,9 +126,9 @@ const ModalVerMatricula = ({ isOpen, onClose, matricula }) => {
   };
 
   const handleDownloadVoucher = () => {
-    if (matricula.voucherImg) {
+    if (voucherUrl) {
       const link = document.createElement("a");
-      link.href = matricula.voucherImg;
+      link.href = voucherUrl;
       link.download = `voucher-${estudiante.nombre}-${estudiante.apellido}.jpg`;
       document.body.appendChild(link);
       link.click();
@@ -320,7 +367,7 @@ const ModalVerMatricula = ({ isOpen, onClose, matricula }) => {
                         <InfoField
                           label="Estado del Voucher"
                           value={(() => {
-                            const voucherImg = matricula.voucherImg;
+                            const voucherImg = voucherUrl;
                             if (
                               voucherImg &&
                               voucherImg.trim() !== "" &&
@@ -337,48 +384,52 @@ const ModalVerMatricula = ({ isOpen, onClose, matricula }) => {
                         />
                       </div>
 
-                      {/* Voucher con Vista Previa Mejorada */}
-                      {(() => {
-                        const hasVoucher =
-                          matricula.voucherImg &&
-                          matricula.voucherImg.trim() !== "" &&
-                          isValidUrl(matricula.voucherImg.trim());
-                        console.log("🎫 Evaluando voucher:", {
-                          voucherImg: matricula.voucherImg,
-                          hasVoucher,
-                          isValidUrl: isValidUrl(
-                            matricula.voucherImg?.trim() || "",
-                          ),
-                        });
-                        return hasVoucher;
-                      })() && (
+                      {/* Input oculto para subir voucher */}
+                      <input
+                        ref={voucherInputRef}
+                        type="file"
+                        accept="image/*,.pdf"
+                        onChange={handleUploadVoucher}
+                        className="hidden"
+                      />
+
+                      {/* Voucher con Vista Previa + Acciones de edición */}
+                      {voucherUrl && voucherUrl.trim() !== "" && isValidUrl(voucherUrl.trim()) ? (
                         <div className="bg-white rounded-lg p-4 border border-gray-200">
-                          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                            <ImageIcon className="w-5 h-5 mr-2 text-green-600" />
-                            Comprobante de Pago
-                          </h3>
+                          <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                              <ImageIcon className="w-5 h-5 mr-2 text-green-600" />
+                              Comprobante de Pago
+                            </h3>
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => voucherInputRef.current?.click()}
+                                disabled={uploadingVoucher}
+                                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors disabled:opacity-50"
+                              >
+                                {uploadingVoucher ? (
+                                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                ) : (
+                                  <RefreshCw className="w-3.5 h-3.5" />
+                                )}
+                                Cambiar
+                              </button>
+                              <button
+                                onClick={handleRemoveVoucher}
+                                disabled={removingVoucher}
+                                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-700 bg-red-50 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-50"
+                              >
+                                {removingVoucher ? (
+                                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                ) : (
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                )}
+                                Eliminar
+                              </button>
+                            </div>
+                          </div>
 
                           <div className="space-y-4">
-                            {/* Información del voucher */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                              <div className="flex items-center space-x-2">
-                                <FileText className="w-4 h-4 text-gray-500" />
-                                <span className="text-gray-600">Estado:</span>
-                                <span className="text-green-600 font-medium">
-                                  Cargado correctamente
-                                </span>
-                              </div>
-                              <div className="flex items-center space-x-2">
-                                <Calendar className="w-4 h-4 text-gray-500" />
-                                <span className="text-gray-600">
-                                  Fecha de carga:
-                                </span>
-                                <span className="text-gray-900">
-                                  {formatDate(matricula.fechaIngreso)}
-                                </span>
-                              </div>
-                            </div>
-
                             {/* Vista previa del voucher */}
                             <div className="relative group">
                               <div className="relative overflow-hidden rounded-lg border-2 border-gray-200 bg-gray-50">
@@ -388,19 +439,23 @@ const ModalVerMatricula = ({ isOpen, onClose, matricula }) => {
                                   </div>
                                 )}
 
-                                {voucherError ? (
+                                {voucherUrl.toLowerCase().endsWith('.pdf') ? (
+                                  <div className="flex flex-col items-center justify-center py-10 px-6 text-center">
+                                    <FileText className="w-12 h-12 text-red-500 mb-2" />
+                                    <p className="text-sm font-medium text-gray-700 mb-1">Documento PDF</p>
+                                    <button
+                                      onClick={() => window.open(voucherUrl, "_blank")}
+                                      className="text-blue-600 hover:text-blue-800 text-sm underline"
+                                    >
+                                      Abrir PDF en nueva pestaña
+                                    </button>
+                                  </div>
+                                ) : voucherError ? (
                                   <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
                                     <ImageIcon className="w-12 h-12 text-gray-400 mb-2" />
-                                    <p className="text-gray-500 text-sm">
-                                      Error al cargar la imagen
-                                    </p>
+                                    <p className="text-gray-500 text-sm">Error al cargar la imagen</p>
                                     <button
-                                      onClick={() =>
-                                        window.open(
-                                          matricula.voucherImg,
-                                          "_blank",
-                                        )
-                                      }
+                                      onClick={() => window.open(voucherUrl, "_blank")}
                                       className="mt-2 text-blue-600 hover:text-blue-800 text-sm underline"
                                     >
                                       Ver en nueva pestaña
@@ -408,7 +463,7 @@ const ModalVerMatricula = ({ isOpen, onClose, matricula }) => {
                                   </div>
                                 ) : (
                                   <img
-                                    src={matricula.voucherImg}
+                                    src={voucherUrl}
                                     alt="Voucher de pago"
                                     className="w-full h-48 object-contain cursor-pointer transition-transform duration-200 hover:scale-105"
                                     onClick={handleVoucherClick}
@@ -419,83 +474,53 @@ const ModalVerMatricula = ({ isOpen, onClose, matricula }) => {
                                 )}
 
                                 {/* Overlay con acciones */}
-                                {!voucherError && (
+                                {!voucherError && !voucherUrl.toLowerCase().endsWith('.pdf') && (
                                   <div className="absolute inset-0 bg-black/20 bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 flex items-center justify-center opacity-0 group-hover:opacity-100">
                                     <div className="flex space-x-2">
-                                      <button
-                                        onClick={handleVoucherClick}
-                                        className="p-2 bg-white bg-opacity-90 rounded-full hover:bg-opacity-100 transition-all duration-200"
-                                        title="Ver imagen completa"
-                                      >
+                                      <button onClick={handleVoucherClick} className="p-2 bg-white bg-opacity-90 rounded-full hover:bg-opacity-100 transition-all duration-200" title="Ver imagen completa">
                                         <ZoomIn className="w-5 h-5 text-gray-700" />
                                       </button>
-
-                                      <button
-                                        onClick={handleDownloadVoucher}
-                                        className="p-2 bg-white bg-opacity-90 rounded-full hover:bg-opacity-100 transition-all duration-200"
-                                        title="Descargar imagen"
-                                      >
+                                      <button onClick={handleDownloadVoucher} className="p-2 bg-white bg-opacity-90 rounded-full hover:bg-opacity-100 transition-all duration-200" title="Descargar">
                                         <Download className="w-5 h-5 text-gray-700" />
                                       </button>
-                                      <button
-                                        onClick={() =>
-                                          window.open(
-                                            matricula.voucherImg,
-                                            "_blank",
-                                          )
-                                        }
-                                        className="p-2 bg-white bg-opacity-90 rounded-full hover:bg-opacity-100 transition-all duration-200"
-                                        title="Abrir en nueva pestaña"
-                                      >
+                                      <button onClick={() => window.open(voucherUrl, "_blank")} className="p-2 bg-white bg-opacity-90 rounded-full hover:bg-opacity-100 transition-all duration-200" title="Abrir en nueva pestaña">
                                         <ExternalLink className="w-5 h-5 text-gray-700" />
                                       </button>
                                     </div>
                                   </div>
                                 )}
                               </div>
-
-                              {/* Indicador de click */}
-                              <div className="mt-2 text-center">
-                                <p className="text-xs text-gray-500 flex items-center justify-center">
-                                  <Eye className="w-3 h-3 mr-1" />
-                                  Haz clic en la imagen para verla en tamaño
-                                  completo
-                                </p>
-                              </div>
                             </div>
                           </div>
                         </div>
-                      )}
-
-                      {/* Mostrar mensaje si no hay voucher */}
-                      {(() => {
-                        const hasNoVoucher =
-                          !matricula.voucherImg ||
-                          matricula.voucherImg.trim() === "" ||
-                          !isValidUrl(matricula.voucherImg?.trim() || "");
-                        console.log("❌ Evaluando sin voucher:", {
-                          voucherImg: matricula.voucherImg,
-                          hasNoVoucher,
-                          isValidUrl: isValidUrl(
-                            matricula.voucherImg?.trim() || "",
-                          ),
-                        });
-                        return hasNoVoucher;
-                      })() && (
+                      ) : (
                         <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                          <div className="flex items-center space-x-3">
-                            <div className="p-2 bg-gray-100 rounded-full">
-                              <FileText className="w-5 h-5 text-gray-400" />
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-3">
+                              <div className="p-2 bg-gray-100 rounded-full">
+                                <FileText className="w-5 h-5 text-gray-400" />
+                              </div>
+                              <div>
+                                <h4 className="text-sm font-medium text-gray-900">
+                                  Sin comprobante de pago
+                                </h4>
+                                <p className="text-xs text-gray-500">
+                                  No se ha cargado ningún voucher para esta matrícula
+                                </p>
+                              </div>
                             </div>
-                            <div>
-                              <h4 className="text-sm font-medium text-gray-900">
-                                Sin comprobante de pago
-                              </h4>
-                              <p className="text-xs text-gray-500">
-                                No se ha cargado ningún voucher para esta
-                                matrícula
-                              </p>
-                            </div>
+                            <button
+                              onClick={() => voucherInputRef.current?.click()}
+                              disabled={uploadingVoucher}
+                              className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+                            >
+                              {uploadingVoucher ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <Upload className="w-4 h-4" />
+                              )}
+                              Subir voucher
+                            </button>
                           </div>
                         </div>
                       )}
@@ -771,7 +796,7 @@ const ModalVerMatricula = ({ isOpen, onClose, matricula }) => {
                         </button>
                         <button
                           onClick={() =>
-                            window.open(matricula.voucherImg, "_blank")
+                            window.open(voucherUrl, "_blank")
                           }
                           className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                           title="Abrir en nueva pestaña"
@@ -802,7 +827,7 @@ const ModalVerMatricula = ({ isOpen, onClose, matricula }) => {
                             </p>
                             <button
                               onClick={() =>
-                                window.open(matricula.voucherImg, "_blank")
+                                window.open(voucherUrl, "_blank")
                               }
                               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                             >
@@ -811,7 +836,7 @@ const ModalVerMatricula = ({ isOpen, onClose, matricula }) => {
                           </div>
                         ) : (
                           <img
-                            src={matricula.voucherImg}
+                            src={voucherUrl}
                             alt="Voucher de pago completo"
                             className="max-w-full max-h-[70vh] object-contain"
                             onError={handleVoucherError}
