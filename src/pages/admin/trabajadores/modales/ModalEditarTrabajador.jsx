@@ -76,61 +76,75 @@ const ModalEditarTrabajador = ({ isOpen, onClose, trabajador }) => {
   // Hook para obtener los roles disponibles
   const { roles, isLoading: loadingRoles } = useRoles();
 
-  const [trabajadorRoles, setTrabajadorRoles] = useState([]);
+  // Roles: se acumulan cambios localmente y se aplican al guardar
+  const [trabajadorRoles, setTrabajadorRoles] = useState([]); // roles actuales del servidor
+  const [rolesToAdd, setRolesToAdd] = useState([]);            // ids de roles pendientes de agregar
+  const [rolesToRemove, setRolesToRemove] = useState([]);      // ids de roles pendientes de quitar
   const [loadingTrabajadorRoles, setLoadingTrabajadorRoles] = useState(false);
-  const [addingRole, setAddingRole] = useState(false);
-  const [removingRoleId, setRemovingRoleId] = useState(null);
   const [showRoleSelect, setShowRoleSelect] = useState(false);
+
+  // Roles visibles = (originales - quitados) + agregados
+  const visibleRoles = [
+    ...trabajadorRoles.filter(r => !rolesToRemove.includes(r.idRol)),
+    ...rolesToAdd.map(idRol => {
+      const found = (roles || []).find(r => r.idRol === idRol);
+      return found || { idRol, nombre: '...' };
+    }),
+  ];
 
   useEffect(() => {
     if (isOpen && trabajador?.idTrabajador) {
       setLoadingTrabajadorRoles(true);
-      trabajadorService.getTrabajadorRoles(trabajador.idTrabajador)
-        .then(data => {
-          setTrabajadorRoles(data.roles || []);
-        })
-        .catch(() => {
-          if (trabajador.idRol) {
-            const rolData = typeof trabajador.idRol === 'object'
-              ? trabajador.idRol
-              : { idRol: trabajador.idRol, nombre: 'Rol actual' };
-            setTrabajadorRoles([rolData]);
-          }
-        })
-        .finally(() => setLoadingTrabajadorRoles(false));
+      setRolesToAdd([]);
+      setRolesToRemove([]);
+      setShowRoleSelect(false);
+
+      // Usar roles del listado si están disponibles
+      if (trabajador.roles && trabajador.roles.length > 0) {
+        setTrabajadorRoles(trabajador.roles);
+        setLoadingTrabajadorRoles(false);
+      } else {
+        trabajadorService.getTrabajadorRoles(trabajador.idTrabajador)
+          .then(data => {
+            setTrabajadorRoles(data.roles || []);
+          })
+          .catch(() => {
+            if (trabajador.idRol) {
+              const rolData = typeof trabajador.idRol === 'object'
+                ? trabajador.idRol
+                : { idRol: trabajador.idRol, nombre: 'Rol actual' };
+              setTrabajadorRoles([rolData]);
+            }
+          })
+          .finally(() => setLoadingTrabajadorRoles(false));
+      }
     }
   }, [isOpen, trabajador]);
 
   const availableRoles = (roles || []).filter(
-    r => !trabajadorRoles.some(tr => tr.idRol === r.idRol)
+    r => !visibleRoles.some(vr => vr.idRol === r.idRol)
   );
 
-  const handleAddRole = async (idRol) => {
-    setAddingRole(true);
-    try {
-      const data = await trabajadorService.addRoleToTrabajador(trabajador.idTrabajador, idRol);
-      setTrabajadorRoles(data.roles || []);
-      setShowRoleSelect(false);
-      toast.success("Rol asignado correctamente");
-    } catch (error) {
-      toast.error(error.message);
-    } finally {
-      setAddingRole(false);
+  const handleAddRoleLocal = (idRol) => {
+    // Si estaba en la lista de quitar, simplemente lo sacamos de ahí
+    if (rolesToRemove.includes(idRol)) {
+      setRolesToRemove(prev => prev.filter(id => id !== idRol));
+    } else {
+      setRolesToAdd(prev => [...prev, idRol]);
+    }
+    setShowRoleSelect(false);
+  };
+
+  const handleRemoveRoleLocal = (idRol) => {
+    // Si estaba en la lista de agregar, simplemente lo sacamos de ahí
+    if (rolesToAdd.includes(idRol)) {
+      setRolesToAdd(prev => prev.filter(id => id !== idRol));
+    } else {
+      setRolesToRemove(prev => [...prev, idRol]);
     }
   };
 
-  const handleRemoveRole = async (idRol) => {
-    setRemovingRoleId(idRol);
-    try {
-      const data = await trabajadorService.removeRoleFromTrabajador(trabajador.idTrabajador, idRol);
-      setTrabajadorRoles(data.roles || []);
-      toast.success("Rol removido correctamente");
-    } catch (error) {
-      toast.error(error.message);
-    } finally {
-      setRemovingRoleId(null);
-    }
-  };
+  const hasRoleChanges = rolesToAdd.length > 0 || rolesToRemove.length > 0;
 
   const {
     register,
@@ -175,30 +189,39 @@ const ModalEditarTrabajador = ({ isOpen, onClose, trabajador }) => {
   }, [trabajador, isOpen, reset]);
 
   const onSubmit = async (data) => {
-    console.log('📋 Form submission - data:', data);
-    
     try {
-      // Excluir campos inmutables de los datos a enviar (no se pueden editar)
+      // Excluir campos inmutables de los datos a enviar
       const { idRol, tipoDocumento, nroDocumento, ...dataToUpdate } = data;
-      console.log('📋 Datos a actualizar (sin campos inmutables):', dataToUpdate);
-      console.log('📋 Campos excluidos:', { idRol, tipoDocumento, nroDocumento });
-      
-      // Usar la mutación para actualizar el trabajador
-      await updateTrabajadorMutation.mutateAsync({ 
-        id: trabajador.idTrabajador, 
-        data: dataToUpdate 
+
+      // PASO 1: Actualizar datos personales
+      await updateTrabajadorMutation.mutateAsync({
+        id: trabajador.idTrabajador,
+        data: dataToUpdate
       });
-      
-      // Cerrar modal después del éxito
+
+      // PASO 2: Aplicar cambios de roles pendientes
+      for (const idRolToAdd of rolesToAdd) {
+        await trabajadorService.addRoleToTrabajador(trabajador.idTrabajador, idRolToAdd);
+      }
+      for (const idRolToRemove of rolesToRemove) {
+        await trabajadorService.removeRoleFromTrabajador(trabajador.idTrabajador, idRolToRemove);
+      }
+
+      if (hasRoleChanges) {
+        toast.success("Roles actualizados correctamente");
+      }
+
       handleClose();
     } catch (error) {
       console.error('❌ Error al actualizar trabajador:', error);
-      // El error ya está siendo manejado por el hook con toast
     }
   };
 
   const handleClose = () => {
     reset();
+    setRolesToAdd([]);
+    setRolesToRemove([]);
+    setShowRoleSelect(false);
     onClose();
   };
 
@@ -351,28 +374,36 @@ const ModalEditarTrabajador = ({ isOpen, onClose, trabajador }) => {
                     ) : (
                       <div className="space-y-3">
                         <div className="flex flex-wrap gap-2">
-                          {trabajadorRoles.map((rol) => (
-                            <div
-                              key={rol.idRol}
-                              className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-purple-50 border border-purple-200"
-                            >
-                              <Shield className="w-4 h-4 text-purple-600" />
-                              <span className="text-sm font-medium text-purple-800">{rol.nombre}</span>
-                              <button
-                                type="button"
-                                onClick={() => handleRemoveRole(rol.idRol)}
-                                disabled={trabajadorRoles.length <= 1 || removingRoleId === rol.idRol}
-                                className="ml-1 p-1 rounded hover:bg-red-100 text-gray-400 hover:text-red-600 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                                title={trabajadorRoles.length <= 1 ? "No se puede quitar el único rol" : "Quitar rol"}
+                          {visibleRoles.map((rol) => {
+                            const isPending = rolesToAdd.includes(rol.idRol);
+                            return (
+                              <div
+                                key={rol.idRol}
+                                className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg border ${
+                                  isPending
+                                    ? 'bg-green-50 border-green-300 border-dashed'
+                                    : 'bg-purple-50 border-purple-200'
+                                }`}
                               >
-                                {removingRoleId === rol.idRol ? (
-                                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                ) : (
-                                  <Trash2 className="w-3.5 h-3.5" />
+                                <Shield className={`w-4 h-4 ${isPending ? 'text-green-600' : 'text-purple-600'}`} />
+                                <span className={`text-sm font-medium ${isPending ? 'text-green-800' : 'text-purple-800'}`}>
+                                  {rol.nombre}
+                                </span>
+                                {isPending && (
+                                  <span className="text-xs text-green-600">(nuevo)</span>
                                 )}
-                              </button>
-                            </div>
-                          ))}
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveRoleLocal(rol.idRol)}
+                                  disabled={visibleRoles.length <= 1}
+                                  className="ml-1 p-1 rounded hover:bg-red-100 text-gray-400 hover:text-red-600 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                                  title={visibleRoles.length <= 1 ? "No se puede quitar el único rol" : "Quitar rol"}
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            );
+                          })}
                         </div>
 
                         {availableRoles.length > 0 && (
@@ -380,8 +411,7 @@ const ModalEditarTrabajador = ({ isOpen, onClose, trabajador }) => {
                             {showRoleSelect ? (
                               <div className="flex items-center gap-2">
                                 <select
-                                  onChange={(e) => { if (e.target.value) handleAddRole(e.target.value); }}
-                                  disabled={addingRole}
+                                  onChange={(e) => { if (e.target.value) handleAddRoleLocal(e.target.value); }}
                                   className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                                   defaultValue=""
                                 >
@@ -399,7 +429,6 @@ const ModalEditarTrabajador = ({ isOpen, onClose, trabajador }) => {
                                 >
                                   Cancelar
                                 </button>
-                                {addingRole && <Loader2 className="w-4 h-4 animate-spin text-purple-600" />}
                               </div>
                             ) : (
                               <button
@@ -412,6 +441,12 @@ const ModalEditarTrabajador = ({ isOpen, onClose, trabajador }) => {
                               </button>
                             )}
                           </div>
+                        )}
+
+                        {hasRoleChanges && (
+                          <p className="text-xs text-amber-600 bg-amber-50 px-3 py-1.5 rounded-md">
+                            Los cambios de roles se aplicarán al guardar
+                          </p>
                         )}
                       </div>
                     )}
