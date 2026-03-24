@@ -62,10 +62,11 @@ const ModalVerMatricula = ({ isOpen, onClose, matricula, onVoucherUpdated }) => 
     try {
       const result = await matriculaService.uploadVoucher(matricula.idMatricula, file);
       const newUrl = result.data?.voucherUrl || result.voucherUrl;
-      if (newUrl) {
-        setCurrentVoucherUrl(newUrl);
-        setVoucherError(false);
-      }
+      // Forzar re-render: agregar timestamp para evitar cache del navegador
+      const cacheBustedUrl = newUrl ? `${newUrl}?t=${Date.now()}` : null;
+      setCurrentVoucherUrl(cacheBustedUrl || newUrl);
+      setVoucherError(false);
+      setVoucherLoading(false);
       toast.success("Voucher actualizado correctamente");
       if (onVoucherUpdated) onVoucherUpdated();
     } catch (error) {
@@ -81,6 +82,7 @@ const ModalVerMatricula = ({ isOpen, onClose, matricula, onVoucherUpdated }) => 
     try {
       await matriculaService.removeVoucher(matricula.idMatricula);
       setCurrentVoucherUrl("");
+      setVoucherError(false);
       toast.success("Voucher eliminado correctamente");
       if (onVoucherUpdated) onVoucherUpdated();
     } catch (error) {

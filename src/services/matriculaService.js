@@ -673,15 +673,12 @@ export const matriculaService = {
   },
 
   /**
-   * Eliminar voucher de una matrícula (pone voucherImg en null)
-   * PATCH /matricula/actualizar-contactos/:idMatricula
+   * Eliminar voucher de una matrícula
+   * DELETE /matricula/:idMatricula/voucher
    */
   async removeVoucher(idMatricula) {
     try {
-      const response = await api.patch(
-        `/matricula/actualizar-contactos/${idMatricula}`,
-        { voucherImg: null }
-      );
+      const response = await api.delete(`/matricula/${idMatricula}/voucher`);
       return response.data;
     } catch (error) {
       console.error('Error al eliminar voucher:', error);
