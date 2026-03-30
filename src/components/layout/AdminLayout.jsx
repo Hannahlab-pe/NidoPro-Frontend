@@ -26,6 +26,8 @@ import {
   Award,
   MessageCircle,
   Calendar,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
 
 const SECTIONS = [
@@ -139,12 +141,23 @@ const AdminLayout = () => {
       {/* Header */}
       <header className="fixed inset-x-0 top-0 z-50">
         <div className="w-full bg-blue-800 px-4 lg:px-6 py-2.5 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <button
               className="lg:hidden p-1.5 text-white/80 hover:text-white"
               onClick={() => setIsMobileMenuOpen(true)}
             >
               <Menu className="w-5 h-5" />
+            </button>
+            <button
+              className="hidden lg:flex p-1.5 text-white/60 hover:text-white hover:bg-white/10 rounded-md transition-colors"
+              onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+              title={isSidebarCollapsed ? "Expandir menú" : "Colapsar menú"}
+            >
+              {isSidebarCollapsed ? (
+                <PanelLeftOpen className="w-5 h-5" />
+              ) : (
+                <PanelLeftClose className="w-5 h-5" />
+              )}
             </button>
             <span className="text-base font-semibold text-white tracking-tight">
               Panel de Administración
