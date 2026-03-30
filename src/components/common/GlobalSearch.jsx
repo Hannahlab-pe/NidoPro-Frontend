@@ -58,7 +58,7 @@ const CATEGORIES = {
       item.cantidadEstudiantes != null
         ? `${item.cantidadEstudiantes} estudiantes`
         : "",
-    getPath: (item) => "/admin/aulas",
+    getPath: (item) => `/admin/aulas/${item.idAula}`,
   },
 };
 
