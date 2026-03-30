@@ -27,6 +27,7 @@ import SecretaryOverview from "./pages/dashboards/SecretaryOverview";
 import Estudiantes from "./pages/admin/estudiantes/Estudiantes";
 import Matricula from "./pages/admin/matricula/Matricula";
 import Trabajadores from "./pages/admin/trabajadores/Trabajadores";
+import PerfilTrabajador from "./pages/admin/trabajadores/PerfilTrabajador";
 import Padres from "./pages/admin/padres/Padres";
 import AsignacionAula from "./pages/admin/aulas/AsignacionAula";
 import Aulas from "./pages/admin/aulas/Aulas";
@@ -243,6 +244,7 @@ function App() {
               <Route path="estudiantes" element={<Estudiantes />} />
               <Route path="matricula" element={<Matricula />} />
               <Route path="trabajadores" element={<Trabajadores />} />
+              <Route path="trabajadores/:id" element={<PerfilTrabajador />} />
               <Route path="padres" element={<Padres />} />
               <Route path="planificaciones" element={<Planificaciones />} />
               <Route path="cronogramas" element={<Cronogramas />} />

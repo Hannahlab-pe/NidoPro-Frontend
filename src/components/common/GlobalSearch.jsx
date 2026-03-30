@@ -45,7 +45,7 @@ const CATEGORIES = {
       [item.nroDocumento && `DNI ${item.nroDocumento}`, item.rol]
         .filter(Boolean)
         .join(" · "),
-    getPath: (item) => "/admin/trabajadores",
+    getPath: (item) => `/admin/trabajadores/${item.idTrabajador}`,
   },
   aulas: {
     label: "Aulas",
