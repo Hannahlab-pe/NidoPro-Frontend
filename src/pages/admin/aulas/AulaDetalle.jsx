@@ -61,18 +61,15 @@ const AulaDetalle = () => {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Detalle del Aula"
-        actions={
-          <button
-            onClick={() => navigate(-1)}
-            className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Volver
-          </button>
-        }
-      />
+      <div className="flex items-center gap-4">
+        <button
+          onClick={() => navigate("/admin/aulas")}
+          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5 text-gray-600" />
+        </button>
+        <PageHeader title="Detalle del Aula" />
+      </div>
 
       {isLoading && (
         <div className="bg-white rounded-lg shadow-sm p-8 text-center text-gray-500">
