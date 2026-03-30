@@ -44,7 +44,8 @@ const DataTable = ({
   addButtonText = "Agregar",
   loadingMessage = "Cargando datos...",
   emptyMessage = "No hay datos disponibles",
-  className = ""
+  className = "",
+  onRowClick = null
 }) => {
   // Estados internos
   const [globalFilter, setGlobalFilter] = useState('');
@@ -436,7 +437,11 @@ const DataTable = ({
                 </tr>
               ) : (
                 currentData.map((item, index) => (
-                  <tr key={item.id || index} className="hover:bg-gray-50">
+                  <tr
+                    key={item.id || index}
+                    className={`hover:bg-gray-50${onRowClick ? ' cursor-pointer' : ''}`}
+                    onClick={() => onRowClick && onRowClick(item)}
+                  >
                     {columns.map((column) => (
                       <td 
                         key={column.accessor} 

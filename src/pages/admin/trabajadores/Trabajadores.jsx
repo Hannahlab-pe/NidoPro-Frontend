@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useTrabajadores } from "src/hooks/queries/useTrabajadoresQueries";
 import TablaTrabajadores from "./tablas/TablaTrabajadores";
 import ModalAgregarTrabajador from "./modales/ModalAgregarTrabajador";
@@ -15,6 +16,8 @@ const Trabajadores = () => {
     error,
     refetch: refreshTrabajadores,
   } = useTrabajadores();
+
+  const navigate = useNavigate();
 
   // Extraer el array de trabajadores
   const trabajadores = Array.isArray(trabajadoresData)
@@ -64,6 +67,7 @@ const Trabajadores = () => {
         onEdit={handleEdit}
         onDelete={handleToggleStatus}
         onView={handleView}
+        onRowClick={(trabajador) => navigate(`/admin/trabajadores/${trabajador.idTrabajador}`)}
       />
 
       {/* Modales */}

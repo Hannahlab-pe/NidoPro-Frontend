@@ -7,7 +7,8 @@ const TablaTrabajadores = ({
   onAdd,
   onView,
   onEdit,
-  onDelete
+  onDelete,
+  onRowClick
 }) => {
   return (
     <DataTable
@@ -28,6 +29,7 @@ const TablaTrabajadores = ({
       onEdit={onEdit}
       onDelete={onDelete}
       onView={onView}
+      onRowClick={onRowClick}
       emptyStateConfig={{
         title: 'No hay trabajadores registrados',
         description: 'Comienza agregando tu primer trabajador'
