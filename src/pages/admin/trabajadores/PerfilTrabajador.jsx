@@ -100,15 +100,15 @@ const PerfilTrabajador = () => {
 
       {/* Hero card */}
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <div className="bg-gradient-to-r from-blue-600 to-blue-800 px-6 py-8">
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-8">
           <div className="flex items-center gap-5">
-            <div className="w-16 h-16 rounded-2xl bg-white/20 border-2 border-white/40 flex items-center justify-center">
-              <span className="text-2xl font-bold text-white">
+            <div className="w-16 h-16 rounded-2xl bg-blue-100 border-2 border-blue-200 flex items-center justify-center">
+              <span className="text-2xl font-bold text-blue-600">
                 {trabajador.nombre?.charAt(0)}{trabajador.apellido?.charAt(0)}
               </span>
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-white">
+              <h2 className="text-2xl font-bold text-gray-800">
                 {trabajador.nombre} {trabajador.apellido}
               </h2>
               <div className="flex flex-wrap gap-2 mt-2">
