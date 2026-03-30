@@ -4,6 +4,7 @@ import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 import { useAuthStore } from "../../store";
 import SystemTour from "../common/SystemTour";
+import GlobalSearch from "../common/GlobalSearch";
 import {
   BarChart3,
   Users as UsersIcon,
@@ -148,6 +149,9 @@ const AdminLayout = () => {
             <span className="text-base font-semibold text-white tracking-tight">
               Panel de Administración
             </span>
+          </div>
+          <div className="flex items-center gap-3">
+            <GlobalSearch />
           </div>
           <div className="flex items-center gap-2.5">
             <div className="w-7 h-7 rounded-full bg-white/10 border border-white/30 flex items-center justify-center shrink-0">
