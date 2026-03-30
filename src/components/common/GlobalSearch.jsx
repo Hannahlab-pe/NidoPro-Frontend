@@ -181,7 +181,7 @@ const GlobalSearch = () => {
       {/* Trigger button in navbar */}
       <button
         onClick={openSearch}
-        className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 transition-colors text-white/70 hover:text-white text-sm"
+        className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 transition-colors text-white/70 hover:text-white text-sm w-64 lg:w-80"
       >
         <Search className="w-3.5 h-3.5" />
         <span className="hidden md:inline">Buscar...</span>
