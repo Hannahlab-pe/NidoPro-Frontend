@@ -56,186 +56,169 @@ const ModalDetalleEvento = ({ isOpen, onClose, evento }) => {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-md sm:max-w-sm md:max-w-md mx-4 sm:mx-auto transform overflow-hidden rounded-2xl bg-white text-left align-middle shadow-xl transition-all">
+              <Dialog.Panel className="w-full max-w-2xl mx-4 sm:mx-auto transform overflow-hidden rounded-2xl bg-white text-left align-middle shadow-xl transition-all">
                 {/* Header */}
-                <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <Calendar className="w-5 h-5 text-blue-600" />
                     </div>
                     <div>
-                      <Dialog.Title className="text-base sm:text-lg font-semibold text-gray-900">
+                      <Dialog.Title className="text-lg font-semibold text-gray-900">
                         Detalles del Evento
                       </Dialog.Title>
-                      <p className="text-xs sm:text-sm text-gray-500">Vista de Administrador</p>
+                      <p className="text-sm text-gray-500">Vista de Administrador</p>
                     </div>
                   </div>
                   <button
                     onClick={onClose}
                     className="text-gray-400 hover:text-gray-600 transition-colors"
                   >
-                    <X className="w-5 h-5 sm:w-6 sm:h-6" />
+                    <X className="w-5 h-5" />
                   </button>
                 </div>
 
                 {/* Content */}
-                <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+                <div className="p-6 space-y-5">
                   {/* Título de la Actividad */}
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-gray-600">
+                  <div>
+                    <div className="flex items-center gap-2 text-gray-500 mb-1">
                       <FileText className="w-4 h-4" />
-                      <span className="text-sm font-medium">Actividad</span>
+                      <span className="text-xs font-medium uppercase tracking-wide">Actividad</span>
                     </div>
-                    <h3 className="text-xl font-semibold text-gray-900">
-                      {evento.title}
-                    </h3>
+                    <h3 className="text-xl font-bold text-gray-900">{evento.title}</h3>
                   </div>
 
-                  {/* Información del Aula */}
-                  {evento.resource?.aula && (
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <School className="w-4 h-4" />
-                        <span className="text-sm font-medium">Aula</span>
-                      </div>
-                      <div className="bg-blue-50 rounded-lg p-3">
-                        <div className="flex items-center gap-2">
-                          <School className="w-4 h-4 text-blue-600" />
-                          <span className="font-medium text-blue-900">
-                            {evento.resource.aula.seccion}
-                          </span>
-                          <span className="text-sm text-blue-700">
-                            ({evento.resource.aula.cantidadEstudiantes} estudiantes)
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Descripción */}
-                  {evento.resource?.descripcion && (
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <FileText className="w-4 h-4" />
-                        <span className="text-sm font-medium">Descripción</span>
-                      </div>
-                      <p className="text-gray-700 bg-gray-50 p-3 rounded-lg">
-                        {evento.resource.descripcion}
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Información del Docente */}
-                  {(evento.resource?.nombreTrabajador || evento.resource?.apellidoTrabajador) && (
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <User className="w-4 h-4" />
-                        <span className="text-sm font-medium">Docente</span>
-                      </div>
-                      <div className="bg-green-50 rounded-lg p-3">
-                        <div className="flex items-center gap-2">
-                          <User className="w-4 h-4 text-green-600" />
-                          <span className="font-medium text-green-900">
-                            {evento.resource.nombreTrabajador} {evento.resource.apellidoTrabajador}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Fechas y Horarios */}
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2 text-gray-600">
-                      <Calendar className="w-4 h-4" />
-                      <span className="text-sm font-medium">Programación</span>
-                    </div>
-
-                    <div className="bg-gray-50 rounded-lg p-4 space-y-3">
-                      {/* Fecha de Inicio */}
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">Fecha de inicio:</span>
-                        <span className="font-medium text-gray-900">
-                          {formatearFecha(evento.start)}
-                        </span>
-                      </div>
-
-                      {/* Fecha de Fin (solo si es diferente) */}
-                      {!esMismoDia && (
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-600">Fecha de fin:</span>
-                          <span className="font-medium text-gray-900">
-                            {formatearFecha(evento.end)}
-                          </span>
+                  {/* Grid 2 columnas principal */}
+                  <div className="grid grid-cols-2 gap-4">
+                    {/* Columna izquierda */}
+                    <div className="space-y-4">
+                      {/* Aula */}
+                      {evento.resource?.aula && (
+                        <div>
+                          <div className="flex items-center gap-2 text-gray-500 mb-1.5">
+                            <School className="w-4 h-4" />
+                            <span className="text-xs font-medium uppercase tracking-wide">Aula</span>
+                          </div>
+                          <div className="bg-blue-50 rounded-lg px-3 py-2.5 flex items-center gap-2">
+                            <School className="w-4 h-4 text-blue-600 shrink-0" />
+                            <span className="font-semibold text-blue-900">{evento.resource.aula.seccion}</span>
+                            <span className="text-sm text-blue-600">({evento.resource.aula.cantidadEstudiantes} estudiantes)</span>
+                          </div>
                         </div>
                       )}
 
-                      {/* Horarios */}
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">Horario:</span>
-                        <div className="flex items-center gap-2">
-                          <Clock className="w-4 h-4 text-gray-500" />
-                          <span className="font-medium text-gray-900">
-                            {formatearHora(evento.start)} - {formatearHora(evento.end)}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Información Adicional */}
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2 text-gray-600">
-                      <FileText className="w-4 h-4" />
-                      <span className="text-sm font-medium">Detalles</span>
-                    </div>
-
-                    <div className="bg-blue-50 rounded-lg p-4 space-y-2">
-                      <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full ${
-                          evento.resource?.estado === 'activo' ? 'bg-green-500' :
-                          evento.resource?.estado === 'cancelado' ? 'bg-red-500' : 'bg-yellow-500'
-                        }`}></div>
-                        <span className="text-sm text-gray-700">
-                          Estado: {evento.resource?.estado || 'Programado'}
-                        </span>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4 text-blue-600" />
-                        <span className="text-sm text-gray-700">
-                          Tipo: {evento.resource?.tipo || 'Actividad'}
-                        </span>
-                      </div>
-
-                      {evento.resource?.seccion && (
-                        <div className="flex items-center gap-2">
-                          <School className="w-4 h-4 text-blue-600" />
-                          <span className="text-sm text-gray-700">
-                            Sección: {evento.resource.seccion}
-                          </span>
+                      {/* Docente */}
+                      {(evento.resource?.nombreTrabajador || evento.resource?.apellidoTrabajador) && (
+                        <div>
+                          <div className="flex items-center gap-2 text-gray-500 mb-1.5">
+                            <User className="w-4 h-4" />
+                            <span className="text-xs font-medium uppercase tracking-wide">Docente</span>
+                          </div>
+                          <div className="bg-green-50 rounded-lg px-3 py-2.5 flex items-center gap-2">
+                            <User className="w-4 h-4 text-green-600 shrink-0" />
+                            <span className="font-semibold text-green-900">
+                              {evento.resource.nombreTrabajador} {evento.resource.apellidoTrabajador}
+                            </span>
+                          </div>
                         </div>
                       )}
 
-                      {evento.id && (
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-gray-500">ID: {evento.id}</span>
+                      {/* Descripción */}
+                      {evento.resource?.descripcion && (
+                        <div>
+                          <div className="flex items-center gap-2 text-gray-500 mb-1.5">
+                            <FileText className="w-4 h-4" />
+                            <span className="text-xs font-medium uppercase tracking-wide">Descripción</span>
+                          </div>
+                          <p className="text-sm text-gray-700 bg-gray-50 px-3 py-2.5 rounded-lg leading-relaxed">
+                            {evento.resource.descripcion}
+                          </p>
                         </div>
                       )}
+                    </div>
+
+                    {/* Columna derecha */}
+                    <div className="space-y-4">
+                      {/* Programación */}
+                      <div>
+                        <div className="flex items-center gap-2 text-gray-500 mb-1.5">
+                          <Calendar className="w-4 h-4" />
+                          <span className="text-xs font-medium uppercase tracking-wide">Programación</span>
+                        </div>
+                        <div className="bg-gray-50 rounded-lg px-4 py-3 space-y-2.5">
+                          <div>
+                            <span className="text-xs text-gray-500 block mb-0.5">Fecha de inicio</span>
+                            <span className="text-sm font-semibold text-gray-900">{formatearFecha(evento.start)}</span>
+                          </div>
+                          {!esMismoDia && (
+                            <div>
+                              <span className="text-xs text-gray-500 block mb-0.5">Fecha de fin</span>
+                              <span className="text-sm font-semibold text-gray-900">{formatearFecha(evento.end)}</span>
+                            </div>
+                          )}
+                          <div>
+                            <span className="text-xs text-gray-500 block mb-0.5">Horario</span>
+                            <div className="flex items-center gap-1.5">
+                              <Clock className="w-4 h-4 text-gray-500 shrink-0" />
+                              <span className="text-sm font-semibold text-gray-900">
+                                {formatearHora(evento.start)} - {formatearHora(evento.end)}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Detalles */}
+                      <div>
+                        <div className="flex items-center gap-2 text-gray-500 mb-1.5">
+                          <FileText className="w-4 h-4" />
+                          <span className="text-xs font-medium uppercase tracking-wide">Detalles</span>
+                        </div>
+                        <div className="bg-blue-50 rounded-lg px-4 py-3 space-y-2">
+                          <div className="flex items-center gap-2">
+                            <div className={`w-2 h-2 rounded-full shrink-0 ${
+                              evento.resource?.estado === 'activo' ? 'bg-green-500' :
+                              evento.resource?.estado === 'cancelado' ? 'bg-red-500' : 'bg-yellow-500'
+                            }`} />
+                            <span className="text-sm text-gray-700 capitalize">
+                              Estado: <span className="font-medium">{evento.resource?.estado || 'Programado'}</span>
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Calendar className="w-4 h-4 text-blue-600 shrink-0" />
+                            <span className="text-sm text-gray-700 capitalize">
+                              Tipo: <span className="font-medium">{evento.resource?.tipo || 'Actividad'}</span>
+                            </span>
+                          </div>
+                          {evento.resource?.seccion && (
+                            <div className="flex items-center gap-2">
+                              <School className="w-4 h-4 text-blue-600 shrink-0" />
+                              <span className="text-sm text-gray-700">
+                                Sección: <span className="font-medium">{evento.resource.seccion}</span>
+                              </span>
+                            </div>
+                          )}
+                          {evento.id && (
+                            <p className="text-xs text-gray-400 pt-1 border-t border-blue-100">ID: {evento.id}</p>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Footer */}
-                <div className="flex flex-col sm:flex-row justify-end gap-3 p-4 sm:p-6 border-t bg-gray-50">
+                <div className="flex justify-end gap-3 px-6 py-4 border-t bg-gray-50">
                   <button
                     onClick={onClose}
-                    className="w-full sm:w-auto px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+                    className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm"
                   >
                     Cerrar
                   </button>
                   <button
                     onClick={onClose}
-                    className={`w-full sm:w-auto px-4 py-2 ${actionButtonClass} text-white rounded-md transition-colors`}
+                    className={`px-4 py-2 ${actionButtonClass} text-white rounded-lg transition-colors text-sm`}
                   >
                     Entendido
                   </button>
